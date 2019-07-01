@@ -1,0 +1,25 @@
+#!/bin/sh
+
+uci -q batch <<-EOF >/dev/null
+	delete ucitrack.@v2ray[-1]
+	add ucitrack v2ray
+	set ucitrack.@v2ray[-1].init=v2ray
+	commit ucitrack
+EOF
+
+v2ray=$(uci -q get v2ray.@v2ray[-1])
+
+if [ -z "$v2ray" ]; then
+	uci -q add v2ray v2ray
+fi
+
+if [ "x$v2ray" != "xmain" ]; then
+	uci -q batch <<-EOF >/dev/null
+		rename v2ray.@v2ray[-1]="main"
+		set v2ray.main.enabled="0"
+		commit v2ray
+	EOF
+fi
+
+rm -rf /tmp/luci-indexcache /tmp/luci-modulecache
+exit 0

@@ -1,0 +1,21 @@
+#!/bin/sh /etc/rc.common
+#
+# Copyright 2019 Xingwang Liao <kuoruan@gmail.com>
+# Licensed to the public under the MIT License.
+#
+
+START=99
+USE_PROCD=1
+
+V2RAY=v2ray
+CONFIG_FOLDER=/var/etc/$V2RAY
+
+if [ -r /usr/share/libubox/jshn.sh ] ; then
+	. /usr/share/libubox/jshn.sh
+elif [ -r /lib/functions/jshn.sh ] ; then
+	. /lib/functions/jshn.sh
+else
+	logger -p daemon.err -t "$V2RAY" \
+		"Package required: jshn."
+	exit 1
+fi
