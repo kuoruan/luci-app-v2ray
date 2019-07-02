@@ -47,9 +47,6 @@ o:depends("loglevel", "info")
 o:depends("loglevel", "warning")
 o:depends("loglevel", "error")
 
-o = s:option(ListValue, "dns", translate("DNS server"))
-o:value("", translate("Off"))
-
 o = s:option(Flag, "stats_enabled", translate("Stats enabled"))
 
 o = s:option(ListValue, "routing", translate("Routing strategy"))
@@ -58,11 +55,9 @@ o:value("", translate("Off"))
 o = s:option(ListValue, "policy", translate("Local policy"))
 o:value("", translate("Off"))
 
-o = s:option(ListValue, "inbounds", translate("Inbound proxies"))
-o:value("", translate("Off"))
+o = s:option(MultiValue, "inbounds", translate("Inbound proxies"))
 
-o = s:option(ListValue, "inbounds", translate("Outbound proxies"))
-o:value("", translate("Off"))
+o = s:option(MultiValue, "inbounds", translate("Outbound proxies"))
 
 o = s:option(ListValue, "transport", translate("Transport proxies"))
 o:value("", translate("Off"))

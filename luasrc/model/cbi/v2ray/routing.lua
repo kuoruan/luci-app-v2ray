@@ -7,10 +7,11 @@ local m, s, o
 
 m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Routing") })
 
-s = m:section(TypedSection, "routing")
+s = m:section(NamedSection, "main", "routing")
 s.anonymous = true
-s.addremove = true
-s.sortable = true
+s.addremove = false
+
+o = s:option(Flag, "enabled", translate("Enabled"))
 
 o = s:option(ListValue, "domain_strategy", translate("Domain resolution strategy"))
 o:value("AsIs")
@@ -24,9 +25,8 @@ o = s:option(MultiValue, "balancers", translate("Balancers"))
 s = m:section(TypedSection, "routing_rule")
 s.anonymous = true
 s.addremove = true
-s.sortable = true
 s.template = "cbi/tblsection"
-s.extedit = dsp.build_url("admin/services/routing/rules/%s")
+s.extedit = dsp.build_url("admin/services/v2ray/routing/rules/%s")
 function s.create(...)
 	local sid = TypedSection.create(...)
 	if sid then
@@ -59,10 +59,10 @@ end
 s = m:section(TypedSection, "routing_balancer")
 s.anonymous = true
 s.addremove = true
-s.sortable = true
+s.template = "cbi/tblsection"
 
 o = s:option(Value, "tag", translate("Tag"))
 
-o = s:option(DynamicList, "selector", translate("Tag"))
+o = s:option(DynamicList, "selector", translate("Selector"))
 
 return m

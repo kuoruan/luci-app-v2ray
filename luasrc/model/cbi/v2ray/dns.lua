@@ -5,12 +5,11 @@ local m, s, o
 
 m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("DNS") })
 
-s = m:section(TypedSection, "dns")
+s = m:section(NamedSection, "main", "dns")
 s.anonymous = true
-s.addremove = true
-s.sortable = true
+s.addremove = false
 
-o = s:option(Value, "alias", translate("Alias"))
+o = s:option(Flag, "enabled", translate("Enabled"))
 
 o = s:option(Value, "tag", translate("Tag"))
 
@@ -26,8 +25,9 @@ o.datatype = "or(ip4addr, ip6addr)"
 s = m:section(TypedSection, "dns_server")
 s.anonymous = true
 s.addremove = true
-s.sortable = true
 s.template = "cbi/tblsection"
+
+o = s:option(Value, "alias", translate("Alias"))
 
 o = s:option(Value, "address", translate("Address"))
 

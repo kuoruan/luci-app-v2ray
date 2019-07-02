@@ -7,21 +7,19 @@ local m, s, o
 
 m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Policy") })
 
-s = m:section(TypedSection, "policy")
+s = m:section(NamedSection, "main", "policy")
 s.anonymous = true
-s.addremove = true
-s.sortable = true
+s.addremove = false
+
+o = s:option(Flag, "enabled", translate("Enabled"))
 
 o = s:option(MultiValue, "levels", translate("Levels"))
-
-o = s:option(ListValue, "system", translate("System"))
 
 s = m:section(TypedSection, "policy_level")
 s.anonymous = true
 s.addremove = true
-s.sortable = true
 s.template = "cbi/tblsection"
-s.extedit = dsp.build_url("admin/services/policy/levels/%s")
+s.extedit = dsp.build_url("admin/services/v2ray/policy/levels/%s")
 function s.create(...)
 	local sid = TypedSection.create(...)
 	if sid then
@@ -36,13 +34,8 @@ o.cfgvalue = function (...)
 	return Value.cfgvalue(...) or "?"
 end
 
-s = m:section(TypedSection, "policy_system")
-s.anonymous = true
-s.addremove = true
-s.sortable = true
+o = s:option(Flag, "system_stats_inbound_uplink", translate("System Stats inbound uplink"))
 
-o = s:option(Flag, "stats_inbound_uplink", translate("Stats inbound uplink"))
-
-o = s:option(Flag, "stats_inbound_downlink", translate("Stats inbound downlink"))
+o = s:option(Flag, "system_stats_inbound_downlink", translate("System Stats inbound downlink"))
 
 return m

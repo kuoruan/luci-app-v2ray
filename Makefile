@@ -13,11 +13,14 @@ PKG_LICENSE:=MIT
 PKG_MAINTAINER:=Xingwang Liao <kuoruan@gmail.com>
 
 LUCI_TITLE:=LuCI support for V2Ray
-LUCI_DEPENDS:=+jshn
+LUCI_DEPENDS:=+jshn +luci-lib-jsonc
 LUCI_PKGARCH:=all
 
 define Package/$(PKG_NAME)/conffiles
 /etc/config/v2ray
+/etc/v2ray/inbound.json
+/etc/v2ray/outbound.json
+/etc/v2ray/transport.json
 endef
 
 include $(TOPDIR)/feeds/luci/luci.mk
