@@ -9,8 +9,6 @@ s = m:section(NamedSection, "main", "dns")
 s.anonymous = true
 s.addremove = false
 
-o = s:option(Flag, "enabled", translate("Enabled"))
-
 o = s:option(Value, "tag", translate("Tag"))
 
 o = s:option(Value, "client_ip", translate("Client IP"))

@@ -18,8 +18,10 @@ LUCI_PKGARCH:=all
 
 define Package/$(PKG_NAME)/conffiles
 /etc/config/v2ray
-/etc/v2ray/inbound.json
-/etc/v2ray/outbound.json
+/etc/v2ray/inbound-settings.json
+/etc/v2ray/inbound-stream-settings.json
+/etc/v2ray/outbound-settings.json
+/etc/v2ray/outbound-stream-settings.json
 /etc/v2ray/transport.json
 endef
 

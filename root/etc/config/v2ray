@@ -3,10 +3,20 @@ config v2ray 'main'
   option v2ray_file '/usr/bin/v2ray'
   option v2ctl_file '/usr/bin/v2ctl'
   option loglevel 'none'
-  option access_log ""
-  option error_log ""
-  option dns ""
+  option access_log ''
+  option error_log ''
+  option dns_enabled '0'
   option stats_enabled '0'
-  option routing ""
+  option routing_enabled '0'
+  option policy_enabled '0'
+  option transport_enabled '0'
 
 config dns 'main'
+  option tag 'dns_inbound'
+
+config routing 'main'
+  option domain_strategy 'AsIs'
+
+config policy 'main'
+  option system_stats_inbound_uplink 'false'
+  option system_stats_inbound_downlink 'false'

@@ -8,6 +8,8 @@ local sys = require "luci.sys"
 
 local m, s, o
 
+local transport = "/etc/v2ray/transport.json"
+
 m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Golbal Settings") },
 "<p>%s</p><p>%s</p>" % {
 	translate("A platform for building proxies to bypass network restrictions."),
@@ -47,19 +49,31 @@ o:depends("loglevel", "info")
 o:depends("loglevel", "warning")
 o:depends("loglevel", "error")
 
-o = s:option(Flag, "stats_enabled", translate("Stats enabled"))
-
-o = s:option(ListValue, "routing", translate("Routing strategy"))
-o:value("", translate("Off"))
-
-o = s:option(ListValue, "policy", translate("Local policy"))
-o:value("", translate("Off"))
-
 o = s:option(MultiValue, "inbounds", translate("Inbound proxies"))
 
 o = s:option(MultiValue, "inbounds", translate("Outbound proxies"))
 
-o = s:option(ListValue, "transport", translate("Transport proxies"))
-o:value("", translate("Off"))
+o = s:option(Flag, "dns_enabled", translate("DNS enabled"))
+
+o = s:option(Flag, "stats_enabled", translate("Stats enabled"))
+
+o = s:option(Flag, "routing_enabled", translate("Routing strategy enabled"))
+
+o = s:option(Flag, "policy_enabled", translate("Local policy enabled"))
+
+o = s:option(Flag, "transport_enabled", translate("Transport enabled"))
+
+o = s:option(TextValue, "_transport", translate("Transport settings"))
+o.wrap = "off"
+o.rows = 5
+o.cfgvalue = function (self, section)
+	return v2ray.get_value_from_file(transport, section)
+end
+o.write = function (self, section, value)
+	return v2ray.add_value_to_file(transport, section, value)
+end
+o.remove = function (self, section, value)
+	return v2ray.remove_value_from_file(transport, section)
+end
 
 return m

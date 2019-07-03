@@ -11,8 +11,6 @@ s = m:section(NamedSection, "main", "policy")
 s.anonymous = true
 s.addremove = false
 
-o = s:option(Flag, "enabled", translate("Enabled"))
-
 o = s:option(MultiValue, "levels", translate("Levels"))
 
 s = m:section(TypedSection, "policy_level")
@@ -35,7 +33,11 @@ o.cfgvalue = function (...)
 end
 
 o = s:option(Flag, "system_stats_inbound_uplink", translate("System Stats inbound uplink"))
+o.enabled  = "true"
+o.disabled = "false"
 
 o = s:option(Flag, "system_stats_inbound_downlink", translate("System Stats inbound downlink"))
+o.enabled  = "true"
+o.disabled = "false"
 
 return m

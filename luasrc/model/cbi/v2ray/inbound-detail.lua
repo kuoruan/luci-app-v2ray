@@ -2,6 +2,7 @@
 -- Licensed to the public under the MIT License.
 
 local dsp = require "luci.dispatcher"
+local v2ray = require "luci.model.v2ray"
 
 local m, s, o
 
@@ -14,6 +15,13 @@ if m.uci:get("v2ray", sid) ~= "inbound" then
 	luci.http.redirect(m.redirect)
 	return
 end
+
+local inbound-settings = "/etc/v2ray/inbound-settings.json"
+local inbound-stream-settings = "/etc/v2ray/inbound-stream-settings.json"
+
+s = m:section(NamedSection, sid, "inbound")
+s.anonymous = true
+s.addremove = false
 
 o = s:option(Value, "alias", translate("Alias"))
 
@@ -29,9 +37,31 @@ o:value("shadowsocks")
 o:value("socks")
 o:value("vmess")
 
-o = s:option(Value, "settings", translate("Settings"))
+o = s:option(TextValue, "_settings", translate("Settings"))
+o.wrap = "off"
+o.rows = 5
+o.cfgvalue = function (self, section)
+	return v2ray.get_value_from_file(inbound-settings, section)
+end
+o.write = function (self, section, value)
+	return v2ray.add_value_to_file(inbound-settings, section, value)
+end
+o.remove = function (self, section, value)
+	return v2ray.remove_value_from_file(inbound-settings, section)
+end
 
-o = s:option(Value, "stream_settings", translate("Stream settings"))
+o = s:option(TextValue, "_stream_settings", translate("Stream settings"))
+o.wrap = "off"
+o.rows = 5
+o.cfgvalue = function (self, section)
+	return v2ray.get_value_from_file(inbound-stream-settings, section)
+end
+o.write = function (self, section, value)
+	return v2ray.add_value_to_file(inbound-stream-settings, section, value)
+end
+o.remove = function (self, section, value)
+	return v2ray.remove_value_from_file(inbound-stream-settings, section)
+end
 
 o = s:option(Value, "tag", translate("Tag"))
 

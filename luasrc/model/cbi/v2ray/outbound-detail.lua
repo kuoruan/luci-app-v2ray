@@ -15,6 +15,13 @@ if m.uci:get("v2ray", sid) ~= "outbound" then
 	return
 end
 
+local outbound-settings = "/etc/v2ray/outbound-settings.json"
+local outbound-stream-settings = "/etc/v2ray/outbound-stream-settings.json"
+
+s = m:section(NamedSection, sid, "outbound")
+s.anonymous = true
+s.addremove = false
+
 o = s:option(Value, "alias", translate("Alias"))
 
 o = s:option(Value, "send_through", translate("Send through"))
@@ -28,9 +35,31 @@ o:value("shadowsocks")
 o:value("socks")
 o:value("vmess")
 
-o = s:option(Value, "settings", translate("Settings"))
+o = s:option(Value, "_settings", translate("Settings"))
+o.wrap = "off"
+o.rows = 5
+o.cfgvalue = function (self, section)
+	return v2ray.get_value_from_file(outbound-settings, section)
+end
+o.write = function (self, section, value)
+	return v2ray.add_value_to_file(outbound-settings, section, value)
+end
+o.remove = function (self, section, value)
+	return v2ray.remove_value_from_file(outbound-settings, section)
+end
 
-o = s:option(Value, "stream_settings", translate("Stream settings"))
+o = s:option(Value, "_stream_settings", translate("Stream settings"))
+o.wrap = "off"
+o.rows = 5
+o.cfgvalue = function (self, section)
+	return v2ray.get_value_from_file(outbound-stream-settings, section)
+end
+o.write = function (self, section, value)
+	return v2ray.add_value_to_file(outbound-stream-settings, section, value)
+end
+o.remove = function (self, section, value)
+	return v2ray.remove_value_from_file(outbound-stream-settings, section)
+end
 
 o = s:option(Value, "tag", translate("Tag"))
 

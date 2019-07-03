@@ -65,7 +65,7 @@ function get_value_from_file(path, key)
   return object_to_string(o)
 end
 
-function remove_file_value(path, key)
+function remove_value_from_file(path, key)
   local keys = util.split(key, ".")
 
   local json = read_file_as_object(path)

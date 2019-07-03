@@ -11,8 +11,6 @@ s = m:section(NamedSection, "main", "routing")
 s.anonymous = true
 s.addremove = false
 
-o = s:option(Flag, "enabled", translate("Enabled"))
-
 o = s:option(ListValue, "domain_strategy", translate("Domain resolution strategy"))
 o:value("AsIs")
 o:value("IPIfNonMatch")
