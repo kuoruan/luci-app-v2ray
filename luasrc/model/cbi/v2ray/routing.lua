@@ -7,7 +7,7 @@ local m, s, o
 
 m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Routing") })
 
-s = m:section(NamedSection, "main", "routing")
+s = m:section(NamedSection, "main_routing", "routing")
 s.anonymous = true
 s.addremove = false
 

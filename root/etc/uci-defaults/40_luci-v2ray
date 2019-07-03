@@ -8,15 +8,57 @@ uci -q batch <<-EOF >/dev/null
 EOF
 
 v2ray=$(uci -q get v2ray.@v2ray[-1])
-
-if [ -z "$v2ray" ]; then
+if [ -z "$v2ray" ] ; then
 	uci -q add v2ray v2ray
 fi
-
-if [ "x$v2ray" != "xmain" ]; then
+if [ "x$v2ray" != "xmain" ] ; then
 	uci -q batch <<-EOF >/dev/null
 		rename v2ray.@v2ray[-1]="main"
 		set v2ray.main.enabled="0"
+		commit v2ray
+	EOF
+fi
+
+dns=$(uci -q get v2ray.@dns[-1])
+if [ -z "$dns" ] ; then
+	uci -q add v2ray dns
+fi
+if [ "x$dns" != "xmain_dns" ] ; then
+	uci -q batch <<-EOF >/dev/null
+		rename v2ray.@dns[-1]="main_dns"
+		commit v2ray
+	EOF
+fi
+
+routing=$(uci -q get v2ray.@routing[-1])
+if [ -z "$routing" ] ; then
+	uci -q add v2ray routing
+fi
+if [ "x$routing" != "xmain_routing" ] ; then
+	uci -q batch <<-EOF >/dev/null
+		rename v2ray.@routing[-1]="main_routing"
+		commit v2ray
+	EOF
+fi
+
+policy=$(uci -q get v2ray.@policy[-1])
+if [ -z "$policy" ] ; then
+	uci -q add v2ray routing
+fi
+if [ "x$policy" != "xmain_policy" ] ; then
+	uci -q batch <<-EOF >/dev/null
+		rename v2ray.@policy[-1]="main_policy"
+		commit v2ray
+	EOF
+fi
+
+reverse=$(uci -q get v2ray.@reverse[-1])
+if [ -z "$reverse" ] ; then
+	uci -q add v2ray routing
+fi
+if [ "x$reverse" != "xmain_reverse" ] ; then
+	uci -q batch <<-EOF >/dev/null
+		rename v2ray.@reverse[-1]="main_reverse"
 		commit v2ray
 	EOF
 fi

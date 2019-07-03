@@ -61,6 +61,8 @@ o = s:option(Flag, "routing_enabled", translate("Routing strategy enabled"))
 
 o = s:option(Flag, "policy_enabled", translate("Local policy enabled"))
 
+o = s:option(Flag, "reverse_enabled", translate("Local policy enabled"))
+
 o = s:option(Flag, "transport_enabled", translate("Transport enabled"))
 
 o = s:option(TextValue, "_transport", translate("Transport settings"))

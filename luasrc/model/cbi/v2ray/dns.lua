@@ -5,7 +5,7 @@ local m, s, o
 
 m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("DNS") })
 
-s = m:section(NamedSection, "main", "dns")
+s = m:section(NamedSection, "main_dns", "dns")
 s.anonymous = true
 s.addremove = false
 

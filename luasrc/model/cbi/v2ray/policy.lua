@@ -7,7 +7,7 @@ local m, s, o
 
 m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Policy") })
 
-s = m:section(NamedSection, "main", "policy")
+s = m:section(NamedSection, "main_policy", "policy")
 s.anonymous = true
 s.addremove = false
 

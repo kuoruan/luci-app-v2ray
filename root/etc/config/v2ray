@@ -9,14 +9,17 @@ config v2ray 'main'
   option stats_enabled '0'
   option routing_enabled '0'
   option policy_enabled '0'
+  option reverse_enabled '0'
   option transport_enabled '0'
 
-config dns 'main'
+config dns 'main_dns'
   option tag 'dns_inbound'
 
-config routing 'main'
+config routing 'main_routing'
   option domain_strategy 'AsIs'
 
-config policy 'main'
+config policy 'main_policy'
   option system_stats_inbound_uplink 'false'
   option system_stats_inbound_downlink 'false'
+
+config reverse 'main_reverse'
