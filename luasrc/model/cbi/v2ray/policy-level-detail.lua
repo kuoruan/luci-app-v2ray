@@ -15,7 +15,13 @@ if m.uci:get("v2ray", sid) ~= "policy_level" then
 	return
 end
 
+s = m:section(NamedSection, sid, "policy_level")
+s.anonymous = true
+s.addremove = false
+
 o = s:option(Value, "level", translate("Level"))
+o.rmempty = false
+o.datatype = "uinteger"
 
 o = s:option(Value, "handshake", translate("Handshake"))
 

@@ -19,6 +19,9 @@ s = m:section(NamedSection, sid, "routing_rule")
 s.anonymous = true
 s.addremove = false
 
+o = s:option(Value, "alias", translate("Any custom string"))
+o.rmempty = false
+
 o = s:option(ListValue, "type", translate("Type"))
 o:value("field")
 

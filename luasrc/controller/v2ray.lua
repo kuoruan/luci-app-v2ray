@@ -31,11 +31,17 @@ function index()
 
 	entry({"admin", "services", "v2ray", "routing"},
 		arcombine(cbi("v2ray/routing"), cbi("v2ray/routing-rule-detail")),
-		_("Routing"), 5).leaf = false
+		_("Routing"), 5)
 
 	entry({"admin", "services", "v2ray", "policy"},
 		arcombine(cbi("v2ray/policy"), cbi("v2ray/policy-level-detail")),
-		_("Policy"), 6).leaf = false
+		_("Policy"), 6)
+
+	entry({"admin", "services", "v2ray", "routing", "rules"},
+		cbi("v2ray/routing-rule-detail")).leaf = true
+
+	entry({"admin", "services", "v2ray", "policy", "levels"},
+		cbi("v2ray/policy-level-detail")).leaf = true
 
 	entry({"admin", "services", "v2ray", "status"}, call("action_status"))
 end

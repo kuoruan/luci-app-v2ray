@@ -2,13 +2,14 @@
 -- Licensed to the public under the MIT License.
 
 local dsp = require "luci.dispatcher"
+local v2ray = require "luci.model.v2ray"
 
 local m, s, o
 
 local sid = arg[1]
 
 m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Edit Outbound") })
-m.redirect = dsp.build_url("admin/services/v2ray/outbound")
+m.redirect = dsp.build_url("admin/services/v2ray/outbounds")
 
 if m.uci:get("v2ray", sid) ~= "outbound" then
 	luci.http.redirect(m.redirect)
@@ -22,7 +23,8 @@ s = m:section(NamedSection, sid, "outbound")
 s.anonymous = true
 s.addremove = false
 
-o = s:option(Value, "alias", translate("Alias"))
+o = s:option(Value, "alias", translate("Alias"), translate("Any custom string"))
+o.rmempty = false
 
 o = s:option(Value, "send_through", translate("Send through"))
 
@@ -38,6 +40,13 @@ o:value("vmess")
 o = s:option(Value, "_settings", translate("Settings"))
 o.wrap = "off"
 o.rows = 5
+o.validate = function (self, value, section)
+	if not v2ray.is_json_string(value) then
+		return nil, translate("invalid JSON")
+	else
+		return value
+	end
+end
 o.cfgvalue = function (self, section)
 	return v2ray.get_value_from_file(outbound-settings, section)
 end
@@ -51,6 +60,13 @@ end
 o = s:option(Value, "_stream_settings", translate("Stream settings"))
 o.wrap = "off"
 o.rows = 5
+o.validate = function (self, value, section)
+	if not v2ray.is_json_string(value) then
+		return nil, translate("invalid JSON")
+	else
+		return value
+	end
+end
 o.cfgvalue = function (self, section)
 	return v2ray.get_value_from_file(outbound-stream-settings, section)
 end

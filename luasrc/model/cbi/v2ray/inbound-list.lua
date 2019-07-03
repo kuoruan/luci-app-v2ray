@@ -9,10 +9,10 @@ m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Inbound") })
 
 s = m:section(TypedSection, "inbound")
 s.anonymous = true
-s.addremove = false
+s.addremove = true
 s.template = "cbi/tblsection"
 s.extedit = dsp.build_url("admin/services/v2ray/inbounds/%s")
-function s.create(...)
+s.create = function (...)
 	local sid = TypedSection.create(...)
 	if sid then
 		m.uci:save("v2ray")

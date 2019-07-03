@@ -26,6 +26,7 @@ fi
 if [ "x$dns" != "xmain_dns" ] ; then
 	uci -q batch <<-EOF >/dev/null
 		rename v2ray.@dns[-1]="main_dns"
+		set v2ray.main_dns.enabled="0"
 		commit v2ray
 	EOF
 fi
@@ -37,6 +38,7 @@ fi
 if [ "x$routing" != "xmain_routing" ] ; then
 	uci -q batch <<-EOF >/dev/null
 		rename v2ray.@routing[-1]="main_routing"
+		set v2ray.main_routing.enabled="0"
 		commit v2ray
 	EOF
 fi
@@ -48,6 +50,7 @@ fi
 if [ "x$policy" != "xmain_policy" ] ; then
 	uci -q batch <<-EOF >/dev/null
 		rename v2ray.@policy[-1]="main_policy"
+		set v2ray.main_policy.enabled="0"
 		commit v2ray
 	EOF
 fi
@@ -59,6 +62,7 @@ fi
 if [ "x$reverse" != "xmain_reverse" ] ; then
 	uci -q batch <<-EOF >/dev/null
 		rename v2ray.@reverse[-1]="main_reverse"
+		set v2ray.main_reverse.enabled="0"
 		commit v2ray
 	EOF
 fi
