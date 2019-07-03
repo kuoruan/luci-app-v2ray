@@ -7,15 +7,159 @@
 START=99
 USE_PROCD=1
 
-V2RAY=v2ray
-CONFIG_FOLDER=/var/etc/$V2RAY
+NAME=v2ray
+CONFIG_FOLDER=/var/etc/$NAME
 
 if [ -r /usr/share/libubox/jshn.sh ] ; then
 	. /usr/share/libubox/jshn.sh
 elif [ -r /lib/functions/jshn.sh ] ; then
 	. /lib/functions/jshn.sh
 else
-	logger -p daemon.err -t "$V2RAY" \
-		"Package required: jshn."
+	logger -p daemon.err -t "$NAME" "Package required: jshn."
+	echo "[err] Package required: jshn." >&2
 	exit 1
 fi
+
+_log() {
+	local level="$1" ; shift
+	local msg="$@"
+	logger -p "daemon.$level" -t "$NAME" "$msg"
+
+	echo "[$level] $msg" >&2
+}
+
+_info() {
+	_log "info" $@
+}
+
+_err() {
+	_log "err" $@
+}
+
+v2ray_file_validate() {
+	local file="$1"
+
+	test -f "$file" || return 1
+	test -x "$file" || chmod 755 "$file"
+
+	eval "$file -version" | grep -q "V2Ray"
+	return $?
+}
+
+v2ray_section_validate() {
+	uci_validate_section "$NAME" "v2ray" "$1" \
+		'enabled:bool:0'
+}
+
+dns_section_validate() {
+	uci_validate_section "$NAME" "dns" "$1" \
+		'enabled:bool:0'
+}
+
+dns_server_section_validate() {
+	uci_validate_section "$NAME" "dns_server" "$1" \
+		'address:or(ip4addr, ip6addr)' \
+		'port:port' \
+		'domains:list(string)'
+}
+
+add_dns_settings() {
+	local section="${1}_dns"
+
+	if ! dns_section_validate "$section" ; then
+		_err "Invalid DNS config: $section, skip"
+		return 1
+	fi
+
+	if [ "x$enabled" != "x1" ] ; then
+		_info "DNS disabled: $section"
+		return 0
+	fi
+
+	json_add_object "dns"
+
+	json_add_string "tag" "$tag"
+	json_add_string "clientIp" "$client_ip"
+
+	if [ -n "$hosts" ] ; then
+		json_add_object "hosts"
+
+		for h in "$hosts" ; do
+			local domain="$(echo "$h" | cut -d'|' -f1)"
+			local ip="$(echo "$h" | cut -d'|' -f2)"
+
+			if [ -n "$domain" ] && [ -n "$ip" ] ; then
+				json_add_string "$domain" "$ip"
+			fi
+		done
+
+		# config_get servers "$section" "servers"
+
+		json_close_object
+	fi
+
+	json_close_object
+}
+
+start_instance() {
+	local section="$1"
+
+	if ! v2ray_section_validate "$section" ; then
+		_err "Invalid config."
+		return 1
+	fi
+
+	if [ "x$enabled" != "x1" ] ; then
+		_info "Instance disabled: $section"
+		return 1
+	fi
+
+	if [ -z "$v2ray_file" ] || ( ! v2ray_file_validate "$v2ray_file" ) ; then
+		_err "Invalid V2Ray file."
+		return 0
+	fi
+
+	local temp_config
+
+	if [ -z "$config_file" ] ; then
+		if [ ! -s "$config_file" ] ; then
+			_err "Invalid config file: $config_file"
+			return 1
+		fi
+
+		temp_config="$config_file"
+	else
+		temp_config="$(mktemp /tmp/v2ray-XXXXXX)"
+
+		json_init
+
+		if [ -z "$loglevel" ] && [ "$loglevel" != "none" ] ; then
+			json_add_object "log"
+			json_add_string "loglevel" "$loglevel"
+			json_add_string "access" "$access_log"
+			json_add_string "error" "$error_log"
+			json_close_object
+		fi
+
+		if [ "x$stats_enabled" = "x1" ] ; then
+			json_add_object "stats"
+			json_close_object
+		fi
+
+		add_dns_settings "$section"
+
+		if ! json_dump >"$temp_config" ; then
+			_err "Error when generate config file"
+			return 1
+		fi
+	fi
+}
+
+service_triggers() {
+	procd_add_reload_trigger "$NAME"
+}
+
+start_service() {
+	config_load "$NAME"
+	config_foreach start_instance "v2ray"
+}
