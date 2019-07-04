@@ -92,6 +92,7 @@ o:value("http")
 o:value("tls")
 
 o = s:option(ListValue, "allocate_strategy", translate("Allocate strategy"))
+o:value("")
 o:value("always")
 o:value("random")
 

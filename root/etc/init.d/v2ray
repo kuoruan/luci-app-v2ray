@@ -183,8 +183,10 @@ add_dns_settings() {
 
 	json_add_object "dns"
 
-	json_add_string "tag" "$tag"
-	json_add_string "clientIp" "$client_ip"
+	test -n "$tag" && \
+		json_add_string "tag" "$tag"
+	test -n "$client_ip" && \
+		json_add_string "clientIp" "$client_ip"
 
 	if [ -n "$hosts" ] ; then
 		json_add_object "hosts"
@@ -512,14 +514,15 @@ add_inbound_setting() {
 	json_close_array
 	json_close_object
 
-	json_add_object "allocate"
-	test -n "$allocate_strategy" && \
+	if [ -n "$allocate_strategy" ] ; then
+		json_add_object "allocate"
 		json_add_string "strategy" "$allocate_strategy"
-	test -n "$allocate_refresh" && \
-		json_add_int "refresh" "$allocate_refresh"
-	test -n "$allocate_concurrency" &&	\
-		json_add_int "concurrency" "$allocate_concurrency"
-	json_close_object
+		test -n "$allocate_refresh" && \
+			json_add_int "refresh" "$allocate_refresh"
+		test -n "$allocate_concurrency" &&	\
+			json_add_int "concurrency" "$allocate_concurrency"
+		json_close_object
+	fi
 
 	local inbound_settings_json="/etc/v2ray/inbound-settings.json"
 	if [ -f "$inbound_settings_json" ] ; then
@@ -629,7 +632,9 @@ start_instance() {
 
 		temp_config="$config_file"
 	else
-		temp_config="$(mktemp /tmp/v2ray-XXXXXX)"
+		test -d "$CONFIG_FOLDER" || mkdir -p "$CONFIG_FOLDER"
+
+		temp_config="$CONFIG_FOLDER/v2ray.${section}.json"
 
 		local old_ns
 		json_set_namespace "$section" old_ns
@@ -675,9 +680,27 @@ start_instance() {
 			json_close_array
 		fi
 
-		json_dump -i
+		json_dump -i >"$temp_config"
 		json_set_namespace $old_ns
 	fi
+
+	if [ ! -s "$temp_config" ] ; then
+		_err "Error when parse config file: $temp_config"
+		return 1
+	fi
+
+	procd_open_instance "$NAME.$section"
+	procd_set_param command "$v2ray_file"
+	procd_append_param command "--config=$temp_config"
+	procd_set_param respawn
+	procd_set_param file "$temp_config"
+	procd_set_param stderr 1 # forward stderr of the command to logd
+
+	if [ -n "$run_user" ] ; then
+		procd_set_param user "$run_user"
+	fi
+
+	procd_close_instance
 }
 
 service_triggers() {
