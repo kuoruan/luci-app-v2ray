@@ -59,7 +59,7 @@ script:
 - make defconfig
 - make package/${PACKAGE}/compile -j2 || make package/${PACKAGE}/{clean,compile} V=s
 - find "${SDK_HOME}/bin/"
-- find "${SDK_HOME}/bin/" -name luci-*-frpc*.ipk -exec cp {} "$TRAVIS_BUILD_DIR" \;
+- find "${SDK_HOME}/bin/" -name luci-*-v2ray*.ipk -exec cp {} "$TRAVIS_BUILD_DIR" \;
 - ls -hl "$TRAVIS_BUILD_DIR" | grep .*\.ipk
 deploy:
   provider: releases
