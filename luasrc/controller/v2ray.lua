@@ -37,6 +37,9 @@ function index()
 		arcombine(cbi("v2ray/policy"), cbi("v2ray/policy-level-detail")),
 		_("Policy"), 6)
 
+	entry({"admin", "services", "v2ray", "reverse"},
+		cbi("v2ray/reverse"), _("Reverse"), 7)
+
 	entry({"admin", "services", "v2ray", "about"},
 		cbi("v2ray/about"), _("About"), 7)
 
