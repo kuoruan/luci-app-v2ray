@@ -91,15 +91,15 @@ o = s:option(MultiValue, "sniffing_dest_override", "%s - %s" % { translate("Snif
 o:value("http")
 o:value("tls")
 
-o = s:option(ListValue, "allocate_strategy", translate("Allocate strategy"))
+o = s:option(ListValue, "allocate_strategy", "%s - %s" % { translate("Allocate"), translate("Strategy") })
 o:value("")
 o:value("always")
 o:value("random")
 
-o = s:option(Value, "allocate_refresh", translate("Allocate refresh"))
+o = s:option(Value, "allocate_refresh", "%s - %s" % { translate("Allocate"), translate("Refresh") })
 o.datatype = uinteger
 
-o = s:option(Value, "allocate_concurrency", translate("Allocate concurrency"))
+o = s:option(Value, "allocate_concurrency", "%s - %s" % { translate("Allocate"), translate("Concurrency") })
 o.datatype = uinteger
 
 return m

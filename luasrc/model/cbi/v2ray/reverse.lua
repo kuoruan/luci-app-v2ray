@@ -12,9 +12,12 @@ s.anonymous = true
 s.addremove = false
 
 o = s:option(Flag, "enabled", translate("Enabled"))
+o.rmempty = false
 
-o = s:option(DynamicList, "bridges", translate("Bridges"))
+o = s:option(DynamicList, "bridges", translate("Bridges")
+  translatef("A list of bridges, format: <code>tag|domain</code>. eg: %s", "bridge|test.v2ray.com"))
 
-o = s:option(DynamicList, "portals", translate("Portals"))
+o = s:option(DynamicList, "portals", translate("Portals")
+  translatef("A list of portals, format: <code>tag|domain</code>. eg: %s", "portal|test.v2ray.com"))
 
 return m

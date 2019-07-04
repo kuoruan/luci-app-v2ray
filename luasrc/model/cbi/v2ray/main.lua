@@ -29,7 +29,7 @@ local function v2ray_version()
 	local file = uci:get("v2ray", "main", "v2ray_file")
 
 	if not file or file == "" or not fs.stat(file) then
-		return "<em style=\"color: red;\">%s</em>" % translate("Invalid client file")
+		return "<em style=\"color: red;\">%s</em>" % translate("Invalid V2Ray file")
 	end
 
 	if not fs.access(file, "rwx", "rx", "rx") then

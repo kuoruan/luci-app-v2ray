@@ -81,13 +81,13 @@ end
 
 o = s:option(Value, "tag", translate("Tag"))
 
-o = s:option(Value, "proxy_settings_tag", translate("Proxy settings tag"))
+o = s:option(Value, "proxy_settings_tag", "%s - %s" % { translate("Proxy settings"), translate("Tag") })
 
-o = s:option(Flag, "mux_enabled", translate("Mux enabled"))
+o = s:option(Flag, "mux_enabled", "%s - %s" % { translate("Mux"), translate("Enabled") })
 o.enabled  = "true"
 o.disabled = "false"
 
-o = s:option(Value, "mux_concurrency", translate("Mux concurrency"))
+o = s:option(Value, "mux_concurrency", "%s - %s" % { translate("Mux"), translate("Concurrency") })
 o.datatype = uinteger
 o.placeholder = "8"
 

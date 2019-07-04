@@ -27,7 +27,8 @@ o = s1:option(Value, "tag", translate("Tag"))
 o = s1:option(Value, "client_ip", translate("Client IP"))
 o.datatype = "or(ip4addr, ip6addr)"
 
-o = s1:option(DynamicList, "hosts", translate("Hosts"), translate("A list of static addresses, format: domain|address"))
+o = s1:option(DynamicList, "hosts", translate("Hosts"),
+	translatef("A list of static addresses, format: <code>domain|address</code>. eg: %s", "google.com|127.0.0.1"))
 
 o = s1:option(MultiValue, "servers", translate("DNS Servers"), translate("Select DNS servers to use"))
 for k, v in pairs(dns_table) do

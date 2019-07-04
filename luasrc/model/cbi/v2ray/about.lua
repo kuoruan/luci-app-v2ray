@@ -3,7 +3,7 @@
 
 m = SimpleForm("v2ray", "%s - %s" % { translate("V2Ray"), translate("About") },
   "<p>%s</p><p>%s</p><p>%s</p><p>%s</p><p>%s</p><p>%s</p>" % {
-    translatef("Luci support for V2Ray"),
+    translatef("LuCI support for V2Ray"),
     translatef("Author: %s", "Xingwang Liao"),
     translatef(
       "Source: %s",
