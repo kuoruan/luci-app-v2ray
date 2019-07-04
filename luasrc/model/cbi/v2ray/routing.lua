@@ -61,6 +61,7 @@ s3.anonymous = true
 s3.addremove = true
 
 o = s3:option(Value, "tag", translate("Tag"))
+o.rmempty = false
 
 o = s3:option(DynamicList, "selector", translate("Selector"))
 

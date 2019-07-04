@@ -11,6 +11,20 @@ local m, s, o
 
 local transport = "/etc/v2ray/transport.json"
 
+local inbound_table, outbound_table = {}, {}
+
+uci:foreach("v2ray", "inbound", function(s)
+	if s.alias then
+		inbound_table[s[".name"]] = s.alias
+	end
+end)
+
+uci:foreach("v2ray", "outbound", function(s)
+	if s.alias then
+		outbound_table[s[".name"]] = s.alias
+	end
+end)
+
 m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Global Settings") },
 "<p>%s</p><p>%s</p>" % {
 	translate("A platform for building proxies to bypass network restrictions."),
@@ -23,10 +37,10 @@ s.addremove = false
 s.anonymos = true
 
 o = s:option(Flag, "enabled", translate("Enabled"))
+o.rmempty = false
 
 o = s:option(Value, "v2ray_file", translate("V2Ray file"))
-
-o = s:option(Value, "v2ctl_file", translate("V2Ctl file"))
+o.datatype = file
 
 o = s:option(Value, "config_file", translate("Config file"))
 o:value("", translate("Do not use"))
@@ -56,9 +70,15 @@ o:depends("loglevel", "error")
 
 o = s:option(MultiValue, "inbounds", translate("Inbound proxies"))
 o:depends("config_file", "")
+for k, v in pairs(dns_table) do
+	o:value(k, v)
+end
 
 o = s:option(MultiValue, "inbounds", translate("Outbound proxies"))
 o:depends("config_file", "")
+for k, v in pairs(dns_table) do
+	o:value(k, v)
+end
 
 o = s:option(Flag, "stats_enabled", translate("Stats enabled"))
 o:depends("config_file", "")

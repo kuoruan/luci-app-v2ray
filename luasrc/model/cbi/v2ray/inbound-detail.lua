@@ -27,8 +27,10 @@ o = s:option(Value, "alias", translate("Alias"), translate("Any custom string"))
 o.rmempty = false
 
 o = s:option(Value, "port", translate("Port"))
+o.datatype = "or(port, portrange, string)"
 
 o = s:option(Value, "listen", translate("Listen"))
+o.datatype = "or(ip4addr, ip6addr)"
 
 o = s:option(ListValue, "protocol", translate("Protocol"))
 o:value("dokodemo-door")
@@ -81,6 +83,8 @@ end
 o = s:option(Value, "tag", translate("Tag"))
 
 o = s:option(Value, "sniffing_enabled", translate("Sniffing enabled"))
+o.enabled  = "true"
+o.disabled = "false"
 
 o = s:option(MultiValue, "sniffing_dest_override", translate("Sniffing dest override"))
 o:value("http")
@@ -91,7 +95,9 @@ o:value("always")
 o:value("random")
 
 o = s:option(Value, "allocate_refresh", translate("Allocate refresh"))
+o.datatype = uinteger
 
 o = s:option(Value, "allocate_concurrency", translate("Allocate concurrency"))
+o.datatype = uinteger
 
 return m

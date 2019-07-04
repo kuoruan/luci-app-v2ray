@@ -27,6 +27,8 @@ o = s:option(Value, "alias", translate("Alias"), translate("Any custom string"))
 o.rmempty = false
 
 o = s:option(Value, "send_through", translate("Send through"))
+o.datatype = "or(ip4addr, ip6addr)"
+o.placeholder = "0.0.0.0"
 
 o = s:option(ListValue, "protocol", translate("Protocol"))
 o:value("blackhole")
@@ -82,7 +84,11 @@ o = s:option(Value, "tag", translate("Tag"))
 o = s:option(Value, "proxy_settings_tag", translate("Proxy settings tag"))
 
 o = s:option(Flag, "mux_enabled", translate("Mux enabled"))
+o.enabled  = "true"
+o.disabled = "false"
 
 o = s:option(Value, "mux_concurrency", translate("Mux concurrency"))
+o.datatype = uinteger
+o.placeholder = "8"
 
 return m

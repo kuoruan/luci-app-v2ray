@@ -21,6 +21,7 @@ s1.anonymous = true
 s1.addremove = false
 
 o = s1:option(Flag, "enabled", translate("Enabled"))
+o.rmempty = false
 
 o = s1:option(MultiValue, "levels", translate("Levels"), translate("Select policy levels"))
 for k, v in pairs(level_table) do

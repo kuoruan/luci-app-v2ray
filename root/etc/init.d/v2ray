@@ -46,14 +46,39 @@ v2ray_file_validate() {
 	return $?
 }
 
+get_value_from_file() {
+	local file="$1"
+	local key="$2"
+
+	cat >&1 <<-EOF | lua - 2>/dev/null
+	local v2ray = require "luci.model.v2ray"
+	local json = v2ray.get_value_from_file("$file", "$key")
+	print(json)
+	EOF
+}
+
 v2ray_section_validate() {
 	uci_validate_section "$NAME" "v2ray" "$1" \
-		'enabled:bool:0'
+		'enabled:bool:0' \
+		'v2ray_file:file' \
+		'v2ctl_file:file' \
+		'config_file:file' \
+		'loglevel:or("debug", "info", "warning", "error", "none")' \
+		'access_log:or(file, device)' \
+		'error_log:or(file, device)' \
+		'stats_enabled:bool:0' \
+		'transport_enabled:bool:0' \
+		'inbounds:list(uci("v2ray", "@inbound"))' \
+		'outbounds:list(uci("v2ray", "@outbound"))'
 }
 
 dns_section_validate() {
 	uci_validate_section "$NAME" "dns" "$1" \
-		'enabled:bool:0'
+		'enabled:bool:0' \
+		'tag:string' \
+		'client_ip:or(ip4addr, ip6addr)' \
+		'hosts:list(string)' \
+		'servers:list(uci("v2ray", "@dns_server"))'
 }
 
 dns_server_section_validate() {
@@ -61,6 +86,86 @@ dns_server_section_validate() {
 		'address:or(ip4addr, ip6addr)' \
 		'port:port' \
 		'domains:list(string)'
+}
+
+routing_section_validate() {
+	uci_validate_section "$NAME" "routing" "$1" \
+		'enabled:bool:0' \
+		'domain_strategy:or("AsIs", "IPIfNonMatch", "IPOnDemand"):"AsIs"' \
+		'rules:list(uci("v2ray", "@routing_rule"))' \
+		'balancers:list(uci("v2ray", "@routing_balancer"))'
+}
+
+routing_rule_section_validate() {
+	uci_validate_section "$NAME" "routing_rule" "$1" \
+		'type:"field"' \
+		'domain:list(string)' \
+		'ip:list(string)' \
+		'port:or(port, portrange)' \
+		'network:list(or("tcp", "udp"))' \
+		'source:list(or(ip4addr, ip6addr, cidr))' \
+		'user:list(string)' \
+		'inbound_tag:list(string)' \
+		'protocol:list(or("http", "tls", "bittorrent"))' \
+		'attrs:string' \
+		'outbound_tag:string' \
+		'balancer_tag:string'
+}
+
+routing_balancer_section_validate() {
+	uci_validate_section "$NAME" "routing_balancer" "$1" \
+		'tag:string' \
+		'selector:list(string)'
+}
+
+policy_section_validate() {
+	uci_validate_section "$NAME" "policy" "$1" \
+		'enabled:bool:0' \
+		'levels:list(uci("v2ray", "@policy_level")' \
+		'system_stats_inbound_uplink:or("true", "false"):"false"' \
+		'system_stats_inbound_downlink:or("true", "false"):"false"'
+}
+
+policy_level_section_validate() {
+	uci_validate_section "$NAME" "policy_level" "$1" \
+		'level:uinteger' \
+		'handshake:uinteger:4' \
+		'conn_idle:uinteger:300' \
+		'uplink_only:uinteger:2' \
+		'downlink_only:uinteger:5' \
+		'stats_user_uplink:or("true", "false"):"false"' \
+		'stats_user_downlink:or("true", "false"):"false"' \
+		'buffer_size:uinteger'
+}
+
+reverse_section_validate() {
+	uci_validate_section "$NAME" "reverse" "$1" \
+		'enabled:bool:0' \
+		'bridges:list(string)' \
+		'portals:list(string)'
+}
+
+inbound_section_validate() {
+	uci_validate_section "$NAME" "inbound" "$1" \
+		'port:or(port, portrange, string)' \
+		'listen:or(ip4addr, ip6addr)' \
+		'protocol:string' \
+		'tag:string' \
+		'sniffing_enabled:or("true", "false"):"false"' \
+		'sniffing_dest_override:list(or("http", "tls"))' \
+		'allocate_strategy:or("always", "random")' \
+		'allocate_refresh:uinteger' \
+		'allocate_concurrency:uinteger'
+}
+
+outbound_section_validate() {
+	uci_validate_section "$NAME" "outbound" "$1" \
+		'send_through:or(ip4addr, ip6addr):"0.0.0.0"' \
+		'protocol:string' \
+		'tag:string' \
+		'proxy_settings_tag:string' \
+		'mux_enabled:or("true", "false"):"false"' \
+		'mux_concurrency:uinteger:8'
 }
 
 add_dns_settings() {
@@ -84,7 +189,8 @@ add_dns_settings() {
 	if [ -n "$hosts" ] ; then
 		json_add_object "hosts"
 
-		for h in "$hosts" ; do
+		local h
+		for h in $hosts ; do
 			local domain="$(echo "$h" | cut -d'|' -f1)"
 			local ip="$(echo "$h" | cut -d'|' -f2)"
 
@@ -93,9 +199,395 @@ add_dns_settings() {
 			fi
 		done
 
-		# config_get servers "$section" "servers"
-
 		json_close_object
+	fi
+
+	if [ -n "$servers" ] ; then
+		json_add_array "servers"
+
+		for ss in $servers ; do
+			if dns_server_section_validate "$ss" ; then
+				if [ -z "$address" ] ; then
+					continue
+				fi
+
+				if [ -z "$port" ] && [ -z "$domains" ] ; then
+					json_add_string "" "$address"
+				else
+					json_add_object ""
+					json_add_string "address" "$address"
+
+					if [ -n "$port" ] ; then
+						json_add_int "port" "$port"
+					fi
+
+					if [ -n "$domains" ] ; then
+						json_add_array "domains"
+
+						local d
+						for d in $domains ; do
+							json_add_string "" "$d"
+						done
+
+						json_close_array
+					fi
+
+					json_close_object
+				fi
+			fi
+		done
+
+		json_close_array
+	fi
+
+	json_close_object
+}
+
+add_routing_settings() {
+	local section="${1}_routing"
+
+	if ! routing_section_validate "$section" ; then
+		_err "Invalid routing config: $section, skip"
+		return 1
+	fi
+
+	if [ "x$enabled" != "x1" ] ; then
+		_info "Routing disabled: $section"
+		return 0
+	fi
+
+	json_add_object "routing"
+
+	json_add_string "domainStrategy" "$domain_strategy"
+
+	if [ -n "$rules" ] ; then
+		json_add_array "rules"
+
+		local rs
+		for rs in $rules ; do
+			if routing_rule_section_validate "$rs" ; then
+				json_add_object ""
+
+				json_add_string "type" "$type"
+
+				if [ -n "$domain" ] ; then
+					json_add_array "domain"
+					local d
+					for d in $domain ; do
+						json_add_string "" "$d"
+					done
+					json_close_array
+				fi
+
+				if [ -n "$ip" ] ; then
+					json_add_array "ip"
+					local i
+					for i in $ip ; do
+						json_add_string "" "$i"
+					done
+					json_close_array
+				fi
+
+				if [ -n "$port" ] ; then
+					json_add_string "port" "$(echo "$port" | tr -s ' ' ',')"
+				fi
+
+				if [ -n "$network" ] ; then
+					json_add_string "network" "$(echo "$network" | tr -s ' ' ',')"
+				fi
+
+				if [ -n "$source" ] ; then
+					json_add_array "source"
+					local s
+					for s in $source ; do
+						json_add_string "" "$s"
+					done
+					json_close_array
+				fi
+
+				if [ -n "$user" ] ; then
+					json_add_array "user"
+					local u
+					for u in $user ; do
+						json_add_string "" "$u"
+					done
+					json_close_array
+				fi
+
+				if [ -n "$inbound_tag" ] ; then
+					json_add_array "inboundTag"
+					local it
+					for it in $inbound_tag ; do
+						json_add_string "" "$it"
+					done
+					json_close_array
+				fi
+
+				if [ -n "$protocol" ] ; then
+					json_add_array "protocol"
+					local p
+					for p in $protocol ; do
+						json_add_string "" "$p"
+					done
+					json_close_array
+				fi
+
+				json_add_string "attrs" "$attrs"
+				json_add_string "outboundTag" "$outbound_tag"
+				json_add_string "balancerTag" "$balancer_tag"
+
+				json_close_object
+			fi
+		done
+
+		json_close_array
+	fi
+
+	if [ -n "$balancers" ] ; then
+		json_add_array "balancers"
+		local bs
+		for bs in $balancers ; do
+			if routing_balancer_section_validate "$bs" ; then
+				json_add_object ""
+				json_add_string "tag" "$tag"
+				json_add_array "selector"
+				local s
+				for s in $selector ; do
+					json_add_string "" "$s"
+				done
+				json_close_array
+				json_close_object
+			fi
+		done
+		json_close_array
+	fi
+
+	json_close_object
+}
+
+add_policy_settings() {
+	local section="${1}_policy"
+
+	if ! policy_section_validate "$section" ; then
+		_err "Invalid policy config: $section, skip"
+		return 1
+	fi
+
+	if [ "x$enabled" != "x1" ] ; then
+		_info "Policy disabled: $section"
+		return 0
+	fi
+
+	json_add_object "policy"
+
+	if [ -n "$levels" ] ; then
+		json_add_object "levels"
+		local l_s
+		for l_s in $levels ; do
+			if policy_level_section_validate "$l_s" ; then
+				json_add_object "$level"
+				json_add_int "handshake" "$handshake"
+				json_add_int "connIdle" "$conn_idle"
+				json_add_int "uplinkOnly" "$uplink_only"
+				json_add_int "downlinkOnly" "$downlink_only"
+				json_add_boolean "statsUserUplink" "$stats_user_uplink"
+				json_add_boolean "statsUserDownlink" "$stats_user_downlink"
+				if [ -n "$buffer_size" ] ; then
+					json_add_int "bufferSize" "$buffer_size"
+				fi
+				json_close_object
+			fi
+		done
+		json_close_object
+	fi
+
+	json_add_object "system"
+	json_add_boolean "statsInboundUplink" "$system_stats_inbound_uplink"
+	json_add_boolean "statsInboundDownlink" "$system_stats_inbound_downlink"
+	json_close_object
+
+	json_close_object
+}
+
+add_reverse_settings() {
+	local section="${1}_reverse"
+
+	if ! reverse_section_validate "$section" ; then
+		_err "Invalid reverse config: $section, skip"
+		return 1
+	fi
+
+	if [ "x$enabled" != "x1" ] ; then
+		_info "Reverse disabled: $section"
+		return 0
+	fi
+
+	json_add_object "reverse"
+
+	if [ -n "$bridges" ] ; then
+		json_add_array "bridges"
+		local b
+		for b in $bridges ; do
+			local tag="$(echo "$b" | cut -d'|' -f1)"
+			local domain="$(echo "$b" | cut -d'|' -f1)"
+			if [ -n "$tag" ] && [ -n "$domain" ] ; then
+				json_add_object ""
+				json_add_string "tag" "$tag"
+				json_add_string "domain" "$domain"
+				json_close_object
+			fi
+		done
+		json_close_array
+	fi
+
+	if [ -n "portals" ] ; then
+		json_add_array "portals"
+		local p
+		for p in $portals ; do
+			local tag="$(echo "$p" | cut -d'|' -f1)"
+			local domain="$(echo "$p" | cut -d'|' -f1)"
+			if [ -n "$tag" ] && [ -n "$domain" ] ; then
+				json_add_object ""
+				json_add_string "tag" "$tag"
+				json_add_string "domain" "$domain"
+				json_close_object
+			fi
+		done
+		json_close_array
+	fi
+
+	json_close_object
+}
+
+add_transport_settings() {
+	local section="$1"
+
+	local transport_json="/etc/v2ray/transport.json"
+
+	if [ ! -f "$transport_json" ] ; then
+		_err "Transport config file not found: $transport_json"
+		return 1
+	fi
+
+	local json
+	json="$(get_value_from_file "$transport_json" "$section")"
+	if [ -z "$json" ] ; then
+		_err "Invalid transport config: $section"
+		return 1
+	fi
+
+	json_add_object "transport"
+
+	eval "$(jshn -r "$json" 2>/dev/null | grep -v "json_init")"
+
+	json_close_object
+}
+
+add_inbound_setting() {
+	local section="$1"
+
+	if ! inbound_section_validate "$section" ; then
+		_err "Invalid inbound section: $section"
+		return 1
+	fi
+
+	json_add_object ""
+
+	json_add_int "port" "$port"
+	json_add_string "listen" "$listen"
+	json_add_string "protocol" "$protocol"
+	json_add_string "tag" "$tag"
+
+	json_add_object "sniffing"
+	json_add_boolean "enabled" "$sniffing_enabled"
+	json_add_array "destOverride"
+	local d
+	for d in $sniffing_dest_override ; do
+		json_add_string "" "$d"
+	done
+	json_close_array
+	json_close_object
+
+	json_add_object "allocate"
+	json_add_string "strategy" "$allocate_strategy"
+	json_add_int "refresh" "$allocate_refresh"
+	json_add_int "concurrency" "$allocate_concurrency"
+	json_close_object
+
+	local inbound_settings_json="/etc/v2ray/inbound-settings.json"
+	if [ -f "$inbound_settings_json" ] ; then
+		local json
+		json="$(get_value_from_file "$inbound_settings_json" "$section")"
+
+		if [ -n "$json" ] ; then
+			json_add_object "settings"
+			eval "$(jshn -r "$json" 2>/dev/null | grep -v "json_init")"
+			json_close_object
+		fi
+	fi
+
+	local inbound_stream_settings_json="/etc/v2ray/inbound-stream-settings.json"
+	if [ -f "$inbound_stream_settings_json" ] ; then
+		local json
+		json="$(get_value_from_file "$inbound_stream_settings_json" "$section")"
+
+		if [ -n "$json" ] ; then
+			json_add_object "streamSettings"
+			eval "$(jshn -r "$json" 2>/dev/null | grep -v "json_init")"
+			json_close_object
+		fi
+	fi
+
+	json_close_object
+}
+
+add_outbound_setting() {
+	local section="$1"
+
+	if ! outbound_section_validate "$section" ; then
+		_err "Invalid outbound section: $section"
+		return 1
+	fi
+
+	json_add_object ""
+
+	json_add_string "sendThrough" "$send_through"
+	json_add_string "protocol" "$protocol"
+	json_add_string "tag" "$tag"
+
+	if [ -n "$proxy_settings_tag" ] ; then
+		json_add_object "proxySettings"
+		json_add_string "tag" "$proxy_settings_tag"
+		json_close_object
+	fi
+
+	json_add_object "mux"
+	json_add_boolean "enabled" "$mux_enabled"
+	json_add_int "concurrency" "$mux_concurrency"
+	json_close_object
+
+	local outbound_settings_json="/etc/v2ray/outbound-settings.json"
+	if [ -f "$outbound_settings_json" ] ; then
+		local json
+		json="$(get_value_from_file "$outbound_settings_json" "$section")"
+
+		if [ -n "$json" ] ; then
+			json_add_object "settings"
+			eval "$(jshn -r "$json" 2>/dev/null | grep -v "json_init")"
+			json_close_object
+		fi
+	fi
+
+	local outbound_stream_settings_json="/etc/v2ray/outbound-stream-settings.json"
+	if [ -f "$outbound_stream_settings_json" ] ; then
+		local json
+		json="$(get_value_from_file "$outbound_stream_settings_json" "$section")"
+
+		if [ -n "$json" ] ; then
+			json_add_object "streamSettings"
+			eval "$(jshn -r "$json" 2>/dev/null | grep -v "json_init")"
+			json_close_object
+		fi
 	fi
 
 	json_close_object
@@ -121,7 +613,7 @@ start_instance() {
 
 	local temp_config
 
-	if [ -z "$config_file" ] ; then
+	if [ -n "$config_file" ] ; then
 		if [ ! -s "$config_file" ] ; then
 			_err "Invalid config file: $config_file"
 			return 1
@@ -131,9 +623,11 @@ start_instance() {
 	else
 		temp_config="$(mktemp /tmp/v2ray-XXXXXX)"
 
+		local old_ns
+		json_set_namespace "$section" old_ns
 		json_init
 
-		if [ -z "$loglevel" ] && [ "$loglevel" != "none" ] ; then
+		if [ -n "$loglevel" ] && [ "$loglevel" != "none" ] ; then
 			json_add_object "log"
 			json_add_string "loglevel" "$loglevel"
 			json_add_string "access" "$access_log"
@@ -147,11 +641,34 @@ start_instance() {
 		fi
 
 		add_dns_settings "$section"
+		add_routing_settings "$section"
+		add_policy_settings "$section"
+		add_reverse_settings "$section"
 
-		if ! json_dump >"$temp_config" ; then
-			_err "Error when generate config file"
-			return 1
+		if [ "x$transport_enabled" = "x1" ] ; then
+			add_transport_settings "$section"
 		fi
+
+		if [ -n "$inbounds" ] ; then
+			json_add_array "inbounds"
+			local is
+			for is in $inbounds ; do
+				add_inbound_setting "$is"
+			done
+			json_close_array
+		fi
+
+		if [ -n "$outbounds" ] ; then
+			json_add_array "outbounds"
+			local os
+			for os in $outbounds ; do
+				add_outbound_setting "$os"
+			done
+			json_close_array
+		fi
+
+		json_dump -i
+		json_set_namespace $old_ns
 	fi
 }
 
