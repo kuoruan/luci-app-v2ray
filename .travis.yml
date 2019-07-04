@@ -1,0 +1,73 @@
+dist: trusty
+sudo: false
+notifications:
+  email: false
+language: c
+compiler: gcc
+cache:
+  bundler: true
+  directories:
+  - "${HOME}/dl"
+  - "${HOME}/files"
+git:
+  depth: 3
+  submodules: false
+env:
+  global:
+  - PACKAGE=luci-app-frpc
+  - USER=kuoruan
+  - REPO=luci-app-frpc
+  - CCACHE_VERSION=3.6
+  - DOWNLOAD_DIR=${HOME}/files
+  - SDK_PATH=https://downloads.openwrt.org/releases/18.06.2/targets/x86/generic
+  - SDK=-sdk-18.06.2-x86-generic_
+install:
+- test -d "$DOWNLOAD_DIR" || mkdir -p "$DOWNLOAD_DIR"
+- cd "$DOWNLOAD_DIR"
+- wget "${SDK_PATH}/sha256sums" -O sha256sums
+- |
+  if ! grep -- "$SDK" sha256sums > sha256sums.small 2>/dev/null ; then
+    printf "\033[1;31m=== Can not find ${SDK} file in sha256sums.\033[m\n"
+    exit 1
+  fi
+- export SDK_FILE="$(cat sha256sums.small | cut -d' ' -f2 | sed 's/*//g')"
+- |
+  if ! sha256sum -c ./sha256sums.small 2>/dev/null ; then
+    wget "${SDK_PATH}/${SDK_FILE}" -O "$SDK_FILE"
+    if ! sha256sum -c ./sha256sums.small 2>/dev/null ; then
+      printf "\033[1;31m=== SDK can not be verified!\033[m\n"
+      exit 1
+    fi
+  fi
+- file "${DOWNLOAD_DIR}/${SDK_FILE}"
+- export SDK_HOME="$(mktemp -d)"
+- cd "$SDK_HOME"
+- tar -Jxf "${DOWNLOAD_DIR}/${SDK_FILE}" --strip=1
+- test -d "${HOME}/dl" || mkdir -p "${HOME}/dl"
+- test -d "dl" && rm -rf dl
+- ln -s "${HOME}/dl/" dl
+- echo "src-git base https://github.com/openwrt/openwrt.git" >feeds.conf
+- echo "src-git packages https://github.com/openwrt/packages.git" >>feeds.conf
+- echo "src-git luci https://github.com/openwrt/luci.git" >>feeds.conf
+- echo "src-git routing https://git.openwrt.org/feed/routing.git" >>feeds.conf
+- echo "src-git telephony https://github.com/openwrt/telephony.git" >>feeds.conf
+- ln -s "$TRAVIS_BUILD_DIR" "package/${PACKAGE}"
+script:
+- cd "$SDK_HOME"
+- "./scripts/feeds update -a >/dev/null"
+- "./scripts/feeds install -a >/dev/null"
+- make defconfig
+- make package/${PACKAGE}/compile -j2 || make package/${PACKAGE}/{clean,compile} V=s
+- find "${SDK_HOME}/bin/"
+- find "${SDK_HOME}/bin/" -name luci-*-frpc*.ipk -exec cp {} "$TRAVIS_BUILD_DIR" \;
+- ls -hl "$TRAVIS_BUILD_DIR" | grep .*\.ipk
+deploy:
+  provider: releases
+  file_glob: true
+  file: "${TRAVIS_BUILD_DIR}/*.ipk"
+  skip_cleanup: true
+  on:
+    tags: true
+    all_branches: true
+  api_key:
+    secure: eePvdLjXTvHqFH2Vx3gNCsPL5qzVVaQ1XcLUg5WekHpLfyt/VpzDZPu5jiJg6zLH0N4k5+Xb49I+E1JEMSCoV1Gjwq1E0GO6uu5Nrv1r9tsqWilY87YLQyhmKAOGNoJcieb4qYyqzV1eLkjMWnvwZ+kwqyJ16EiPiO5hZ2qNq+npe7N4CKkZdGBclB2odKVLtZB3s8lngmvwiWzKCTrBaP+z4akQCxp3++DO2BgfzTxO3Cg4EUyTSryzhaV0UEnHky0nIrP3e/DapbVAkIUXlv9hZ9ins5M4j0vQJmmB5bN2JsTNfYZVG/09sVgdNKc6hBUieVfDLnJ+kzpeXHjWGcuBfuvdHlq8n+hBo3w0dMccVr7FfDuMmkvOWyiDuTNbboJe0eg9D4a5PAKtYwGJeqHAF8PG/wGC6qa7d2pcnM6hTIREjU7J3IbKlLPwErK+2zL88IGGDiqkdVlZeKXscZcuOL3OlwdOBGWEP1uICXIOZawjNHIqqEmNml/C+FX4oCD7udOcc1V1gbvBrirbcy05HS12pNjKGYjpIAu6LInPPNxjUrrAUrMnsR1OCsfIIH/L91wkq6pO1D7hKK8a7cUVH60YDQs08r/c5NggK6cdkEylkkSEK2g3pFjiVBkR/mtKrvuAlCv2X8lJm+k7KJ+x1X3oS0I81xh3vGVRvQU=
