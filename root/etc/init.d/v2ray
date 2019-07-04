@@ -64,8 +64,8 @@ v2ray_section_validate() {
 		'v2ctl_file:file' \
 		'config_file:file' \
 		'loglevel:or("debug", "info", "warning", "error", "none")' \
-		'access_log:or(file, device)' \
-		'error_log:or(file, device)' \
+		'access_log:string' \
+		'error_log:string' \
 		'stats_enabled:bool:0' \
 		'transport_enabled:bool:0' \
 		'inbounds:list(uci("v2ray", "@inbound"))' \
@@ -91,7 +91,7 @@ dns_server_section_validate() {
 routing_section_validate() {
 	uci_validate_section "$NAME" "routing" "$1" \
 		'enabled:bool:0' \
-		'domain_strategy:or("AsIs", "IPIfNonMatch", "IPOnDemand"):"AsIs"' \
+		'domain_strategy:or("AsIs", "IPIfNonMatch", "IPOnDemand"):AsIs' \
 		'rules:list(uci("v2ray", "@routing_rule"))' \
 		'balancers:list(uci("v2ray", "@routing_balancer"))'
 }
@@ -121,9 +121,9 @@ routing_balancer_section_validate() {
 policy_section_validate() {
 	uci_validate_section "$NAME" "policy" "$1" \
 		'enabled:bool:0' \
-		'levels:list(uci("v2ray", "@policy_level")' \
-		'system_stats_inbound_uplink:or("true", "false"):"false"' \
-		'system_stats_inbound_downlink:or("true", "false"):"false"'
+		'levels:list(uci("v2ray", "@policy_level"))' \
+		'system_stats_inbound_uplink:or("true", "false"):false' \
+		'system_stats_inbound_downlink:or("true", "false"):false'
 }
 
 policy_level_section_validate() {
@@ -133,8 +133,8 @@ policy_level_section_validate() {
 		'conn_idle:uinteger:300' \
 		'uplink_only:uinteger:2' \
 		'downlink_only:uinteger:5' \
-		'stats_user_uplink:or("true", "false"):"false"' \
-		'stats_user_downlink:or("true", "false"):"false"' \
+		'stats_user_uplink:or("true", "false"):false' \
+		'stats_user_downlink:or("true", "false"):false' \
 		'buffer_size:uinteger'
 }
 
@@ -148,10 +148,10 @@ reverse_section_validate() {
 inbound_section_validate() {
 	uci_validate_section "$NAME" "inbound" "$1" \
 		'port:or(port, portrange, string)' \
-		'listen:or(ip4addr, ip6addr)' \
+		'listen:or(ip4addr, ip6addr):0.0.0.0' \
 		'protocol:string' \
 		'tag:string' \
-		'sniffing_enabled:or("true", "false"):"false"' \
+		'sniffing_enabled:or("true", "false"):false' \
 		'sniffing_dest_override:list(or("http", "tls"))' \
 		'allocate_strategy:or("always", "random")' \
 		'allocate_refresh:uinteger' \
@@ -160,11 +160,11 @@ inbound_section_validate() {
 
 outbound_section_validate() {
 	uci_validate_section "$NAME" "outbound" "$1" \
-		'send_through:or(ip4addr, ip6addr):"0.0.0.0"' \
+		'send_through:or(ip4addr, ip6addr):0.0.0.0' \
 		'protocol:string' \
 		'tag:string' \
 		'proxy_settings_tag:string' \
-		'mux_enabled:or("true", "false"):"false"' \
+		'mux_enabled:or("true", "false"):false' \
 		'mux_concurrency:uinteger:8'
 }
 
@@ -332,9 +332,12 @@ add_routing_settings() {
 					json_close_array
 				fi
 
-				json_add_string "attrs" "$attrs"
-				json_add_string "outboundTag" "$outbound_tag"
-				json_add_string "balancerTag" "$balancer_tag"
+				test -n "$attrs" && \
+					json_add_string "attrs" "$attrs"
+				test -n "$outbound_tag" && \
+					json_add_string "outboundTag" "$outbound_tag"
+				test -n "$balancer_tag" && \
+					json_add_string "balancerTag" "$balancer_tag"
 
 				json_close_object
 			fi
@@ -429,7 +432,7 @@ add_reverse_settings() {
 		local b
 		for b in $bridges ; do
 			local tag="$(echo "$b" | cut -d'|' -f1)"
-			local domain="$(echo "$b" | cut -d'|' -f1)"
+			local domain="$(echo "$b" | cut -d'|' -f2)"
 			if [ -n "$tag" ] && [ -n "$domain" ] ; then
 				json_add_object ""
 				json_add_string "tag" "$tag"
@@ -445,7 +448,7 @@ add_reverse_settings() {
 		local p
 		for p in $portals ; do
 			local tag="$(echo "$p" | cut -d'|' -f1)"
-			local domain="$(echo "$p" | cut -d'|' -f1)"
+			local domain="$(echo "$p" | cut -d'|' -f2)"
 			if [ -n "$tag" ] && [ -n "$domain" ] ; then
 				json_add_object ""
 				json_add_string "tag" "$tag"
@@ -496,7 +499,8 @@ add_inbound_setting() {
 	json_add_int "port" "$port"
 	json_add_string "listen" "$listen"
 	json_add_string "protocol" "$protocol"
-	json_add_string "tag" "$tag"
+	test -n "$tag" && \
+		json_add_string "tag" "$tag"
 
 	json_add_object "sniffing"
 	json_add_boolean "enabled" "$sniffing_enabled"
@@ -509,9 +513,12 @@ add_inbound_setting() {
 	json_close_object
 
 	json_add_object "allocate"
-	json_add_string "strategy" "$allocate_strategy"
-	json_add_int "refresh" "$allocate_refresh"
-	json_add_int "concurrency" "$allocate_concurrency"
+	test -n "$allocate_strategy" && \
+		json_add_string "strategy" "$allocate_strategy"
+	test -n "$allocate_refresh" && \
+		json_add_int "refresh" "$allocate_refresh"
+	test -n "$allocate_concurrency" &&	\
+		json_add_int "concurrency" "$allocate_concurrency"
 	json_close_object
 
 	local inbound_settings_json="/etc/v2ray/inbound-settings.json"
@@ -553,7 +560,8 @@ add_outbound_setting() {
 
 	json_add_string "sendThrough" "$send_through"
 	json_add_string "protocol" "$protocol"
-	json_add_string "tag" "$tag"
+	test -n "$tag" && \
+		json_add_string "tag" "$tag"
 
 	if [ -n "$proxy_settings_tag" ] ; then
 		json_add_object "proxySettings"

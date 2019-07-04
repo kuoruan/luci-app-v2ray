@@ -16,8 +16,8 @@ if m.uci:get("v2ray", sid) ~= "outbound" then
 	return
 end
 
-local outbound-settings = "/etc/v2ray/outbound-settings.json"
-local outbound-stream-settings = "/etc/v2ray/outbound-stream-settings.json"
+local outbound_settings = "/etc/v2ray/outbound-settings.json"
+local outbound_stream_settings = "/etc/v2ray/outbound-stream-settings.json"
 
 s = m:section(NamedSection, sid, "outbound")
 s.anonymous = true
@@ -39,7 +39,7 @@ o:value("shadowsocks")
 o:value("socks")
 o:value("vmess")
 
-o = s:option(Value, "_settings", translate("Settings"))
+o = s:option(TextValue, "_settings", translate("Settings"))
 o.wrap = "off"
 o.rows = 5
 o.validate = function (self, value, section)
@@ -50,13 +50,13 @@ o.validate = function (self, value, section)
 	end
 end
 o.cfgvalue = function (self, section)
-	return v2ray.get_value_from_file(outbound-settings, section)
+	return v2ray.get_value_from_file(outbound_settings, section)
 end
 o.write = function (self, section, value)
-	return v2ray.add_value_to_file(outbound-settings, section, value)
+	return v2ray.add_value_to_file(outbound_settings, section, value)
 end
 o.remove = function (self, section, value)
-	return v2ray.remove_value_from_file(outbound-settings, section)
+	return v2ray.remove_value_from_file(outbound_settings, section)
 end
 
 o = s:option(Value, "_stream_settings", translate("Stream settings"))
@@ -70,13 +70,13 @@ o.validate = function (self, value, section)
 	end
 end
 o.cfgvalue = function (self, section)
-	return v2ray.get_value_from_file(outbound-stream-settings, section)
+	return v2ray.get_value_from_file(outbound_stream_settings, section)
 end
 o.write = function (self, section, value)
-	return v2ray.add_value_to_file(outbound-stream-settings, section, value)
+	return v2ray.add_value_to_file(outbound_stream_settings, section, value)
 end
 o.remove = function (self, section, value)
-	return v2ray.remove_value_from_file(outbound-stream-settings, section)
+	return v2ray.remove_value_from_file(outbound_stream_settings, section)
 end
 
 o = s:option(Value, "tag", translate("Tag"))

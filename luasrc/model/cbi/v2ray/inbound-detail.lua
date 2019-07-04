@@ -16,8 +16,8 @@ if m.uci:get("v2ray", sid) ~= "inbound" then
 	return
 end
 
-local inbound_settings = "/etc/v2ray/inbound_settings.json"
-local inbound_stream_settings = "/etc/v2ray/inbound_stream_settings.json"
+local inbound_settings = "/etc/v2ray/inbound-settings.json"
+local inbound_stream_settings = "/etc/v2ray/inbound-stream-settings.json"
 
 s = m:section(NamedSection, sid, "inbound")
 s.anonymous = true
@@ -27,6 +27,7 @@ o = s:option(Value, "alias", translate("Alias"), translate("Any custom string"))
 o.rmempty = false
 
 o = s:option(Value, "port", translate("Port"))
+o.rmempty = false
 o.datatype = "or(port, portrange, string)"
 
 o = s:option(Value, "listen", translate("Listen"))
@@ -82,11 +83,11 @@ end
 
 o = s:option(Value, "tag", translate("Tag"))
 
-o = s:option(Value, "sniffing_enabled", translate("Sniffing enabled"))
+o = s:option(Flag, "sniffing_enabled", "%s - %s" %{ translate("Sniffing"), translate("Enabled") })
 o.enabled  = "true"
 o.disabled = "false"
 
-o = s:option(MultiValue, "sniffing_dest_override", translate("Sniffing dest override"))
+o = s:option(MultiValue, "sniffing_dest_override", "%s - %s" % { translate("Sniffing"), translate("Dest override") })
 o:value("http")
 o:value("tls")
 

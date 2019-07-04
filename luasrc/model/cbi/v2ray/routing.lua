@@ -2,8 +2,23 @@
 -- Licensed to the public under the MIT License.
 
 local dsp = require "luci.dispatcher"
+local uci = require "luci.model.uci".cursor()
 
 local m, s1, s2, s3, o
+
+local rule_table, balancer_table = {}, {}
+
+uci:foreach("v2ray", "routing_rule", function(s)
+	if s.alias then
+		rule_table[s[".name"]] = s.alias
+	end
+end)
+
+uci:foreach("v2ray", "routing_balancer", function(s)
+	if s.tag then
+		balancer_table[s[".name"]] = s.tag
+	end
+end)
 
 m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Routing") })
 
@@ -19,8 +34,14 @@ o:value("IPIfNonMatch")
 o:value("IPOnDemand")
 
 o = s1:option(MultiValue, "rules", translate("Rules"), translate("Select routing rules to use"))
+for k, v in pairs(rule_table) do
+	o:value(k, v)
+end
 
 o = s1:option(MultiValue, "balancers", translate("Balancers"), translate("Select routing balancers to use"))
+for k, v in pairs(balancer_table) do
+	o:value(k, v)
+end
 
 s2 = m:section(TypedSection, "routing_rule", translate("Routing Rule"))
 s2.anonymous = true

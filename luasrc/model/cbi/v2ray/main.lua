@@ -70,23 +70,23 @@ o:depends("loglevel", "error")
 
 o = s:option(MultiValue, "inbounds", translate("Inbound proxies"))
 o:depends("config_file", "")
-for k, v in pairs(dns_table) do
+for k, v in pairs(inbound_table) do
 	o:value(k, v)
 end
 
-o = s:option(MultiValue, "inbounds", translate("Outbound proxies"))
+o = s:option(MultiValue, "outbounds", translate("Outbound proxies"))
 o:depends("config_file", "")
-for k, v in pairs(dns_table) do
+for k, v in pairs(outbound_table) do
 	o:value(k, v)
 end
 
-o = s:option(Flag, "stats_enabled", translate("Stats enabled"))
+o = s:option(Flag, "stats_enabled", "%s - %s" % { translate("Stats"), translate("Enabled") })
 o:depends("config_file", "")
 
-o = s:option(Flag, "transport_enabled", translate("Transport enabled"))
+o = s:option(Flag, "transport_enabled", "%s - %s" % { translate("Transport"), translate("Enabled") })
 o:depends("config_file", "")
 
-o = s:option(TextValue, "_transport", translate("Transport settings"))
+o = s:option(TextValue, "_transport", "%s - %s" % { translate("Transport"), translate("Settings") })
 o:depends("transport_enabled", "1")
 o.wrap = "off"
 o.rows = 5
