@@ -695,6 +695,7 @@ start_instance() {
 	procd_set_param respawn
 	procd_set_param file "$temp_config"
 	procd_set_param stderr 1 # forward stderr of the command to logd
+	procd_set_param stdout 1
 
 	if [ -n "$run_user" ] ; then
 		procd_set_param user "$run_user"
