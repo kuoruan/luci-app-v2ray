@@ -25,12 +25,31 @@ uci:foreach("v2ray", "outbound", function(s)
 	end
 end)
 
+local function v2ray_version()
+	local file = uci:get("v2ray", "main", "v2ray_file")
+
+	if not file or file == "" or not fs.stat(file) then
+		return "<em style=\"color: red;\">%s</em>" % translate("Invalid client file")
+	end
+
+	if not fs.access(file, "rwx", "rx", "rx") then
+		fs.chmod(file, 755)
+	end
+
+	local version = util.trim(sys.exec("%s --version 2>/dev/null | head -n1" % file))
+	if version == "" then
+		return "<em style=\"color: red;\">%s</em>" % translate("Can't get V2Ray version")
+	end
+	return translatef("Version: %s", version)
+end
+
 m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Global Settings") },
 "<p>%s</p><p>%s</p>" % {
 	translate("A platform for building proxies to bypass network restrictions."),
 	translatef("For more information, please visit: %s",
 		"<a href=\"https://www.v2ray.com\" target=\"_blank\">https://www.v2ray.com</a>")
 })
+m:append(Template("v2ray/status_header"))
 
 s = m:section(NamedSection, "main", "v2ray")
 s.addremove = false
@@ -39,11 +58,11 @@ s.anonymos = true
 o = s:option(Flag, "enabled", translate("Enabled"))
 o.rmempty = false
 
-o = s:option(Value, "v2ray_file", translate("V2Ray file"))
+o = s:option(Value, "v2ray_file", translate("V2Ray file"), v2ray_version())
 o.datatype = file
 
-o = s:option(Value, "config_file", translate("Config file"))
-o:value("", translate("Do not use"))
+o = s:option(Value, "config_file", translate("Config file"), translate("Use custom config file"))
+o:value("", translate("None"))
 
 o = s:option(ListValue, "loglevel", translate("Log level"))
 o:depends("config_file", "")
