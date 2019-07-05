@@ -84,8 +84,8 @@ v2ray_section_validate() {
 		'asset_location:directory' \
 		'config_file:file' \
 		'loglevel:or("debug", "info", "warning", "error", "none")' \
-		'access_log:or(file, string)' \
-		'error_log:or(file, string)' \
+		'access_log:string' \
+		'error_log:string' \
 		'stats_enabled:bool:0' \
 		'transport_enabled:bool:0' \
 		'inbounds:list(uci("v2ray", "@inbound"))' \
@@ -142,8 +142,8 @@ policy_section_validate() {
 	uci_validate_section "$NAME" "policy" "$1" \
 		'enabled:bool:0' \
 		'levels:list(uci("v2ray", "@policy_level"))' \
-		'system_stats_inbound_uplink:or("true", "false"):false' \
-		'system_stats_inbound_downlink:or("true", "false"):false'
+		'system_stats_inbound_uplink:bool:0' \
+		'system_stats_inbound_downlink:bool:0'
 }
 
 policy_level_section_validate() {
@@ -153,8 +153,8 @@ policy_level_section_validate() {
 		'conn_idle:uinteger:300' \
 		'uplink_only:uinteger:2' \
 		'downlink_only:uinteger:5' \
-		'stats_user_uplink:or("true", "false"):false' \
-		'stats_user_downlink:or("true", "false"):false' \
+		'stats_user_uplink:bool:0' \
+		'stats_user_downlink:bool:0' \
 		'buffer_size:uinteger'
 }
 
@@ -172,7 +172,7 @@ inbound_section_validate() {
 		'protocol:string' \
 		'transparent_proxy_enabled:bool:0' \
 		'tag:string' \
-		'sniffing_enabled:or("true", "false"):false' \
+		'sniffing_enabled:bool:0' \
 		'sniffing_dest_override:list(or("http", "tls"))' \
 		'allocate_strategy:or("always", "random")' \
 		'allocate_refresh:uinteger' \
@@ -185,7 +185,7 @@ outbound_section_validate() {
 		'protocol:string' \
 		'tag:string' \
 		'proxy_settings_tag:string' \
-		'mux_enabled:or("true", "false"):false' \
+		'mux_enabled:bool:0' \
 		'mux_concurrency:uinteger:8'
 }
 
@@ -567,12 +567,14 @@ add_inbound_setting() {
 
 	json_add_object "sniffing"
 	json_add_boolean "enabled" "$sniffing_enabled"
-	json_add_array "destOverride"
-	local d
-	for d in $sniffing_dest_override ; do
-		json_add_string "" "$d"
-	done
-	json_close_array
+	if [ -n "$sniffing_dest_override" ] ; then
+		json_add_array "destOverride"
+		local d
+		for d in $sniffing_dest_override ; do
+			json_add_string "" "$d"
+		done
+		json_close_array
+	fi
 	json_close_object
 
 	if [ -n "$allocate_strategy" ] ; then
@@ -592,7 +594,7 @@ add_inbound_setting() {
 		TRANSPARENT_PROXY_PORT="$port"
 
 		json_add_object "settings"
-		json_add_boolean "followRedirect" "true"
+		json_add_boolean "followRedirect" "1"
 		json_close_object
 	else
 		local inbound_settings_json="/etc/v2ray/inbound-settings.json"
@@ -667,12 +669,14 @@ add_outbound_setting() {
 				if [ -n "$address_commands" ] ; then
 					local a
 					for a in $address_commands ; do
+						# remove single quotes
+						eval "local address=$a"
 						# check if is a IPv4 address
-						if [ -n "$(echo "$a" | cut -d'.' -f4)" ] ; then
+						if [ -n "$(echo "$address" | cut -d'.' -f4)" ] ; then
 							if [ -z "$TRANSPARENT_PROXY_SERVER_IPS" ] ; then
-								TRANSPARENT_PROXY_SERVER_IPS="$a"
+								TRANSPARENT_PROXY_SERVER_IPS="$address"
 							else
-								TRANSPARENT_PROXY_SERVER_IPS="$TRANSPARENT_PROXY_SERVER_IPS $a"
+								TRANSPARENT_PROXY_SERVER_IPS="$TRANSPARENT_PROXY_SERVER_IPS $address"
 							fi
 						fi
 					done

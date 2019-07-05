@@ -40,12 +40,8 @@ o.datatype = "uinteger"
 o.placeholder = "5"
 
 o = s:option(Flag, "stats_user_uplink", translate("Stats user uplink"))
-o.enabled  = "true"
-o.disabled = "false"
 
 o = s:option(Flag, "stats_user_downlink", translate("Stats user downlink"))
-o.enabled  = "true"
-o.disabled = "false"
 
 o = s:option(Value, "buffer_size", translate("Buffer size"))
 o.datatype = "uinteger"

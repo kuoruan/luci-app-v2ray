@@ -90,8 +90,6 @@ end
 o = s:option(Value, "tag", translate("Tag"))
 
 o = s:option(Flag, "sniffing_enabled", "%s - %s" %{ translate("Sniffing"), translate("Enabled") })
-o.enabled  = "true"
-o.disabled = "false"
 
 o = s:option(MultiValue, "sniffing_dest_override", "%s - %s" % { translate("Sniffing"), translate("Dest override") })
 o:value("http")

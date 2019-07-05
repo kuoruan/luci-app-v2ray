@@ -29,12 +29,8 @@ for k, v in pairs(level_table) do
 end
 
 o = s1:option(Flag, "system_stats_inbound_uplink", "%s - %s" % { translate("System"), translate("Stats inbound uplink") })
-o.enabled  = "true"
-o.disabled = "false"
 
 o = s1:option(Flag, "system_stats_inbound_downlink", "%s - %s" % { translate("System"), translate("Stats inbound downlink") })
-o.enabled  = "true"
-o.disabled = "false"
 
 s2 = m:section(TypedSection, "policy_level", translate("Policy Level"), translate("Add policy levels here"))
 s2.anonymous = true
