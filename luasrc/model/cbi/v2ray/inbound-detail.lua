@@ -46,7 +46,7 @@ o = s:option(Flag, "transparent_proxy_enabled", translate("Transparent proxy ena
 o:depends("protocol", "dokodemo-door")
 
 o = s:option(TextValue, "_settings", translate("Settings"), translate("Protocol-specific settings, JSON string"))
-o.depends("transparent_proxy_enabled", "0")
+o:depends("transparent_proxy_enabled", "0")
 o.wrap = "off"
 o.rows = 5
 o.validate = function (self, value, section)
