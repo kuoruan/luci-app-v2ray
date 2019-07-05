@@ -28,7 +28,7 @@ end
 
 o = s:option(DummyValue, "send_through", translate("Send Through"))
 o.cfgvalue = function (...)
-	return Value.cfgvalue(...) or "?"
+	return Value.cfgvalue(...) or "0.0.0.0"
 end
 
 o = s:option(DummyValue, "protocol", translate("Protocol"))

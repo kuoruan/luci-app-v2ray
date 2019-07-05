@@ -26,7 +26,7 @@ s.addremove = false
 o = s:option(Value, "alias", translate("Alias"), translate("Any custom string"))
 o.rmempty = false
 
-o = s:option(Value, "send_through", translate("Send through"))
+o = s:option(Value, "send_through", translate("Send through"), translate("An IP address for sending traffic out."))
 o.datatype = "or(ip4addr, ip6addr)"
 o.placeholder = "0.0.0.0"
 
@@ -59,7 +59,7 @@ o.remove = function (self, section, value)
 	return v2ray.remove_value_from_file(outbound_settings, section)
 end
 
-o = s:option(Value, "_stream_settings", translate("Stream settings"), translate("Protocol transport options, JSON string"))
+o = s:option(TextValue, "_stream_settings", translate("Stream settings"), translate("Protocol transport options, JSON string"))
 o.wrap = "off"
 o.rows = 5
 o.validate = function (self, value, section)

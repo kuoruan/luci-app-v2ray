@@ -26,12 +26,13 @@ s.addremove = false
 o = s:option(Value, "alias", translate("Alias"), translate("Any custom string"))
 o.rmempty = false
 
+o = s:option(Value, "listen", translate("Listen"))
+o.datatype = "or(ip4addr, ip6addr)"
+o.placeholder = "0.0.0.0"
+
 o = s:option(Value, "port", translate("Port"))
 o.rmempty = false
 o.datatype = "or(port, portrange, string)"
-
-o = s:option(Value, "listen", translate("Listen"))
-o.datatype = "or(ip4addr, ip6addr)"
 
 o = s:option(ListValue, "protocol", translate("Protocol"))
 o:value("dokodemo-door")

@@ -28,10 +28,20 @@ end
 
 o = s:option(DummyValue, "listen", translate("Listen"))
 o.cfgvalue = function (...)
+	return Value.cfgvalue(...) or "0.0.0.0"
+end
+
+o = s:option(DummyValue, "port", translate("Port"))
+o.cfgvalue = function (...)
 	return Value.cfgvalue(...) or "?"
 end
 
 o = s:option(DummyValue, "protocol", translate("Protocol"))
+o.cfgvalue = function (...)
+	return Value.cfgvalue(...) or "?"
+end
+
+o = s:option(DummyValue, "tag", translate("Tag"))
 o.cfgvalue = function (...)
 	return Value.cfgvalue(...) or "?"
 end
