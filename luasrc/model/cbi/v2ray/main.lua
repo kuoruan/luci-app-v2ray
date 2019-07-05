@@ -11,17 +11,21 @@ local m, s, o
 
 local transport = "/etc/v2ray/transport.json"
 
-local inbound_table, outbound_table = {}, {}
+local inbound_keys, inbound_table, outbound_keys, outbound_table = {}, {}, {}, {}
 
 uci:foreach("v2ray", "inbound", function(s)
 	if s.alias then
-		inbound_table[s[".name"]] = s.alias
+		local key = s[".name"]
+		table.insert(inbound_keys, key)
+		inbound_table[key] = s.alias
 	end
 end)
 
 uci:foreach("v2ray", "outbound", function(s)
 	if s.alias then
-		outbound_table[s[".name"]] = s.alias
+		local key = s[".name"]
+		table.insert(outbound_keys, key)
+		outbound_table[key] = s.alias
 	end
 end)
 
@@ -94,14 +98,14 @@ o:depends("loglevel", "error")
 
 o = s:option(MultiValue, "inbounds", translate("Inbound proxies"))
 o:depends("config_file", "")
-for k, v in pairs(inbound_table) do
-	o:value(k, v)
+for _, v in ipairs(inbound_keys) do
+	o:value(v, inbound_table[v])
 end
 
 o = s:option(MultiValue, "outbounds", translate("Outbound proxies"))
 o:depends("config_file", "")
-for k, v in pairs(outbound_table) do
-	o:value(k, v)
+for _, v in ipairs(outbound_keys) do
+	o:value(v, outbound_table[v])
 end
 
 o = s:option(Flag, "stats_enabled", "%s - %s" % { translate("Stats"), translate("Enabled") })

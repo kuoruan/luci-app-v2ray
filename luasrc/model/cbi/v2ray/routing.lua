@@ -6,17 +6,21 @@ local uci = require "luci.model.uci".cursor()
 
 local m, s1, s2, s3, o
 
-local rule_table, balancer_table = {}, {}
+local rule_keys, rule_table, balancer_keys, balancer_table = {}, {}, {}, {}
 
 uci:foreach("v2ray", "routing_rule", function(s)
 	if s.alias then
-		rule_table[s[".name"]] = s.alias
+		local key = s[".name"]
+		table.insert(rule_keys, key)
+		rule_table[key] = s.alias
 	end
 end)
 
 uci:foreach("v2ray", "routing_balancer", function(s)
 	if s.tag then
-		balancer_table[s[".name"]] = s.tag
+		local key = s[".name"]
+		table.insert(balancer_keys, key)
+		balancer_table[key] = s.tag
 	end
 end)
 
@@ -34,18 +38,19 @@ o:value("IPIfNonMatch")
 o:value("IPOnDemand")
 
 o = s1:option(MultiValue, "rules", translate("Rules"), translate("Select routing rules to use"))
-for k, v in pairs(rule_table) do
-	o:value(k, v)
+for _, v in ipairs(rule_keys) do
+	o:value(v, rule_table[v])
 end
 
 o = s1:option(MultiValue, "balancers", translate("Balancers"), translate("Select routing balancers to use"))
-for k, v in pairs(balancer_table) do
-	o:value(k, v)
+for _, v in ipairs(balancer_keys) do
+	o:value(v, balancer_table[v])
 end
 
 s2 = m:section(TypedSection, "routing_rule", translate("Routing Rule"))
 s2.anonymous = true
 s2.addremove = true
+s2.sortable = true
 s2.template = "cbi/tblsection"
 s2.extedit = dsp.build_url("admin/services/v2ray/routing/rules/%s")
 s2.create = function (...)

@@ -5,11 +5,13 @@ local uci  = require "luci.model.uci".cursor()
 
 local m, s1, s2, o
 
-local dns_table = {}
+local dns_keys, dns_table = {}, {}
 
 uci:foreach("v2ray", "dns_server", function(s)
 	if s.alias then
-		dns_table[s[".name"]] = s.alias
+		local key = s[".name"]
+		table.insert(dns_keys, key)
+		dns_table[key] = s.alias
 	end
 end)
 
@@ -31,8 +33,8 @@ o = s1:option(DynamicList, "hosts", translate("Hosts"),
 	translatef("A list of static addresses, format: <code>domain|address</code>. eg: %s", "google.com|127.0.0.1"))
 
 o = s1:option(MultiValue, "servers", translate("DNS Servers"), translate("Select DNS servers to use"))
-for k, v in pairs(dns_table) do
-	o:value(k, v)
+for _, v in ipairs(dns_keys) do
+	o:value(v, dns_table[v])
 end
 
 s2 = m:section(TypedSection, "dns_server", translate("DNS server"), translate("Add DNS servers here"))
