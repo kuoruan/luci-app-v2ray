@@ -60,12 +60,12 @@ get_value_from_file() {
 v2ray_section_validate() {
 	uci_validate_section "$NAME" "v2ray" "$1" \
 		'enabled:bool:0' \
-		'v2ray_file:file' \
-		'v2ctl_file:file' \
+		'v2ray_file:string' \
+		'asset_location:directory' \
 		'config_file:file' \
 		'loglevel:or("debug", "info", "warning", "error", "none")' \
-		'access_log:string' \
-		'error_log:string' \
+		'access_log:or(file, string)' \
+		'error_log:or(file, string)' \
 		'stats_enabled:bool:0' \
 		'transport_enabled:bool:0' \
 		'inbounds:list(uci("v2ray", "@inbound"))' \
@@ -613,13 +613,16 @@ start_instance() {
 	fi
 
 	if [ "x$enabled" != "x1" ] ; then
-		_info "Instance disabled: $section"
-		return 1
+		return 0
 	fi
 
 	if [ -z "$v2ray_file" ] || ( ! v2ray_file_validate "$v2ray_file" ) ; then
 		_err "Invalid V2Ray file."
-		return 0
+		return 1
+	fi
+
+	if [ -z "$asset_location" ] && [ -d "$asset_location" ] ; then
+		export V2RAY_LOCATION_ASSET="$asset_location"
 	fi
 
 	local temp_config

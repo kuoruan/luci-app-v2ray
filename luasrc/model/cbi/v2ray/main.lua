@@ -59,7 +59,12 @@ o = s:option(Flag, "enabled", translate("Enabled"))
 o.rmempty = false
 
 o = s:option(Value, "v2ray_file", translate("V2Ray file"), v2ray_version())
-o.datatype = file
+o.datatype = "file"
+o.placeholder = "/usr/bin/v2ray"
+
+o = s:option(Value, "asset_location", translate("V2Ray asset location"), translate("Directory where geoip.dat and geosite.dat files are, default: same directory as V2Ray file."))
+o.datatype = "directory"
+o.placeholder = "/usr/bin"
 
 o = s:option(Value, "config_file", translate("Config file"), translate("Use custom config file"))
 o:value("", translate("None"))
@@ -105,7 +110,7 @@ o:depends("config_file", "")
 o = s:option(Flag, "transport_enabled", "%s - %s" % { translate("Transport"), translate("Enabled") })
 o:depends("config_file", "")
 
-o = s:option(TextValue, "_transport", "%s - %s" % { translate("Transport"), translate("Settings") })
+o = s:option(TextValue, "_transport", "%s - %s" % { translate("Transport"), translate("Settings") }, translate("<code>transport</code> field in top level configuration, JSON string"))
 o:depends("transport_enabled", "1")
 o.wrap = "off"
 o.rows = 5

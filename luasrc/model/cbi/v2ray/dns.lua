@@ -46,7 +46,7 @@ o = s2:option(Value, "address", translate("Address"))
 o.datatype = "or(ip4addr, ip6addr)"
 
 o = s2:option(Value, "port", translate("Port"))
-o.datatype = port
+o.datatype = "port"
 
 o = s2:option(DynamicList, "domains", translate("Domains"))
 

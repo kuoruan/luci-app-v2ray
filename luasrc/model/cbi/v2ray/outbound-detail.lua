@@ -39,7 +39,7 @@ o:value("shadowsocks")
 o:value("socks")
 o:value("vmess")
 
-o = s:option(TextValue, "_settings", translate("Settings"))
+o = s:option(TextValue, "_settings", translate("Settings"), translate("Protocol-specific settings, JSON string"))
 o.wrap = "off"
 o.rows = 5
 o.validate = function (self, value, section)
@@ -59,7 +59,7 @@ o.remove = function (self, section, value)
 	return v2ray.remove_value_from_file(outbound_settings, section)
 end
 
-o = s:option(Value, "_stream_settings", translate("Stream settings"))
+o = s:option(Value, "_stream_settings", translate("Stream settings"), translate("Protocol transport options, JSON string"))
 o.wrap = "off"
 o.rows = 5
 o.validate = function (self, value, section)
@@ -88,7 +88,7 @@ o.enabled  = "true"
 o.disabled = "false"
 
 o = s:option(Value, "mux_concurrency", "%s - %s" % { translate("Mux"), translate("Concurrency") })
-o.datatype = uinteger
+o.datatype = "uinteger"
 o.placeholder = "8"
 
 return m
