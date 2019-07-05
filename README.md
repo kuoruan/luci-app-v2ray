@@ -30,9 +30,9 @@ For translations, please install ```luci-i18n-v2ray-*```.
 
 1. Download V2Ray file from V2Ray release [link](https://github.com/v2ray/v2ray-core/releases) or V2Ray ipk release [link](https://github.com/kuoruan/openwrt-v2ray/releases).
 
-2. Upload the client file to your router, or install the ipk file.
+2. Upload V2Ray file to your router, or install the ipk file.
 
-3. Config client file path in LuCI page.
+3. Config V2Ray file path in LuCI page.
 
 4. Add your inbound and outbound rules.
 
