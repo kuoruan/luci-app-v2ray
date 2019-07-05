@@ -10,6 +10,7 @@ m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Outbound") })
 s = m:section(TypedSection, "outbound")
 s.anonymous = true
 s.addremove = true
+s.sortable = true
 s.template = "cbi/tblsection"
 s.extedit = dsp.build_url("admin/services/v2ray/outbounds/%s")
 s.create = function (...)

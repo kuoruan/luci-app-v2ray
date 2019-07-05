@@ -2,8 +2,6 @@
 -- Licensed to the public under the MIT License.
 
 local fs   = require "nixio.fs"
-local sys  = require "luci.sys"
-local uci  = require "luci.model.uci".cursor()
 local util = require "luci.util"
 local json = require "luci.jsonc"
 

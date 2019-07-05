@@ -41,7 +41,7 @@ function index()
 		cbi("v2ray/reverse"), _("Reverse"), 7)
 
 	entry({"admin", "services", "v2ray", "about"},
-		cbi("v2ray/about"), _("About"), 7)
+		cbi("v2ray/about"), _("About"), 8)
 
 	entry({"admin", "services", "v2ray", "routing", "rules"},
 		cbi("v2ray/routing-rule-detail")).leaf = true
