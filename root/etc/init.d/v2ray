@@ -813,3 +813,7 @@ start_service() {
 		add_v2ray_rules "$TRANSPARENT_PROXY_PORT" "$TRANSPARENT_PROXY_SERVER_IPS"
 	fi
 }
+
+stop_service() {
+	clear_v2ray_rules
+}
