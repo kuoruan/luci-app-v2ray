@@ -197,28 +197,28 @@ add_v2ray_rules() {
 	ip route add local default dev lo table 100 2>/dev/null
 
 	iptables-restore --noflush <<-EOF 2>/dev/null
-	*nat
-	:V2RAY -
-	$(for s in $server_ips ; do echo "-A V2RAY -d $s -j RETURN" ; done)
-	-A V2RAY -d 0.0.0.0/8 -j RETURN
-	-A V2RAY -d 10.0.0.0/8 -j RETURN
-	-A V2RAY -d 127.0.0.0/8 -j RETURN
-	-A V2RAY -d 169.254.0.0/16 -j RETURN
-	-A V2RAY -d 172.16.0.0/12 -j RETURN
-	-A V2RAY -d 192.168.0.0/16 -j RETURN
-	-A V2RAY -d 224.0.0.0/4 -j RETURN
-	-A V2RAY -d 240.0.0.0/4 -j RETURN
-	-A V2RAY -p tcp -j REDIRECT --to-ports $port
-	-A OUTPUT -p tcp -j V2RAY
-	COMMIT
-	*mangle
-	:V2RAY -
-	:V2RAY_MARK -
-	-A V2RAY -p udp --dport 53 -j TPROXY --on-port $port --tproxy-mark 0x01/0x01
-	-A V2RAY_MARK -p udp --dport 53 -j MARK --set-mark 1
-	-A PREROUTING -j V2RAY
-	-A OUTPUT -j V2RAY_MARK
-	COMMIT
+		*nat
+		:V2RAY -
+		$(for s in $server_ips ; do echo "-A V2RAY -d $s -j RETURN" ; done)
+		-A V2RAY -d 0.0.0.0/8 -j RETURN
+		-A V2RAY -d 10.0.0.0/8 -j RETURN
+		-A V2RAY -d 127.0.0.0/8 -j RETURN
+		-A V2RAY -d 169.254.0.0/16 -j RETURN
+		-A V2RAY -d 172.16.0.0/12 -j RETURN
+		-A V2RAY -d 192.168.0.0/16 -j RETURN
+		-A V2RAY -d 224.0.0.0/4 -j RETURN
+		-A V2RAY -d 240.0.0.0/4 -j RETURN
+		-A V2RAY -p tcp -j REDIRECT --to-ports $port
+		-A OUTPUT -p tcp -j V2RAY
+		COMMIT
+		*mangle
+		:V2RAY -
+		:V2RAY_MARK -
+		-A V2RAY -p udp --dport 53 -j TPROXY --on-port $port --tproxy-mark 0x01/0x01
+		-A V2RAY_MARK -p udp --dport 53 -j MARK --set-mark 1
+		-A PREROUTING -j V2RAY
+		-A OUTPUT -j V2RAY_MARK
+		COMMIT
 	EOF
 }
 
