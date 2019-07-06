@@ -607,17 +607,21 @@ add_inbound_setting() {
 		TRANSPARENT_PROXY_ENABLED="1"
 		TRANSPARENT_PROXY_PORT="$port"
 
-		json_add_object "settings"
-		json_add_boolean "followRedirect" "1"
-		json_close_object
-
+		local network_types="tcp"
 		if [ "x$transparent_proxy_udp" = "x1" ] ; then
 			TRANSPARENT_PROXY_ADDITION="udp"
+			network_types="$network_types,udp"
 		elif [ "x$transparent_proxy_dns" = "x1" ] ; then
 			TRANSPARENT_PROXY_ADDITION="dns"
+			network_types="$network_types,udp"
 		else
 			TRANSPARENT_PROXY_ADDITION=""
 		fi
+
+		json_add_object "settings"
+		json_add_string "network" "$network_types"
+		json_add_boolean "followRedirect" "1"
+		json_close_object
 	else
 		local inbound_settings_json="/etc/v2ray/inbound-settings.json"
 		if [ -f "$inbound_settings_json" ] ; then
