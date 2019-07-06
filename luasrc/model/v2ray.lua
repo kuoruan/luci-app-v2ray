@@ -33,13 +33,7 @@ function read_file_as_object(path)
 end
 
 function write_object_to_file(path, value)
-	local content
-	if not value then
-		content = ""
-	else
-		content = json.stringify(value)
-	end
-
+	local content = object_to_string(value)
 	return fs.writefile(path, content)
 end
 
