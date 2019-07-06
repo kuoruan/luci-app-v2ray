@@ -1,7 +1,7 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8\n"
 
-#: luasrc/model/cbi/v2ray/main.lua:113
+#: luasrc/model/cbi/v2ray/main.lua:117
 msgid "<code>transport</code> field in top level configuration, JSON string"
 msgstr "配置文件中的 <code>transport</code> 项，JSON 字符串"
 
@@ -13,11 +13,11 @@ msgstr "Bridge 列表，格式：<code>tag|domain</code>。例如：%s"
 msgid "A list of portals, format: <code>tag|domain</code>. eg: %s"
 msgstr "Portal 列表，格式：<code>tag|domain</code>。例如：%s"
 
-#: luasrc/model/cbi/v2ray/dns.lua:31
+#: luasrc/model/cbi/v2ray/dns.lua:33
 msgid "A list of static addresses, format: <code>domain|address</code>. eg: %s"
 msgstr "静态 IP 列表，格式：<code>domain|address</code>。例如：%s"
 
-#: luasrc/model/cbi/v2ray/main.lua:48
+#: luasrc/model/cbi/v2ray/main.lua:52
 msgid "A platform for building proxies to bypass network restrictions."
 msgstr "一个用于构建网络代理的平台"
 
@@ -25,34 +25,34 @@ msgstr "一个用于构建网络代理的平台"
 msgid "About"
 msgstr "关于"
 
-#: luasrc/model/cbi/v2ray/main.lua:81
+#: luasrc/model/cbi/v2ray/main.lua:85
 msgid "Access log file"
 msgstr "访问日志文件"
 
-#: luasrc/model/cbi/v2ray/dns.lua:38
+#: luasrc/model/cbi/v2ray/dns.lua:40
 msgid "Add DNS servers here"
 msgstr "在这里添加 DNS 服务器"
 
-#: luasrc/model/cbi/v2ray/policy.lua:39
+#: luasrc/model/cbi/v2ray/policy.lua:37
 msgid "Add policy levels here"
 msgstr "在这里添加策略等级"
 
-#: luasrc/model/cbi/v2ray/dns.lua:45
+#: luasrc/model/cbi/v2ray/dns.lua:47
 msgid "Address"
 msgstr "地址"
 
-#: luasrc/model/cbi/v2ray/dns.lua:42
+#: luasrc/model/cbi/v2ray/dns.lua:44
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:26
 #: luasrc/model/cbi/v2ray/inbound-list.lua:25
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:26
 #: luasrc/model/cbi/v2ray/outbound-list.lua:25
-#: luasrc/model/cbi/v2ray/routing.lua:60
+#: luasrc/model/cbi/v2ray/routing.lua:65
 msgid "Alias"
 msgstr "别名"
 
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:99
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:104
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:107
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:105
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:110
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:113
 msgid "Allocate"
 msgstr "端口分配"
 
@@ -60,7 +60,7 @@ msgstr "端口分配"
 msgid "An IP address for sending traffic out."
 msgstr "用于发送数据的 IP 地址"
 
-#: luasrc/model/cbi/v2ray/dns.lua:42
+#: luasrc/model/cbi/v2ray/dns.lua:44
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:26
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:26
 #: luasrc/model/cbi/v2ray/routing-rule-detail.lua:22
@@ -79,7 +79,7 @@ msgstr "作者：%s"
 msgid "Balancer Tag"
 msgstr "负载均衡器标识"
 
-#: luasrc/model/cbi/v2ray/routing.lua:41
+#: luasrc/model/cbi/v2ray/routing.lua:45
 msgid "Balancers"
 msgstr "负载均衡器"
 
@@ -87,19 +87,19 @@ msgstr "负载均衡器"
 msgid "Bridges"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/policy.lua:68
+#: luasrc/model/cbi/v2ray/policy.lua:67
 msgid "Buffer Size"
 msgstr "缓存大小"
 
-#: luasrc/model/cbi/v2ray/policy-level-detail.lua:50
+#: luasrc/model/cbi/v2ray/policy-level-detail.lua:46
 msgid "Buffer size"
 msgstr "缓存大小"
 
-#: luasrc/model/cbi/v2ray/main.lua:41
+#: luasrc/model/cbi/v2ray/main.lua:45
 msgid "Can't get V2Ray version"
 msgstr "无法获取 V2Ray 版本信息"
 
-#: luasrc/model/cbi/v2ray/dns.lua:27
+#: luasrc/model/cbi/v2ray/dns.lua:29
 msgid "Client IP"
 msgstr "系统 IP 地址"
 
@@ -107,16 +107,16 @@ msgstr "系统 IP 地址"
 msgid "Collecting data..."
 msgstr "正在收集数据..."
 
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:107
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:90
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:113
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:88
 msgid "Concurrency"
 msgstr "随机端口数量"
 
-#: luasrc/model/cbi/v2ray/main.lua:69
+#: luasrc/model/cbi/v2ray/main.lua:73
 msgid "Config file"
 msgstr "配置文件"
 
-#: luasrc/model/cbi/v2ray/policy.lua:63
+#: luasrc/model/cbi/v2ray/policy.lua:62
 msgid "Connection Idle"
 msgstr "连接空闲时间"
 
@@ -124,27 +124,31 @@ msgstr "连接空闲时间"
 msgid "Connection idle"
 msgstr "连接空闲时间"
 
-#: luasrc/controller/v2ray.lua:30 luasrc/model/cbi/v2ray/dns.lua:16
+#: luasrc/controller/v2ray.lua:30 luasrc/model/cbi/v2ray/dns.lua:18
 msgid "DNS"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/dns.lua:33
+#: luasrc/model/cbi/v2ray/dns.lua:35
 msgid "DNS Servers"
 msgstr "DNS 服务器"
 
-#: luasrc/model/cbi/v2ray/dns.lua:38
+#: luasrc/model/cbi/v2ray/dns.lua:40
 msgid "DNS server"
 msgstr "DNS 服务器"
 
-#: luasrc/model/cbi/v2ray/main.lua:74
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:51
+msgid "DNS traffic"
+msgstr "DNS 流量"
+
+#: luasrc/model/cbi/v2ray/main.lua:78
 msgid "Debug"
 msgstr "调试"
 
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:95
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:101
 msgid "Dest override"
 msgstr "重置指定类型"
 
-#: luasrc/model/cbi/v2ray/main.lua:65
+#: luasrc/model/cbi/v2ray/main.lua:69
 msgid ""
 "Directory where geoip.dat and geosite.dat files are, default: same directory "
 "as V2Ray file."
@@ -154,11 +158,11 @@ msgstr "geoip.dat 和 geosite.dat 文件所在目录，默认：和 V2Ray 文件
 msgid "Domain"
 msgstr "域名"
 
-#: luasrc/model/cbi/v2ray/routing.lua:31
+#: luasrc/model/cbi/v2ray/routing.lua:35
 msgid "Domain resolution strategy"
 msgstr "域名解析策略"
 
-#: luasrc/model/cbi/v2ray/dns.lua:51
+#: luasrc/model/cbi/v2ray/dns.lua:53
 msgid "Domains"
 msgstr "域名"
 
@@ -186,38 +190,39 @@ msgstr "编辑策略等级"
 msgid "Edit Routing Rule"
 msgstr "编辑路由规则"
 
-#: luasrc/model/cbi/v2ray/dns.lua:22
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:91
-#: luasrc/model/cbi/v2ray/main.lua:58 luasrc/model/cbi/v2ray/main.lua:107
-#: luasrc/model/cbi/v2ray/main.lua:110
+#: luasrc/model/cbi/v2ray/dns.lua:24
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:45
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:99
+#: luasrc/model/cbi/v2ray/main.lua:62 luasrc/model/cbi/v2ray/main.lua:111
+#: luasrc/model/cbi/v2ray/main.lua:114
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:86
-#: luasrc/model/cbi/v2ray/policy.lua:23 luasrc/model/cbi/v2ray/reverse.lua:14
-#: luasrc/model/cbi/v2ray/routing.lua:29
+#: luasrc/model/cbi/v2ray/policy.lua:25 luasrc/model/cbi/v2ray/reverse.lua:14
+#: luasrc/model/cbi/v2ray/routing.lua:33
 msgid "Enabled"
 msgstr "已启用"
 
-#: luasrc/model/cbi/v2ray/main.lua:77
+#: luasrc/model/cbi/v2ray/main.lua:81
 msgid "Error"
 msgstr "错误"
 
-#: luasrc/model/cbi/v2ray/main.lua:88
+#: luasrc/model/cbi/v2ray/main.lua:92
 msgid "Error log file"
 msgstr "错误日志文件"
 
-#: luasrc/model/cbi/v2ray/main.lua:49
+#: luasrc/model/cbi/v2ray/main.lua:53
 msgid "For more information, please visit: %s"
 msgstr "获取更多信息，请访问：%s"
 
-#: luasrc/controller/v2ray.lua:19 luasrc/model/cbi/v2ray/main.lua:46
+#: luasrc/controller/v2ray.lua:19 luasrc/model/cbi/v2ray/main.lua:50
 msgid "Global Settings"
 msgstr "全局设置"
 
 #: luasrc/model/cbi/v2ray/policy-level-detail.lua:26
-#: luasrc/model/cbi/v2ray/policy.lua:58
+#: luasrc/model/cbi/v2ray/policy.lua:57
 msgid "Handshake"
 msgstr "握手时间限制"
 
-#: luasrc/model/cbi/v2ray/dns.lua:30
+#: luasrc/model/cbi/v2ray/dns.lua:32
 msgid "Hosts"
 msgstr "静态 IP 列表"
 
@@ -233,15 +238,15 @@ msgstr "入站连接"
 msgid "Inbound Tag"
 msgstr "入站协议标识"
 
-#: luasrc/model/cbi/v2ray/main.lua:95
+#: luasrc/model/cbi/v2ray/main.lua:99
 msgid "Inbound proxies"
 msgstr "入站代理"
 
-#: luasrc/model/cbi/v2ray/main.lua:75
+#: luasrc/model/cbi/v2ray/main.lua:79
 msgid "Info"
 msgstr "信息"
 
-#: luasrc/model/cbi/v2ray/main.lua:32
+#: luasrc/model/cbi/v2ray/main.lua:36
 msgid "Invalid V2Ray file"
 msgstr "V2Ray 文件有误"
 
@@ -250,11 +255,11 @@ msgid "Latest: %s"
 msgstr "最新版本：%s"
 
 #: luasrc/model/cbi/v2ray/policy-level-detail.lua:22
-#: luasrc/model/cbi/v2ray/policy.lua:53
+#: luasrc/model/cbi/v2ray/policy.lua:52
 msgid "Level"
 msgstr "等级"
 
-#: luasrc/model/cbi/v2ray/policy.lua:26
+#: luasrc/model/cbi/v2ray/policy.lua:28
 msgid "Levels"
 msgstr "等级"
 
@@ -263,7 +268,7 @@ msgstr "等级"
 msgid "Listen"
 msgstr "监听地址"
 
-#: luasrc/model/cbi/v2ray/main.lua:72
+#: luasrc/model/cbi/v2ray/main.lua:76
 msgid "Log level"
 msgstr "日志等级"
 
@@ -272,12 +277,12 @@ msgid "LuCI support for V2Ray"
 msgstr "V2Ray 的 LuCI 配置界面"
 
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:86
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:90
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:88
 msgid "Mux"
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/routing-rule-detail.lua:35
-#: luasrc/model/cbi/v2ray/routing.lua:75
+#: luasrc/model/cbi/v2ray/routing.lua:80
 msgid "Network"
 msgstr "网络"
 
@@ -285,7 +290,7 @@ msgstr "网络"
 msgid "No"
 msgstr "否"
 
-#: luasrc/model/cbi/v2ray/main.lua:70 luasrc/model/cbi/v2ray/main.lua:78
+#: luasrc/model/cbi/v2ray/main.lua:74 luasrc/model/cbi/v2ray/main.lua:82
 msgid "None"
 msgstr "无"
 
@@ -301,23 +306,23 @@ msgstr "出站连接"
 msgid "Outbound Tag"
 msgstr "出站协议标识"
 
-#: luasrc/model/cbi/v2ray/main.lua:101
+#: luasrc/model/cbi/v2ray/main.lua:105
 msgid "Outbound proxies"
 msgstr "出站代理"
 
-#: luasrc/controller/v2ray.lua:38 luasrc/model/cbi/v2ray/policy.lua:17
+#: luasrc/controller/v2ray.lua:38 luasrc/model/cbi/v2ray/policy.lua:19
 msgid "Policy"
 msgstr "策略"
 
-#: luasrc/model/cbi/v2ray/policy.lua:39
+#: luasrc/model/cbi/v2ray/policy.lua:37
 msgid "Policy Level"
 msgstr "策略等级"
 
-#: luasrc/model/cbi/v2ray/dns.lua:48
+#: luasrc/model/cbi/v2ray/dns.lua:50
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:33
 #: luasrc/model/cbi/v2ray/inbound-list.lua:35
 #: luasrc/model/cbi/v2ray/routing-rule-detail.lua:32
-#: luasrc/model/cbi/v2ray/routing.lua:70
+#: luasrc/model/cbi/v2ray/routing.lua:75
 msgid "Port"
 msgstr "端口"
 
@@ -333,12 +338,12 @@ msgstr ""
 msgid "Protocol"
 msgstr "协议"
 
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:69
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:77
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:62
 msgid "Protocol transport options, JSON string"
 msgstr "协议的底层传输配置，JSON 字符串"
 
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:48
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:55
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:42
 msgid "Protocol-specific settings, JSON string"
 msgstr "协议的配置内容，JSON 字符串"
@@ -347,7 +352,7 @@ msgstr "协议的配置内容，JSON 字符串"
 msgid "Proxy settings"
 msgstr "出站代理配置"
 
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:104
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:110
 msgid "Refresh"
 msgstr "随机端口刷新间隔"
 
@@ -359,19 +364,19 @@ msgstr "报告错误：%s"
 msgid "Reverse"
 msgstr "反向代理"
 
-#: luasrc/controller/v2ray.lua:34 luasrc/model/cbi/v2ray/routing.lua:23
+#: luasrc/controller/v2ray.lua:34 luasrc/model/cbi/v2ray/routing.lua:27
 msgid "Routing"
 msgstr "路由"
 
-#: luasrc/model/cbi/v2ray/routing.lua:80
+#: luasrc/model/cbi/v2ray/routing.lua:85
 msgid "Routing Balancer"
 msgstr "负载均衡器"
 
-#: luasrc/model/cbi/v2ray/routing.lua:46
+#: luasrc/model/cbi/v2ray/routing.lua:50
 msgid "Routing Rule"
 msgstr "路由规则"
 
-#: luasrc/model/cbi/v2ray/routing.lua:36
+#: luasrc/model/cbi/v2ray/routing.lua:40
 msgid "Rules"
 msgstr "规则"
 
@@ -379,23 +384,23 @@ msgstr "规则"
 msgid "Running"
 msgstr "服务正在运行"
 
-#: luasrc/model/cbi/v2ray/dns.lua:33
+#: luasrc/model/cbi/v2ray/dns.lua:35
 msgid "Select DNS servers to use"
 msgstr "选择使用的 DNS 服务器"
 
-#: luasrc/model/cbi/v2ray/policy.lua:26
+#: luasrc/model/cbi/v2ray/policy.lua:28
 msgid "Select policy levels"
 msgstr "选择策略等级"
 
-#: luasrc/model/cbi/v2ray/routing.lua:41
+#: luasrc/model/cbi/v2ray/routing.lua:45
 msgid "Select routing balancers to use"
 msgstr "选择使用的路由负载均衡器"
 
-#: luasrc/model/cbi/v2ray/routing.lua:36
+#: luasrc/model/cbi/v2ray/routing.lua:40
 msgid "Select routing rules to use"
 msgstr "选择使用的路由规则"
 
-#: luasrc/model/cbi/v2ray/routing.lua:87
+#: luasrc/model/cbi/v2ray/routing.lua:92
 msgid "Selector"
 msgstr "标识匹配前缀"
 
@@ -407,14 +412,14 @@ msgstr "发送 IP 地址"
 msgid "Send through"
 msgstr "发送 IP 地址"
 
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:48
-#: luasrc/model/cbi/v2ray/main.lua:113
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:55
+#: luasrc/model/cbi/v2ray/main.lua:117
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:42
 msgid "Settings"
 msgstr "配置"
 
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:91
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:95
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:99
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:101
 msgid "Sniffing"
 msgstr "流量探测"
 
@@ -426,7 +431,7 @@ msgstr "来源地址"
 msgid "Source: %s"
 msgstr "源码：%s"
 
-#: luasrc/model/cbi/v2ray/main.lua:107
+#: luasrc/model/cbi/v2ray/main.lua:111
 msgid "Stats"
 msgstr "统计信息"
 
@@ -434,11 +439,11 @@ msgstr "统计信息"
 msgid "Stats inbound downlink"
 msgstr "入站下行流量统计"
 
-#: luasrc/model/cbi/v2ray/policy.lua:31
+#: luasrc/model/cbi/v2ray/policy.lua:33
 msgid "Stats inbound uplink"
 msgstr "入站上行流量统计"
 
-#: luasrc/model/cbi/v2ray/policy-level-detail.lua:46
+#: luasrc/model/cbi/v2ray/policy-level-detail.lua:44
 msgid "Stats user downlink"
 msgstr "用户上行流量统计"
 
@@ -446,26 +451,26 @@ msgstr "用户上行流量统计"
 msgid "Stats user uplink"
 msgstr "用户下行流量统计"
 
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:99
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:105
 msgid "Strategy"
 msgstr "端口分配策略"
 
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:69
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:77
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:62
 msgid "Stream settings"
 msgstr "底层传输配置"
 
-#: luasrc/model/cbi/v2ray/policy.lua:31 luasrc/model/cbi/v2ray/policy.lua:35
+#: luasrc/model/cbi/v2ray/policy.lua:33 luasrc/model/cbi/v2ray/policy.lua:35
 msgid "System"
 msgstr "系统"
 
-#: luasrc/model/cbi/v2ray/dns.lua:25
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:89
+#: luasrc/model/cbi/v2ray/dns.lua:27
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:97
 #: luasrc/model/cbi/v2ray/inbound-list.lua:45
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:82
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:84
 #: luasrc/model/cbi/v2ray/outbound-list.lua:40
-#: luasrc/model/cbi/v2ray/routing.lua:84
+#: luasrc/model/cbi/v2ray/routing.lua:89
 msgid "Tag"
 msgstr "标识"
 
@@ -474,23 +479,29 @@ msgid "Transparent Proxy"
 msgstr "透明代理"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:45
-msgid "Transparent proxy enabled"
-msgstr "启用透明代理"
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:48
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:51
+msgid "Transparent proxy"
+msgstr "透明代理"
 
-#: luasrc/model/cbi/v2ray/main.lua:110 luasrc/model/cbi/v2ray/main.lua:113
+#: luasrc/model/cbi/v2ray/main.lua:114 luasrc/model/cbi/v2ray/main.lua:117
 msgid "Transport"
 msgstr "底层传输"
 
 #: luasrc/model/cbi/v2ray/routing-rule-detail.lua:25
-#: luasrc/model/cbi/v2ray/routing.lua:65
+#: luasrc/model/cbi/v2ray/routing.lua:70
 msgid "Type"
 msgstr "类型"
+
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:48
+msgid "UDP traffic"
+msgstr "UDP 流量"
 
 #: luasrc/model/cbi/v2ray/policy-level-detail.lua:34
 msgid "Uplink only"
 msgstr "连接上行线路关闭后的时间限制"
 
-#: luasrc/model/cbi/v2ray/main.lua:69
+#: luasrc/model/cbi/v2ray/main.lua:73
 msgid "Use custom config file"
 msgstr "使用自定义配置文件"
 
@@ -499,31 +510,31 @@ msgid "User"
 msgstr "用户"
 
 #: luasrc/controller/v2ray.lua:16 luasrc/model/cbi/v2ray/about.lua:4
-#: luasrc/model/cbi/v2ray/dns.lua:16
+#: luasrc/model/cbi/v2ray/dns.lua:18
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:11
-#: luasrc/model/cbi/v2ray/inbound-list.lua:8 luasrc/model/cbi/v2ray/main.lua:46
+#: luasrc/model/cbi/v2ray/inbound-list.lua:8 luasrc/model/cbi/v2ray/main.lua:50
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:11
 #: luasrc/model/cbi/v2ray/outbound-list.lua:8
 #: luasrc/model/cbi/v2ray/policy-level-detail.lua:10
-#: luasrc/model/cbi/v2ray/policy.lua:17 luasrc/model/cbi/v2ray/reverse.lua:8
+#: luasrc/model/cbi/v2ray/policy.lua:19 luasrc/model/cbi/v2ray/reverse.lua:8
 #: luasrc/model/cbi/v2ray/routing-rule-detail.lua:10
-#: luasrc/model/cbi/v2ray/routing.lua:23
+#: luasrc/model/cbi/v2ray/routing.lua:27
 msgid "V2Ray"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:65
+#: luasrc/model/cbi/v2ray/main.lua:69
 msgid "V2Ray asset location"
 msgstr "V2Ray 资源文件路径"
 
-#: luasrc/model/cbi/v2ray/main.lua:61
+#: luasrc/model/cbi/v2ray/main.lua:65
 msgid "V2Ray file"
 msgstr "V2Ray 文件"
 
-#: luasrc/model/cbi/v2ray/main.lua:43
+#: luasrc/model/cbi/v2ray/main.lua:47
 msgid "Version: %s"
 msgstr "版本：%s"
 
-#: luasrc/model/cbi/v2ray/main.lua:76
+#: luasrc/model/cbi/v2ray/main.lua:80
 msgid "Warning"
 msgstr "警告"
 
@@ -531,9 +542,9 @@ msgstr "警告"
 msgid "Yes"
 msgstr "是"
 
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:54
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:74
-#: luasrc/model/cbi/v2ray/main.lua:122
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:62
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:82
+#: luasrc/model/cbi/v2ray/main.lua:126
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:47
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:67
 msgid "invalid JSON"

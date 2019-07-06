@@ -11,6 +11,7 @@ NAME=v2ray
 CONFIG_FOLDER=/var/etc/$NAME
 
 TRANSPARENT_PROXY_ENABLED=
+TRANSPARENT_PROXY_ADDITION=
 TRANSPARENT_PROXY_PORT=
 TRANSPARENT_PROXY_SERVER_IPS=
 
@@ -171,6 +172,8 @@ inbound_section_validate() {
 		'listen:or(ip4addr, ip6addr):0.0.0.0' \
 		'protocol:string' \
 		'transparent_proxy_enabled:bool:0' \
+		'transparent_proxy_udp:bool:0' \
+		'transparent_proxy_dns:bool:0' \
 		'tag:string' \
 		'sniffing_enabled:bool:0' \
 		'sniffing_dest_override:list(or("http", "tls"))' \
@@ -192,9 +195,7 @@ outbound_section_validate() {
 add_v2ray_rules() {
 	local port="$1"
 	local server_ips="$2"
-
-	ip rule add fwmark 1 lookup 100
-	ip route add local default dev lo table 100 2>/dev/null
+	local addition_proxy="$3"
 
 	iptables-restore --noflush <<-EOF 2>/dev/null
 		*nat
@@ -212,15 +213,27 @@ add_v2ray_rules() {
 		-A PREROUTING -p tcp -j V2RAY
 		-A OUTPUT -p tcp -j V2RAY
 		COMMIT
-		*mangle
-		:V2RAY -
-		:V2RAY_MARK -
-		-A V2RAY -p udp --dport 53 -j TPROXY --on-port $port --tproxy-mark 0x01/0x01
-		-A V2RAY_MARK -p udp --dport 53 -j MARK --set-mark 1
-		-A PREROUTING -j V2RAY
-		-A OUTPUT -j V2RAY_MARK
-		COMMIT
 	EOF
+
+	if [ -n "$addition_proxy" ] ; then
+		ip rule add fwmark 1 lookup 100
+		ip route add local default dev lo table 100 2>/dev/null
+
+		local d_port=""
+		if [ "$addition_proxy" = "dns" ] ; then
+			d_port="--dport 53"
+		fi
+		iptables-restore --noflush <<-EOF 2>/dev/null
+			*mangle
+			:V2RAY -
+			:V2RAY_MARK -
+			-A V2RAY -p udp $d_port -j TPROXY --on-port $port --tproxy-mark 0x01/0x01
+			-A V2RAY_MARK -p udp $d_port -j MARK --set-mark 1
+			-A PREROUTING -j V2RAY
+			-A OUTPUT -j V2RAY_MARK
+			COMMIT
+		EOF
+	fi
 }
 
 clear_v2ray_rules() {
@@ -597,6 +610,14 @@ add_inbound_setting() {
 		json_add_object "settings"
 		json_add_boolean "followRedirect" "1"
 		json_close_object
+
+		if [ "x$transparent_proxy_udp" = "x1" ] ; then
+			TRANSPARENT_PROXY_ADDITION="udp"
+		elif [ "x$transparent_proxy_dns" = "x1" ] ; then
+			TRANSPARENT_PROXY_ADDITION="dns"
+		else
+			TRANSPARENT_PROXY_ADDITION=""
+		fi
 	else
 		local inbound_settings_json="/etc/v2ray/inbound-settings.json"
 		if [ -f "$inbound_settings_json" ] ; then
@@ -810,9 +831,17 @@ start_service() {
 	config_foreach start_instance "v2ray"
 
 	clear_v2ray_rules
+
 	if [ -n "$TRANSPARENT_PROXY_ENABLED" ] ; then
-		add_v2ray_rules "$TRANSPARENT_PROXY_PORT" "$TRANSPARENT_PROXY_SERVER_IPS"
+		add_v2ray_rules "$TRANSPARENT_PROXY_PORT" \
+			"$TRANSPARENT_PROXY_SERVER_IPS" \
+			"$TRANSPARENT_PROXY_ADDITION"
 	fi
+
+	unset TRANSPARENT_PROXY_ENABLED \
+		TRANSPARENT_PROXY_PORT \
+		TRANSPARENT_PROXY_SERVER_IPS \
+		TRANSPARENT_PROXY_ADDITION
 }
 
 stop_service() {
