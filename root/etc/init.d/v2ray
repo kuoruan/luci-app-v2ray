@@ -197,6 +197,7 @@ add_v2ray_rules() {
 	local server_ips="$2"
 	local addition_proxy="$3"
 
+	# ToutyRater/v2ray-guide#24
 	iptables-restore --noflush <<-EOF 2>/dev/null
 		*nat
 		:V2RAY -
@@ -211,7 +212,7 @@ add_v2ray_rules() {
 		-A V2RAY -d 240.0.0.0/4 -j RETURN
 		-A V2RAY -p tcp -j REDIRECT --to-ports $port
 		-A PREROUTING -p tcp -j V2RAY
-		-A OUTPUT -p tcp -j V2RAY
+		#-A OUTPUT -p tcp -j V2RAY
 		COMMIT
 	EOF
 
@@ -226,11 +227,19 @@ add_v2ray_rules() {
 		iptables-restore --noflush <<-EOF 2>/dev/null
 			*mangle
 			:V2RAY -
-			:V2RAY_MARK -
+			#:V2RAY_MARK -
+			-A V2RAY -d 0.0.0.0/8 -j RETURN
+			-A V2RAY -d 10.0.0.0/8 -j RETURN
+			-A V2RAY -d 127.0.0.0/8 -j RETURN
+			-A V2RAY -d 169.254.0.0/16 -j RETURN
+			-A V2RAY -d 172.16.0.0/12 -j RETURN
+			-A V2RAY -d 192.168.0.0/16 -j RETURN
+			-A V2RAY -d 224.0.0.0/4 -j RETURN
+			-A V2RAY -d 240.0.0.0/4 -j RETURN
 			-A V2RAY -p udp $d_port -j TPROXY --on-port $port --tproxy-mark 0x01/0x01
-			-A V2RAY_MARK -p udp $d_port -j MARK --set-mark 1
+			#-A V2RAY_MARK -p udp $d_port -j MARK --set-mark 1
 			-A PREROUTING -j V2RAY
-			-A OUTPUT -j V2RAY_MARK
+			#-A OUTPUT -j V2RAY_MARK
 			COMMIT
 		EOF
 	fi
