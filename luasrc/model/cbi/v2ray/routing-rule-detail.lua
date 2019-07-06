@@ -41,7 +41,7 @@ o.datatype = 'or(ip4addr, ip6addr, cidr)'
 
 o = s:option(DynamicList, "user", translate("User"))
 
-o = s:option(DynamicList, "inbound_tag", translate("Inbound Tag"))
+o = s:option(DynamicList, "inbound_tag", translate("Inbound tag"))
 
 o = s:option(MultiValue, "protocol", translate("Protocol"))
 o:value("http")
@@ -50,9 +50,9 @@ o:value("bittorrent")
 
 o = s:option(Value, "attrs", translate("Attrs"))
 
-o = s:option(Value, "outbound_tag", translate("Outbound Tag"))
+o = s:option(Value, "outbound_tag", translate("Outbound tag"))
 
-o = s:option(Value, "balancer_tag", translate("Balancer Tag"))
+o = s:option(Value, "balancer_tag", translate("Balancer tag"))
 o:depends("outbound_tag", "")
 
 return m

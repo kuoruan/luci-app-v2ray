@@ -37,6 +37,14 @@ msgstr "在这里添加 DNS 服务器"
 msgid "Add policy levels here"
 msgstr "在这里添加策略等级"
 
+#: luasrc/model/cbi/v2ray/routing.lua:90
+msgid "Add routing balancers here"
+msgstr "在这里添加路由负载均衡器"
+
+#: luasrc/model/cbi/v2ray/routing.lua:50
+msgid "Add routing rules here"
+msgstr "在这里添加路由规则"
+
 #: luasrc/model/cbi/v2ray/dns.lua:47
 msgid "Address"
 msgstr "地址"
@@ -76,7 +84,7 @@ msgid "Author: %s"
 msgstr "作者：%s"
 
 #: luasrc/model/cbi/v2ray/routing-rule-detail.lua:55
-msgid "Balancer Tag"
+msgid "Balancer tag"
 msgstr "负载均衡器标识"
 
 #: luasrc/model/cbi/v2ray/routing.lua:45
@@ -234,13 +242,17 @@ msgstr ""
 msgid "Inbound"
 msgstr "入站连接"
 
-#: luasrc/model/cbi/v2ray/routing-rule-detail.lua:44
+#: luasrc/model/cbi/v2ray/routing.lua:75
 msgid "Inbound Tag"
-msgstr "入站协议标识"
+msgstr "入站连接标识"
 
 #: luasrc/model/cbi/v2ray/main.lua:99
 msgid "Inbound proxies"
 msgstr "入站代理"
+
+#: luasrc/model/cbi/v2ray/routing-rule-detail.lua:44
+msgid "Inbound tag"
+msgstr "入站连接标识"
 
 #: luasrc/model/cbi/v2ray/main.lua:79
 msgid "Info"
@@ -282,7 +294,7 @@ msgid "Mux"
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/routing-rule-detail.lua:35
-#: luasrc/model/cbi/v2ray/routing.lua:80
+#: luasrc/model/cbi/v2ray/routing.lua:85
 msgid "Network"
 msgstr "网络"
 
@@ -302,13 +314,17 @@ msgstr "服务未运行"
 msgid "Outbound"
 msgstr "出站连接"
 
-#: luasrc/model/cbi/v2ray/routing-rule-detail.lua:53
+#: luasrc/model/cbi/v2ray/routing.lua:80
 msgid "Outbound Tag"
-msgstr "出站协议标识"
+msgstr "出站连接标识"
 
 #: luasrc/model/cbi/v2ray/main.lua:105
 msgid "Outbound proxies"
 msgstr "出站代理"
+
+#: luasrc/model/cbi/v2ray/routing-rule-detail.lua:53
+msgid "Outbound tag"
+msgstr "出站连接标识"
 
 #: luasrc/controller/v2ray.lua:38 luasrc/model/cbi/v2ray/policy.lua:19
 msgid "Policy"
@@ -322,7 +338,6 @@ msgstr "策略等级"
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:33
 #: luasrc/model/cbi/v2ray/inbound-list.lua:35
 #: luasrc/model/cbi/v2ray/routing-rule-detail.lua:32
-#: luasrc/model/cbi/v2ray/routing.lua:75
 msgid "Port"
 msgstr "端口"
 
@@ -368,7 +383,7 @@ msgstr "反向代理"
 msgid "Routing"
 msgstr "路由"
 
-#: luasrc/model/cbi/v2ray/routing.lua:85
+#: luasrc/model/cbi/v2ray/routing.lua:90
 msgid "Routing Balancer"
 msgstr "负载均衡器"
 
@@ -400,7 +415,7 @@ msgstr "选择使用的路由负载均衡器"
 msgid "Select routing rules to use"
 msgstr "选择使用的路由规则"
 
-#: luasrc/model/cbi/v2ray/routing.lua:92
+#: luasrc/model/cbi/v2ray/routing.lua:97
 msgid "Selector"
 msgstr "标识匹配前缀"
 
@@ -470,7 +485,7 @@ msgstr "系统"
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:82
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:84
 #: luasrc/model/cbi/v2ray/outbound-list.lua:40
-#: luasrc/model/cbi/v2ray/routing.lua:89
+#: luasrc/model/cbi/v2ray/routing.lua:94
 msgid "Tag"
 msgstr "标识"
 

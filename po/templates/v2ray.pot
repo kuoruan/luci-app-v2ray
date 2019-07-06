@@ -37,6 +37,14 @@ msgstr ""
 msgid "Add policy levels here"
 msgstr ""
 
+#: luasrc/model/cbi/v2ray/routing.lua:90
+msgid "Add routing balancers here"
+msgstr ""
+
+#: luasrc/model/cbi/v2ray/routing.lua:50
+msgid "Add routing rules here"
+msgstr ""
+
 #: luasrc/model/cbi/v2ray/dns.lua:47
 msgid "Address"
 msgstr ""
@@ -76,7 +84,7 @@ msgid "Author: %s"
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/routing-rule-detail.lua:55
-msgid "Balancer Tag"
+msgid "Balancer tag"
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/routing.lua:45
@@ -234,12 +242,16 @@ msgstr ""
 msgid "Inbound"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/routing-rule-detail.lua:44
+#: luasrc/model/cbi/v2ray/routing.lua:75
 msgid "Inbound Tag"
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/main.lua:99
 msgid "Inbound proxies"
+msgstr ""
+
+#: luasrc/model/cbi/v2ray/routing-rule-detail.lua:44
+msgid "Inbound tag"
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/main.lua:79
@@ -282,7 +294,7 @@ msgid "Mux"
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/routing-rule-detail.lua:35
-#: luasrc/model/cbi/v2ray/routing.lua:80
+#: luasrc/model/cbi/v2ray/routing.lua:85
 msgid "Network"
 msgstr ""
 
@@ -302,12 +314,16 @@ msgstr ""
 msgid "Outbound"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/routing-rule-detail.lua:53
+#: luasrc/model/cbi/v2ray/routing.lua:80
 msgid "Outbound Tag"
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/main.lua:105
 msgid "Outbound proxies"
+msgstr ""
+
+#: luasrc/model/cbi/v2ray/routing-rule-detail.lua:53
+msgid "Outbound tag"
 msgstr ""
 
 #: luasrc/controller/v2ray.lua:38 luasrc/model/cbi/v2ray/policy.lua:19
@@ -322,7 +338,6 @@ msgstr ""
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:33
 #: luasrc/model/cbi/v2ray/inbound-list.lua:35
 #: luasrc/model/cbi/v2ray/routing-rule-detail.lua:32
-#: luasrc/model/cbi/v2ray/routing.lua:75
 msgid "Port"
 msgstr ""
 
@@ -368,7 +383,7 @@ msgstr ""
 msgid "Routing"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/routing.lua:85
+#: luasrc/model/cbi/v2ray/routing.lua:90
 msgid "Routing Balancer"
 msgstr ""
 
@@ -400,7 +415,7 @@ msgstr ""
 msgid "Select routing rules to use"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/routing.lua:92
+#: luasrc/model/cbi/v2ray/routing.lua:97
 msgid "Selector"
 msgstr ""
 
@@ -470,7 +485,7 @@ msgstr ""
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:82
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:84
 #: luasrc/model/cbi/v2ray/outbound-list.lua:40
-#: luasrc/model/cbi/v2ray/routing.lua:89
+#: luasrc/model/cbi/v2ray/routing.lua:94
 msgid "Tag"
 msgstr ""
 

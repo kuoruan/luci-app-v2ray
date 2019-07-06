@@ -47,7 +47,7 @@ for _, v in ipairs(balancer_keys) do
 	o:value(v, balancer_table[v])
 end
 
-s2 = m:section(TypedSection, "routing_rule", translate("Routing Rule"))
+s2 = m:section(TypedSection, "routing_rule", translate("Routing Rule"), translate("Add routing rules here"))
 s2.anonymous = true
 s2.addremove = true
 s2.sortable = true
@@ -72,7 +72,12 @@ o.cfgvalue = function (...)
 	return Value.cfgvalue(...) or "?"
 end
 
-o = s2:option(DummyValue, "port", translate("Port"))
+o = s2:option(DummyValue, "inbound_tag", translate("Inbound Tag"))
+o.cfgvalue = function (...)
+	return Value.cfgvalue(...) or "?"
+end
+
+o = s2:option(DummyValue, "outbound_tag", translate("Outbound Tag"))
 o.cfgvalue = function (...)
 	return Value.cfgvalue(...) or "?"
 end
@@ -82,7 +87,7 @@ o.cfgvalue = function (...)
 	return Value.cfgvalue(...) or "?"
 end
 
-s3 = m:section(TypedSection, "routing_balancer", translate("Routing Balancer"))
+s3 = m:section(TypedSection, "routing_balancer", translate("Routing Balancer"), translate("Add routing balancers here"))
 s3.anonymous = true
 s3.addremove = true
 
