@@ -49,8 +49,8 @@ o = s:option(Flag, "transparent_proxy_udp", "%s - %s" %{ translate("Transparent 
 o:depends("transparent_proxy_enabled", "1")
 
 o = s:option(Flag, "transparent_proxy_dns", "%s - %s" %{ translate("Transparent proxy"), translate("DNS traffic") })
-o:depends({ "transparent_proxy_enabled" = "1", "transparent_proxy_udp" = "" })
-o:depends({ "transparent_proxy_enabled" = "1", "transparent_proxy_udp" = "0" })
+o:depends({ transparent_proxy_enabled = "1", transparent_proxy_udp = "" })
+o:depends({ transparent_proxy_enabled = "1", transparent_proxy_udp = "0" })
 
 o = s:option(TextValue, "_settings", translate("Settings"), translate("Protocol-specific settings, JSON string"))
 o:depends("transparent_proxy_enabled", "")
