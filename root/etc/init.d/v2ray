@@ -209,6 +209,7 @@ add_v2ray_rules() {
 		-A V2RAY -d 224.0.0.0/4 -j RETURN
 		-A V2RAY -d 240.0.0.0/4 -j RETURN
 		-A V2RAY -p tcp -j REDIRECT --to-ports $port
+		-A PREROUTING -p tcp -j V2RAY
 		-A OUTPUT -p tcp -j V2RAY
 		COMMIT
 		*mangle
