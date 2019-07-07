@@ -29,7 +29,7 @@ end
 
 o = s:option(DummyValue, "listen", translate("Listen"))
 o.cfgvalue = function (...)
-	return Value.cfgvalue(...) or "0.0.0.0"
+	return Value.cfgvalue(...) or "-"
 end
 
 o = s:option(DummyValue, "port", translate("Port"))
