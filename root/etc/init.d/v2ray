@@ -628,6 +628,7 @@ add_inbound_setting() {
 
 		json_add_object "settings"
 		json_add_string "network" "$network_types"
+		json_add_int "timeout" "30"
 		json_add_boolean "followRedirect" "1"
 		json_close_object
 	else
