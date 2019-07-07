@@ -71,6 +71,7 @@ o.datatype = "directory"
 o.placeholder = "/usr/bin"
 
 o = s:option(Value, "config_file", translate("Config file"), translate("Use custom config file"))
+o.datatype = "file"
 o:value("", translate("None"))
 
 o = s:option(ListValue, "loglevel", translate("Log level"))
