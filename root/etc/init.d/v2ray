@@ -47,8 +47,7 @@ v2ray_file_validate() {
 	test -f "$file" || return 1
 	test -x "$file" || chmod 755 "$file"
 
-	eval "$file -version" | grep -q "V2Ray"
-	return $?
+	eval "$file --version 2>/dev/null" | grep -q "V2Ray"
 }
 
 get_value_from_file() {
@@ -748,7 +747,7 @@ start_instance() {
 		return 0
 	fi
 
-	if [ -z "$v2ray_file" ] || ( ! v2ray_file_validate "$v2ray_file" ) ; then
+	if [ -z "$v2ray_file" ] || ! ( v2ray_file_validate "$v2ray_file" ) ; then
 		_err "Invalid V2Ray file."
 		return 1
 	fi
@@ -761,7 +760,12 @@ start_instance() {
 
 	if [ -n "$config_file" ] ; then
 		if [ ! -s "$config_file" ] ; then
-			_err "Invalid config file: $config_file"
+			_err "Config file not found: $config_file"
+			return 1
+		fi
+
+		if ! ( eval "$v2ray_file --test --config=\"$config_file\" >/dev/null 2>&1" ) ; then
+			_err "Validate config file failed: $config_file"
 			return 1
 		fi
 
@@ -818,11 +822,11 @@ start_instance() {
 		json_dump -i >"$temp_config"
 		json_cleanup
 		json_set_namespace "$old_ns"
-	fi
 
-	if [ ! -s "$temp_config" ] ; then
-		_err "Error when parse config file: $temp_config"
-		return 1
+		if [ ! -s "$temp_config" ] ; then
+			_err "Error when create config file: $temp_config"
+			return 1
+		fi
 	fi
 
 	procd_open_instance "$NAME.$section"
