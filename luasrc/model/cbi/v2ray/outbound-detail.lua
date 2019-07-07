@@ -37,7 +37,7 @@ o = s:option(Value, "alias", translate("Alias"), translate("Any custom string"))
 o.rmempty = false
 
 o = s:option(Value, "send_through", translate("Send through"), translate("An IP address for sending traffic out."))
-o.datatype = "or(ip4addr, ip6addr)"
+o.datatype = "ipaddr"
 for _, v in ipairs(local_ips) do
 	o:value(v)
 end

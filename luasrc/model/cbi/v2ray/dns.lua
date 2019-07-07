@@ -28,7 +28,7 @@ o.rmempty = false
 o = s1:option(Value, "tag", translate("Tag"))
 
 o = s1:option(Value, "client_ip", translate("Client IP"))
-o.datatype = "or(ip4addr, ip6addr)"
+o.datatype = "ipaddr"
 
 o = s1:option(DynamicList, "hosts", translate("Hosts"),
 	translatef("A list of static addresses, format: <code>domain|address</code>. eg: %s", "google.com|127.0.0.1"))
@@ -46,7 +46,7 @@ o = s2:option(Value, "alias", translate("Alias"), translate("Any custom string")
 o.rmempty = false
 
 o = s2:option(Value, "address", translate("Address"))
-o.datatype = "or(ip4addr, ip6addr)"
+o.datatype = "ipaddr"
 
 o = s2:option(Value, "port", translate("Port"))
 o.datatype = "port"

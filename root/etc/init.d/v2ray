@@ -96,14 +96,14 @@ dns_section_validate() {
 	uci_validate_section "$NAME" "dns" "$1" \
 		'enabled:bool:0' \
 		'tag:string' \
-		'client_ip:or(ip4addr, ip6addr)' \
+		'client_ip:ipaddr' \
 		'hosts:list(string)' \
 		'servers:list(uci("v2ray", "@dns_server"))'
 }
 
 dns_server_section_validate() {
 	uci_validate_section "$NAME" "dns_server" "$1" \
-		'address:or(ip4addr, ip6addr)' \
+		'address:ipaddr' \
 		'port:port' \
 		'domains:list(string)'
 }
@@ -123,7 +123,7 @@ routing_rule_section_validate() {
 		'ip:list(string)' \
 		'port:or(port, portrange)' \
 		'network:list(or("tcp", "udp"))' \
-		'source:list(or(ip4addr, ip6addr, cidr))' \
+		'source:list(string)' \
 		'user:list(string)' \
 		'inbound_tag:list(string)' \
 		'protocol:list(or("http", "tls", "bittorrent"))' \
@@ -168,7 +168,7 @@ reverse_section_validate() {
 inbound_section_validate() {
 	uci_validate_section "$NAME" "inbound" "$1" \
 		'port:or(port, portrange, string)' \
-		'listen:or(ip4addr, ip6addr):0.0.0.0' \
+		'listen:ipaddr:0.0.0.0' \
 		'protocol:string' \
 		'transparent_proxy_enabled:bool:0' \
 		'transparent_proxy_udp:bool:0' \
@@ -183,7 +183,7 @@ inbound_section_validate() {
 
 outbound_section_validate() {
 	uci_validate_section "$NAME" "outbound" "$1" \
-		'send_through:or(ip4addr, ip6addr):0.0.0.0' \
+		'send_through:ipaddr:0.0.0.0' \
 		'protocol:string' \
 		'tag:string' \
 		'proxy_settings_tag:string' \

@@ -37,7 +37,6 @@ o:value("tcp")
 o:value("udp")
 
 o = s:option(DynamicList, "source", translate("Source"))
-o.datatype = 'or(ip4addr, ip6addr, cidr)'
 
 o = s:option(DynamicList, "user", translate("User"))
 
