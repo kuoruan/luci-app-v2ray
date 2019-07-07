@@ -237,8 +237,8 @@ add_v2ray_rules() {
 			-A V2RAY -d 240.0.0.0/4 -j RETURN
 			-A V2RAY -p udp $d_port -j TPROXY --on-port $port --tproxy-mark 0x01/0x01
 			#-A V2RAY_MARK -p udp $d_port -j MARK --set-mark 1
-			-A PREROUTING -j V2RAY
-			#-A OUTPUT -j V2RAY_MARK
+			-A PREROUTING -p udp -j V2RAY
+			#-A OUTPUT -p udp -j V2RAY_MARK
 			COMMIT
 		EOF
 	fi
