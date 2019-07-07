@@ -2,7 +2,8 @@
 -- Licensed to the public under the MIT License.
 
 local dsp = require "luci.dispatcher"
-local uci  = require "luci.model.uci".cursor()
+local uci = require "luci.model.uci".cursor()
+local util = require "luci.util"
 
 local m, s1, s2, o
 
@@ -11,7 +12,7 @@ local level_keys, level_table = {}, {}
 uci:foreach("v2ray", "policy_level", function(s)
 	if s.level then
 		local key = s[".name"]
-		table.insert(level_keys, key)
+		util.append(level_keys, key)
 		level_table[key] = s.level
 	end
 end)

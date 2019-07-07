@@ -3,6 +3,8 @@
 
 local dsp = require "luci.dispatcher"
 local v2ray = require "luci.model.v2ray"
+local nixio = require "nixio"
+local util = require "luci.util"
 
 local m, s, o
 
@@ -14,6 +16,14 @@ m.redirect = dsp.build_url("admin/services/v2ray/outbounds")
 if m.uci:get("v2ray", sid) ~= "outbound" then
 	luci.http.redirect(m.redirect)
 	return
+end
+
+local local_ips = { "0.0.0.0" }
+
+for _, v in ipairs(nixio.getifaddrs()) do
+	if v.addr and v.family == "inet" and v.name ~= "lo" and not util.contains(local_ips, v.addr) then
+		util.append(local_ips, v.addr)
+	end
 end
 
 local outbound_settings = "/etc/v2ray/outbound-settings.json"
@@ -28,7 +38,9 @@ o.rmempty = false
 
 o = s:option(Value, "send_through", translate("Send through"), translate("An IP address for sending traffic out."))
 o.datatype = "or(ip4addr, ip6addr)"
-o.placeholder = "0.0.0.0"
+for _, v in ipairs(local_ips) do
+	o:value(v)
+end
 
 o = s:option(ListValue, "protocol", translate("Protocol"))
 o:value("blackhole")

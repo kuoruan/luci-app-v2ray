@@ -16,7 +16,7 @@ local inbound_keys, inbound_table, outbound_keys, outbound_table = {}, {}, {}, {
 uci:foreach("v2ray", "inbound", function(s)
 	if s.alias then
 		local key = s[".name"]
-		table.insert(inbound_keys, key)
+		util.append(inbound_keys, key)
 		inbound_table[key] = s.alias
 	end
 end)
@@ -24,7 +24,7 @@ end)
 uci:foreach("v2ray", "outbound", function(s)
 	if s.alias then
 		local key = s[".name"]
-		table.insert(outbound_keys, key)
+		util.append(outbound_keys, key)
 		outbound_table[key] = s.alias
 	end
 end)

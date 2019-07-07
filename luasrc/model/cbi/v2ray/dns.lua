@@ -1,7 +1,8 @@
 -- Copyright 2019 Xingwang Liao <kuoruan@gmail.com>
 -- Licensed to the public under the MIT License.
 
-local uci  = require "luci.model.uci".cursor()
+local uci = require "luci.model.uci".cursor()
+local util = require "luci.util"
 
 local m, s1, s2, o
 
@@ -10,7 +11,7 @@ local dns_keys, dns_table = {}, {}
 uci:foreach("v2ray", "dns_server", function(s)
 	if s.alias then
 		local key = s[".name"]
-		table.insert(dns_keys, key)
+		util.append(dns_keys, key)
 		dns_table[key] = s.alias
 	end
 end)

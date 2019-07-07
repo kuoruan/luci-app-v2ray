@@ -3,6 +3,7 @@
 
 local dsp = require "luci.dispatcher"
 local uci = require "luci.model.uci".cursor()
+local util = require "luci.util"
 
 local m, s1, s2, s3, o
 
@@ -11,7 +12,7 @@ local rule_keys, rule_table, balancer_keys, balancer_table = {}, {}, {}, {}
 uci:foreach("v2ray", "routing_rule", function(s)
 	if s.alias then
 		local key = s[".name"]
-		table.insert(rule_keys, key)
+		util.append(rule_keys, key)
 		rule_table[key] = s.alias
 	end
 end)
@@ -19,7 +20,7 @@ end)
 uci:foreach("v2ray", "routing_balancer", function(s)
 	if s.tag then
 		local key = s[".name"]
-		table.insert(balancer_keys, key)
+		util.append(balancer_keys, key)
 		balancer_table[key] = s.tag
 	end
 end)
