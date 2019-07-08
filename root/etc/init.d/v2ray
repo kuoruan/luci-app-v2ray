@@ -305,6 +305,8 @@ add_dns_settings() {
 
 					if [ -n "$port" ] ; then
 						json_add_int "port" "$port"
+					else
+						json_add_int "port" "53"
 					fi
 
 					if [ -n "$domains" ] ; then

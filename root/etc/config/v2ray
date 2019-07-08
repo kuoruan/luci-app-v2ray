@@ -26,6 +26,7 @@ config dns_server 'cf_dns_1'
 config dns_server '114_dns_1'
 	option alias '114_dns_1'
 	option address '114.114.114.114'
+	option port '53'
 	list domains 'geosite:cn'
 
 config routing 'main_routing'
