@@ -13,7 +13,9 @@ end
 
 local config_content = fs.readfile(config_file) or translate("Failed to open file.")
 
-m = Form("v2ray", "%s - %s" % { translate("V2Ray"), translate("About") },
+local m
+
+m = SimpleForm("v2ray", "%s - %s" % { translate("V2Ray"), translate("About") },
   "<p>%s</p><p>%s</p><p>%s</p><p>%s</p><p>%s</p><p>%s</p><p>%s</p><p>%s</p>" % {
     translate("LuCI support for V2Ray."),
     translatef("Author: %s", "Xingwang Liao"),
