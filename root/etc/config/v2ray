@@ -13,6 +13,7 @@ config v2ray 'main'
 config dns 'main_dns'
 	option enabled '0'
 	list hosts 'example.com|127.0.0.1'
+	option servers 'google_dns_1 cf_dns_1 114_dns_1'
 
 config dns_server 'google_dns_1'
 	option alias 'google_dns_1'
