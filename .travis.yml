@@ -9,6 +9,7 @@ cache:
   directories:
   - "${HOME}/dl"
   - "${HOME}/files"
+  - "${HOME}/feeds"
 git:
   depth: 3
   submodules: false
@@ -17,10 +18,9 @@ env:
   - PACKAGE=luci-app-frpc
   - USER=kuoruan
   - REPO=luci-app-frpc
-  - CCACHE_VERSION=3.6
   - DOWNLOAD_DIR=${HOME}/files
-  - SDK_PATH=https://downloads.openwrt.org/releases/18.06.2/targets/x86/generic
-  - SDK=-sdk-18.06.2-x86-generic_
+  - SDK_PATH=https://downloads.openwrt.org/releases/18.06.4/targets/x86/generic
+  - SDK=-sdk-18.06.4-x86-generic_
 install:
 - test -d "$DOWNLOAD_DIR" || mkdir -p "$DOWNLOAD_DIR"
 - cd "$DOWNLOAD_DIR"
@@ -44,8 +44,10 @@ install:
 - cd "$SDK_HOME"
 - tar -Jxf "${DOWNLOAD_DIR}/${SDK_FILE}" --strip=1
 - test -d "${HOME}/dl" || mkdir -p "${HOME}/dl"
-- test -d "dl" && rm -rf dl
+- test -d "dl" && rm -rf dl || true
+- test -d "feeds" && rm -rf feeds || true
 - ln -s "${HOME}/dl/" dl
+- ln -s "${HOME}/feeds" feeds
 - echo "src-git base https://github.com/openwrt/openwrt.git" >feeds.conf
 - echo "src-git packages https://github.com/openwrt/packages.git" >>feeds.conf
 - echo "src-git luci https://github.com/openwrt/luci.git" >>feeds.conf
@@ -54,8 +56,8 @@ install:
 - ln -s "$TRAVIS_BUILD_DIR" "package/${PACKAGE}"
 script:
 - cd "$SDK_HOME"
-- "./scripts/feeds update -a >/dev/null"
-- "./scripts/feeds install -a >/dev/null"
+- ./scripts/feeds update -a >/dev/null
+- ./scripts/feeds install -a >/dev/null
 - make defconfig
 - make package/${PACKAGE}/compile -j2 || make package/${PACKAGE}/{clean,compile} V=s
 - find "${SDK_HOME}/bin/"
