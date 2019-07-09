@@ -74,8 +74,12 @@ o.cfgvalue = function (...)
 end
 
 o = s2:option(DummyValue, "inbound_tag", translate("Inbound Tag"))
-o.cfgvalue = function (...)
-	return Value.cfgvalue(...) or "?"
+o.cfgvalue = function (self, section)
+	local v = self.map:get(section, self.option)
+	if type(v) == "table" then
+		return table.concat(v, " ")
+	end
+	return v and v or "?"
 end
 
 o = s2:option(DummyValue, "outbound_tag", translate("Outbound Tag"))
