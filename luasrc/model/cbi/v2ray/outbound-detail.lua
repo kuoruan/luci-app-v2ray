@@ -14,7 +14,7 @@ local sid = arg[1]
 m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Edit Outbound") })
 m.redirect = dsp.build_url("admin/services/v2ray/outbounds")
 m.on_after_save = function ()
-	sys.call("/etc/init.d/v2ray reload")
+	sys.call("/etc/init.d/v2ray reload 2>/dev/null")
 end
 
 if m.uci:get("v2ray", sid) ~= "outbound" then
