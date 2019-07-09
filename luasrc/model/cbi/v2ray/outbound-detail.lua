@@ -5,6 +5,7 @@ local dsp = require "luci.dispatcher"
 local v2ray = require "luci.model.v2ray"
 local nixio = require "nixio"
 local util = require "luci.util"
+local sys = require "luci.sys"
 
 local m, s, o
 
@@ -12,6 +13,9 @@ local sid = arg[1]
 
 m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Edit Outbound") })
 m.redirect = dsp.build_url("admin/services/v2ray/outbounds")
+m.on_after_save = function ()
+	sys.call("/etc/init.d/v2ray reload")
+end
 
 if m.uci:get("v2ray", sid) ~= "outbound" then
 	luci.http.redirect(m.redirect)
