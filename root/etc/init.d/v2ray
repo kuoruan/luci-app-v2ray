@@ -15,6 +15,12 @@ TRANSPARENT_PROXY_ADDITION=
 TRANSPARENT_PROXY_PORT=
 TRANSPARENT_PROXY_SERVER_IPS=
 
+INBOUND_SETTINGS_JSON="/etc/v2ray/inbound-settings.json"
+INBOUND_STREAM_SETTINGS_JSON="/etc/v2ray/inbound-stream-settings.json"
+OUTBOUND_SETTINGS_JSON="/etc/v2ray/outbound-settings.json"
+OUTBOUND_STREAM_SETTINGS_JSON="/etc/v2ray/outbound-stream-settings.json"
+TRANSPORT_JSON="/etc/v2ray/transport.json"
+
 if [ -r /usr/share/libubox/jshn.sh ] ; then
 	. /usr/share/libubox/jshn.sh
 elif [ -r /lib/functions/jshn.sh ] ; then
@@ -553,15 +559,13 @@ add_reverse_settings() {
 add_transport_settings() {
 	local section="$1"
 
-	local transport_json="/etc/v2ray/transport.json"
-
-	if [ ! -f "$transport_json" ] ; then
+	if [ ! -f "$TRANSPORT_JSON" ] ; then
 		_err "Transport config file not found: $transport_json"
 		return 1
 	fi
 
 	local json
-	json="$(get_value_from_file "$transport_json" "$section")"
+	json="$(get_value_from_file "$TRANSPORT_JSON" "$section")"
 	if [ -z "$json" ] ; then
 		_err "Invalid transport config: $section"
 		return 1
@@ -634,10 +638,9 @@ add_inbound_setting() {
 		json_add_boolean "followRedirect" "1"
 		json_close_object
 	else
-		local inbound_settings_json="/etc/v2ray/inbound-settings.json"
-		if [ -f "$inbound_settings_json" ] ; then
+		if [ -f "$INBOUND_SETTINGS_JSON" ] ; then
 			local json
-			json="$(get_value_from_file "$inbound_settings_json" "$section")"
+			json="$(get_value_from_file "$INBOUND_SETTINGS_JSON" "$section")"
 
 			if [ -n "$json" ] ; then
 				json_add_object "settings"
@@ -647,10 +650,9 @@ add_inbound_setting() {
 		fi
 	fi
 
-	local inbound_stream_settings_json="/etc/v2ray/inbound-stream-settings.json"
-	if [ -f "$inbound_stream_settings_json" ] ; then
+	if [ -f "$INBOUND_STREAM_SETTINGS_JSON" ] ; then
 		local json
-		json="$(get_value_from_file "$inbound_stream_settings_json" "$section")"
+		json="$(get_value_from_file "$INBOUND_STREAM_SETTINGS_JSON" "$section")"
 
 		if [ -n "$json" ] ; then
 			json_add_object "streamSettings"
@@ -688,10 +690,9 @@ add_outbound_setting() {
 	json_add_int "concurrency" "$mux_concurrency"
 	json_close_object
 
-	local outbound_settings_json="/etc/v2ray/outbound-settings.json"
-	if [ -f "$outbound_settings_json" ] ; then
+	if [ -f "$OUTBOUND_SETTINGS_JSON" ] ; then
 		local json
-		json="$(get_value_from_file "$outbound_settings_json" "$section")"
+		json="$(get_value_from_file "$OUTBOUND_SETTINGS_JSON" "$section")"
 
 		if [ -n "$json" ] ; then
 			local commands
@@ -723,10 +724,9 @@ add_outbound_setting() {
 		fi
 	fi
 
-	local outbound_stream_settings_json="/etc/v2ray/outbound-stream-settings.json"
-	if [ -f "$outbound_stream_settings_json" ] ; then
+	if [ -f "$OUTBOUND_STREAM_SETTINGS_JSON" ] ; then
 		local json
-		json="$(get_value_from_file "$outbound_stream_settings_json" "$section")"
+		json="$(get_value_from_file "$OUTBOUND_STREAM_SETTINGS_JSON" "$section")"
 
 		if [ -n "$json" ] ; then
 			json_add_object "streamSettings"
@@ -753,10 +753,6 @@ start_instance() {
 	if [ -z "$v2ray_file" ] || ! ( v2ray_file_validate "$v2ray_file" ) ; then
 		_err "Invalid V2Ray file."
 		return 1
-	fi
-
-	if [ -z "$asset_location" ] && [ -d "$asset_location" ] ; then
-		export V2RAY_LOCATION_ASSET="$asset_location"
 	fi
 
 	local temp_config
@@ -836,9 +832,16 @@ start_instance() {
 	procd_set_param command "$v2ray_file"
 	procd_append_param command "--config=$temp_config"
 	procd_set_param respawn
+
+	if [ -z "$asset_location" ] && [ -d "$asset_location" ] ; then
+		procd_set_param env V2RAY_LOCATION_ASSET="$asset_location"
+	fi
+
+	procd_set_param limits nofile=102400
 	procd_set_param file "$temp_config"
 	procd_set_param stderr 1 # forward stderr of the command to logd
 	procd_set_param stdout 1
+	procd_set_param pidfile "/var/run/${NAME}.${section}.pid"
 	procd_close_instance
 }
 
