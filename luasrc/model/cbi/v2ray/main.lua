@@ -62,6 +62,12 @@ s.anonymos = true
 o = s:option(Flag, "enabled", translate("Enabled"))
 o.rmempty = false
 
+o = s:option(Button, "_reload", translate("Reload Service"), translate("This will restart service when config file changes."))
+o.inputstyle = "reload"
+o.write = function ()
+	sys.call("/etc/init.d/v2ray reload")
+end
+
 o = s:option(Value, "v2ray_file", translate("V2Ray file"), v2ray_version())
 o.datatype = "file"
 o.placeholder = "/usr/bin/v2ray"
