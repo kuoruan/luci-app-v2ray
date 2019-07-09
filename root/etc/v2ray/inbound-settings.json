@@ -1,1 +1,7 @@
-{}
+{
+  "socks_proxy": {
+    "udp": true,
+    "auth": "noauth",
+    "ip": "127.0.0.1"
+  }
+}
