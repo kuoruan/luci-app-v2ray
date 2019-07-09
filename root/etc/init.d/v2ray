@@ -833,7 +833,7 @@ start_instance() {
 	procd_append_param command "--config=$temp_config"
 	procd_set_param respawn
 
-	if [ -z "$asset_location" ] && [ -d "$asset_location" ] ; then
+	if [ -n "$asset_location" ] && [ -d "$asset_location" ] ; then
 		procd_set_param env V2RAY_LOCATION_ASSET="$asset_location"
 	fi
 
