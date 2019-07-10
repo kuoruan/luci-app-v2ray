@@ -202,19 +202,33 @@ add_v2ray_rules() {
 	local server_ips="$2"
 	local addition_proxy="$3"
 
+	# https://en.wikipedia.org/wiki/Reserved_IP_addresses
+	local reserved_ip="$(cat >&1 <<-EOF
+		0.0.0.0/8
+		10.0.0.0/8
+		100.64.0.0/10
+		127.0.0.0/8
+		169.254.0.0/16
+		172.16.0.0/12
+		192.0.0.0/24
+		192.0.2.0/24
+		192.88.99.0/24
+		192.168.0.0/16
+		198.18.0.0/15
+		198.51.100.0/24
+		203.0.113.0/24
+		224.0.0.0/4
+		240.0.0.0/4
+		255.255.255.255/32
+	EOF
+	)"
+
 	# ToutyRater/v2ray-guide#24
 	iptables-restore --noflush <<-EOF 2>/dev/null
 		*nat
 		:V2RAY -
-		$(for s in $server_ips ; do echo "-A V2RAY -d $s -j RETURN" ; done)
-		-A V2RAY -d 0.0.0.0/8 -j RETURN
-		-A V2RAY -d 10.0.0.0/8 -j RETURN
-		-A V2RAY -d 127.0.0.0/8 -j RETURN
-		-A V2RAY -d 169.254.0.0/16 -j RETURN
-		-A V2RAY -d 172.16.0.0/12 -j RETURN
-		-A V2RAY -d 192.168.0.0/16 -j RETURN
-		-A V2RAY -d 224.0.0.0/4 -j RETURN
-		-A V2RAY -d 240.0.0.0/4 -j RETURN
+		$(for s in $server_ips ; do echo "-A V2RAY -p tcp -d $s -j RETURN" ; done)
+		$(for ip in $reserved_ip ; do echo "-A V2RAY -p tcp -d $ip -j RETURN" ; done)
 		-A V2RAY -p tcp -j REDIRECT --to-ports $port
 		-A PREROUTING -p tcp -j V2RAY
 		#-A OUTPUT -p tcp -j V2RAY
@@ -233,14 +247,8 @@ add_v2ray_rules() {
 			*mangle
 			:V2RAY -
 			#:V2RAY_MARK -
-			-A V2RAY -d 0.0.0.0/8 -j RETURN
-			-A V2RAY -d 10.0.0.0/8 -j RETURN
-			-A V2RAY -d 127.0.0.0/8 -j RETURN
-			-A V2RAY -d 169.254.0.0/16 -j RETURN
-			-A V2RAY -d 172.16.0.0/12 -j RETURN
-			-A V2RAY -d 192.168.0.0/16 -j RETURN
-			-A V2RAY -d 224.0.0.0/4 -j RETURN
-			-A V2RAY -d 240.0.0.0/4 -j RETURN
+			$(for s in $server_ips ; do echo "-A V2RAY -p udp -d $s -j RETURN" ; done)
+			$(for ip in $reserved_ip ; do echo "-A V2RAY -p udp -d $ip -j RETURN" ; done)
 			-A V2RAY -p udp $d_port -j TPROXY --on-port $port --tproxy-mark 0x01/0x01
 			#-A V2RAY_MARK -p udp $d_port -j MARK --set-mark 1
 			-A PREROUTING -p udp -j V2RAY
