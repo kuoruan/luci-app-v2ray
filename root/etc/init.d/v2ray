@@ -203,7 +203,7 @@ add_v2ray_rules() {
 	local addition_proxy="$3"
 
 	# https://en.wikipedia.org/wiki/Reserved_IP_addresses
-	local reserved_ip="$(cat >&1 <<-EOF
+	local reserved_ips="$(cat >&1 <<-EOF
 		0.0.0.0/8
 		10.0.0.0/8
 		100.64.0.0/10
@@ -227,8 +227,8 @@ add_v2ray_rules() {
 	iptables-restore --noflush <<-EOF 2>/dev/null
 		*nat
 		:V2RAY -
-		$(for s in $server_ips ; do echo "-A V2RAY -p tcp -d $s -j RETURN" ; done)
-		$(for ip in $reserved_ip ; do echo "-A V2RAY -p tcp -d $ip -j RETURN" ; done)
+		$(for s in $server_ips ; do echo "-A V2RAY -d $s -j RETURN" ; done)
+		$(for r in $reserved_ips ; do echo "-A V2RAY -d $r -j RETURN" ; done)
 		-A V2RAY -p tcp -j REDIRECT --to-ports $port
 		-A PREROUTING -p tcp -j V2RAY
 		#-A OUTPUT -p tcp -j V2RAY
@@ -247,8 +247,8 @@ add_v2ray_rules() {
 			*mangle
 			:V2RAY -
 			#:V2RAY_MARK -
-			$(for s in $server_ips ; do echo "-A V2RAY -p udp -d $s -j RETURN" ; done)
-			$(for ip in $reserved_ip ; do echo "-A V2RAY -p udp -d $ip -j RETURN" ; done)
+			$(for s in $server_ips ; do echo "-A V2RAY -d $s -j RETURN" ; done)
+			$(for r in $reserved_ips ; do echo "-A V2RAY -d $r -j RETURN" ; done)
 			-A V2RAY -p udp $d_port -j TPROXY --on-port $port --tproxy-mark 0x01/0x01
 			#-A V2RAY_MARK -p udp $d_port -j MARK --set-mark 1
 			-A PREROUTING -p udp -j V2RAY
