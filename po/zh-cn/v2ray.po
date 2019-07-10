@@ -13,7 +13,7 @@ msgstr "Bridge 列表，格式：<code>tag|domain</code>。例如：%s"
 msgid "A list of portals, format: <code>tag|domain</code>. eg: %s"
 msgstr "Portal 列表，格式：<code>tag|domain</code>。例如：%s"
 
-#: luasrc/model/cbi/v2ray/dns.lua:34
+#: luasrc/model/cbi/v2ray/dns.lua:35
 msgid "A list of static addresses, format: <code>domain|address</code>. eg: %s"
 msgstr "静态 IP 列表，格式：<code>domain|address</code>。例如：%s"
 
@@ -29,7 +29,7 @@ msgstr "关于"
 msgid "Access log file"
 msgstr "访问日志文件"
 
-#: luasrc/model/cbi/v2ray/dns.lua:41
+#: luasrc/model/cbi/v2ray/dns.lua:42
 msgid "Add DNS servers here"
 msgstr "在这里添加 DNS 服务器"
 
@@ -37,7 +37,7 @@ msgstr "在这里添加 DNS 服务器"
 msgid "Add policy levels here"
 msgstr "在这里添加策略等级"
 
-#: luasrc/model/cbi/v2ray/routing.lua:91
+#: luasrc/model/cbi/v2ray/routing.lua:95
 msgid "Add routing balancers here"
 msgstr "在这里添加路由负载均衡器"
 
@@ -45,11 +45,11 @@ msgstr "在这里添加路由负载均衡器"
 msgid "Add routing rules here"
 msgstr "在这里添加路由规则"
 
-#: luasrc/model/cbi/v2ray/dns.lua:48
+#: luasrc/model/cbi/v2ray/dns.lua:49
 msgid "Address"
 msgstr "地址"
 
-#: luasrc/model/cbi/v2ray/dns.lua:45
+#: luasrc/model/cbi/v2ray/dns.lua:46
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:40
 #: luasrc/model/cbi/v2ray/inbound-list.lua:25
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:40
@@ -69,7 +69,7 @@ msgstr "端口分配"
 msgid "An IP address for sending traffic out."
 msgstr "用于发送数据的 IP 地址"
 
-#: luasrc/model/cbi/v2ray/dns.lua:45
+#: luasrc/model/cbi/v2ray/dns.lua:46
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:40
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:40
 #: luasrc/model/cbi/v2ray/routing-rule-detail.lua:22
@@ -108,7 +108,7 @@ msgstr "缓存大小"
 msgid "Can't get V2Ray version"
 msgstr "无法获取 V2Ray 版本信息"
 
-#: luasrc/model/cbi/v2ray/dns.lua:30
+#: luasrc/model/cbi/v2ray/dns.lua:31
 msgid "Client IP"
 msgstr "系统 IP 地址"
 
@@ -137,15 +137,15 @@ msgstr "连接空闲时间"
 msgid "Current Config File: %s"
 msgstr "当前配置文件：%s"
 
-#: luasrc/controller/v2ray.lua:30 luasrc/model/cbi/v2ray/dns.lua:19
+#: luasrc/controller/v2ray.lua:30 luasrc/model/cbi/v2ray/dns.lua:20
 msgid "DNS"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/dns.lua:36
+#: luasrc/model/cbi/v2ray/dns.lua:37
 msgid "DNS Servers"
 msgstr "DNS 服务器"
 
-#: luasrc/model/cbi/v2ray/dns.lua:41
+#: luasrc/model/cbi/v2ray/dns.lua:42
 msgid "DNS server"
 msgstr "DNS 服务器"
 
@@ -175,7 +175,7 @@ msgstr "域名"
 msgid "Domain resolution strategy"
 msgstr "域名解析策略"
 
-#: luasrc/model/cbi/v2ray/dns.lua:55
+#: luasrc/model/cbi/v2ray/dns.lua:56
 msgid "Domains"
 msgstr "域名"
 
@@ -203,7 +203,7 @@ msgstr "编辑策略等级"
 msgid "Edit Routing Rule"
 msgstr "编辑路由规则"
 
-#: luasrc/model/cbi/v2ray/dns.lua:25
+#: luasrc/model/cbi/v2ray/dns.lua:26
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:61
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:115
 #: luasrc/model/cbi/v2ray/main.lua:62 luasrc/model/cbi/v2ray/main.lua:118
@@ -230,6 +230,10 @@ msgstr "无法打开文件"
 msgid "For more information, please visit: %s"
 msgstr "获取更多信息，请访问：%s"
 
+#: luasrc/model/cbi/v2ray/dns.lua:31
+msgid "Get my public IP address"
+msgstr "获取我的公网 IP 地址"
+
 #: luasrc/controller/v2ray.lua:19 luasrc/model/cbi/v2ray/main.lua:50
 msgid "Global Settings"
 msgstr "全局设置"
@@ -239,7 +243,7 @@ msgstr "全局设置"
 msgid "Handshake"
 msgstr "握手时间限制"
 
-#: luasrc/model/cbi/v2ray/dns.lua:33
+#: luasrc/model/cbi/v2ray/dns.lua:34
 msgid "Hosts"
 msgstr "静态 IP 列表"
 
@@ -303,7 +307,7 @@ msgid "Mux"
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/routing-rule-detail.lua:35
-#: luasrc/model/cbi/v2ray/routing.lua:86
+#: luasrc/model/cbi/v2ray/routing.lua:90
 msgid "Network"
 msgstr "网络"
 
@@ -323,7 +327,7 @@ msgstr "服务未运行"
 msgid "Outbound"
 msgstr "出站连接"
 
-#: luasrc/model/cbi/v2ray/routing.lua:81
+#: luasrc/model/cbi/v2ray/routing.lua:85
 msgid "Outbound Tag"
 msgstr "出站连接标识"
 
@@ -343,7 +347,7 @@ msgstr "策略"
 msgid "Policy Level"
 msgstr "策略等级"
 
-#: luasrc/model/cbi/v2ray/dns.lua:51
+#: luasrc/model/cbi/v2ray/dns.lua:52
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:49
 #: luasrc/model/cbi/v2ray/inbound-list.lua:35
 #: luasrc/model/cbi/v2ray/routing-rule-detail.lua:32
@@ -396,7 +400,7 @@ msgstr "反向代理"
 msgid "Routing"
 msgstr "路由"
 
-#: luasrc/model/cbi/v2ray/routing.lua:91
+#: luasrc/model/cbi/v2ray/routing.lua:95
 msgid "Routing Balancer"
 msgstr "负载均衡器"
 
@@ -412,7 +416,7 @@ msgstr "规则"
 msgid "Running"
 msgstr "服务正在运行"
 
-#: luasrc/model/cbi/v2ray/dns.lua:36
+#: luasrc/model/cbi/v2ray/dns.lua:37
 msgid "Select DNS servers to use"
 msgstr "选择使用的 DNS 服务器"
 
@@ -428,7 +432,7 @@ msgstr "选择使用的路由负载均衡器"
 msgid "Select routing rules to use"
 msgstr "选择使用的路由规则"
 
-#: luasrc/model/cbi/v2ray/routing.lua:98
+#: luasrc/model/cbi/v2ray/routing.lua:102
 msgid "Selector"
 msgstr "标识匹配前缀"
 
@@ -492,13 +496,13 @@ msgstr "底层传输配置"
 msgid "System"
 msgstr "系统"
 
-#: luasrc/model/cbi/v2ray/dns.lua:28
+#: luasrc/model/cbi/v2ray/dns.lua:29
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:113
 #: luasrc/model/cbi/v2ray/inbound-list.lua:45
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:98
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:100
 #: luasrc/model/cbi/v2ray/outbound-list.lua:40
-#: luasrc/model/cbi/v2ray/routing.lua:95
+#: luasrc/model/cbi/v2ray/routing.lua:99
 msgid "Tag"
 msgstr "标识"
 
@@ -542,7 +546,7 @@ msgid "User"
 msgstr "用户"
 
 #: luasrc/controller/v2ray.lua:16 luasrc/model/cbi/v2ray/about.lua:18
-#: luasrc/model/cbi/v2ray/dns.lua:19
+#: luasrc/model/cbi/v2ray/dns.lua:20
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:14
 #: luasrc/model/cbi/v2ray/inbound-list.lua:8 luasrc/model/cbi/v2ray/main.lua:50
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:14
