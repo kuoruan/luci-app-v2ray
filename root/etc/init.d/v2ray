@@ -545,7 +545,7 @@ add_reverse_settings() {
 		json_close_array
 	fi
 
-	if [ -n "portals" ] ; then
+	if [ -n "$portals" ] ; then
 		json_add_array "portals"
 		local p
 		for p in $portals ; do
