@@ -31,9 +31,11 @@ define Package/$(PKG_NAME)/postinst
 #!/bin/sh
 if [ -z "$${IPKG_INSTROOT}" ]; then
 	( . /etc/uci-defaults/40_luci-v2ray ) && rm -f /etc/uci-defaults/40_luci-v2ray
-	chmod 755 /etc/init.d/v2ray >/dev/null 2>&1
-	/etc/init.d/v2ray enable >/dev/null 2>&1
 fi
+
+chmod 755 $${IPKG_INSTROOT}/etc/init.d/v2ray >/dev/null 2>&1
+ln -sf $${IPKG_INSTROOT}/etc/init.d/v2ray \
+	$${IPKG_INSTROOT}/etc/rc.d/S99v2ray >/dev/null 2>&1
 exit 0
 endef
 
