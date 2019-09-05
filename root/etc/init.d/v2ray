@@ -845,8 +845,8 @@ start_instance() {
 		procd_set_param env V2RAY_LOCATION_ASSET="$asset_location"
 	fi
 
-	procd_set_param limits nofile=102400
-	procd_set_param limits core="unlimited"
+	procd_set_param limits nofile="102400 102400"
+	procd_append_param limits core="unlimited"
 	procd_set_param file "$temp_config"
 	procd_set_param stderr 1 # forward stderr of the command to logd
 	procd_set_param stdout 1
