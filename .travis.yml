@@ -15,9 +15,9 @@ git:
   submodules: false
 env:
   global:
-  - PACKAGE=luci-app-frpc
+  - PACKAGE=luci-app-v2ray
   - USER=kuoruan
-  - REPO=luci-app-frpc
+  - REPO=luci-app-v2ray
   - DOWNLOAD_DIR=${HOME}/files
   - SDK_PATH=https://downloads.openwrt.org/releases/18.06.4/targets/x86/generic
   - SDK=-sdk-18.06.4-x86-generic_
