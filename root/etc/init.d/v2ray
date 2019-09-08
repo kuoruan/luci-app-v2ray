@@ -11,6 +11,7 @@ NAME=v2ray
 CONFIG_FOLDER=/var/etc/$NAME
 
 TRANSPARENT_PROXY_ENABLED=
+TRANSPARENT_PROXY_ROUTER=
 TRANSPARENT_PROXY_ADDITION=
 TRANSPARENT_PROXY_PORT=
 TRANSPARENT_PROXY_SERVER_IPS=
@@ -60,6 +61,8 @@ get_value_from_file() {
 	local file="$1"
 	local key="$2"
 
+	test -f "$file" || return
+
 	cat >&1 <<-EOF | lua - 2>/dev/null
 	local v2ray = require "luci.model.v2ray"
 	local json = v2ray.get_value_from_file("$file", "$key")
@@ -69,7 +72,9 @@ get_value_from_file() {
 
 get_value_from_json() {
 	local json="$1"
-	local key="$1"
+	local key="$2"
+
+	test -n "$json" || return
 
 	local value=""
 
@@ -81,6 +86,23 @@ get_value_from_json() {
 	json_set_namespace "$old_ns"
 
 	echo "$value"
+}
+
+get_commands_from_json() {
+	local json="$1"
+
+	test -n "$json" || return
+
+	jshn -r "$json" 2>/dev/null | grep -v "json_init"
+}
+
+append_address() {
+	local address="$1"
+	if [ -z "$TRANSPARENT_PROXY_SERVER_IPS" ] ; then
+		TRANSPARENT_PROXY_SERVER_IPS="$address"
+	else
+		TRANSPARENT_PROXY_SERVER_IPS="$TRANSPARENT_PROXY_SERVER_IPS $address"
+	fi
 }
 
 v2ray_section_validate() {
@@ -179,6 +201,7 @@ inbound_section_validate() {
 		'transparent_proxy_enabled:bool:0' \
 		'transparent_proxy_udp:bool:0' \
 		'transparent_proxy_dns:bool:0' \
+		'transparent_proxy_router:bool:0' \
 		'tag:string' \
 		'sniffing_enabled:bool:0' \
 		'sniffing_dest_override:list(or("http", "tls"))' \
@@ -200,7 +223,8 @@ outbound_section_validate() {
 add_v2ray_rules() {
 	local port="$1"
 	local server_ips="$2"
-	local addition_proxy="$3"
+	local proxy_router="$3"
+	local addition_proxy="$4"
 
 	# https://en.wikipedia.org/wiki/Reserved_IP_addresses
 	local reserved_ips="$(cat >&1 <<-EOF
@@ -229,9 +253,10 @@ add_v2ray_rules() {
 		:V2RAY -
 		$(for s in $server_ips ; do echo "-A V2RAY -d $s -j RETURN" ; done)
 		$(for r in $reserved_ips ; do echo "-A V2RAY -d $r -j RETURN" ; done)
+		$(test -n "$proxy_router" && echo "-A V2RAY -p tcp -j RETURN -m mark --mark 0xff")
 		-A V2RAY -p tcp -j REDIRECT --to-ports $port
 		-A PREROUTING -p tcp -j V2RAY
-		#-A OUTPUT -p tcp -j V2RAY
+		$(test -n "$proxy_router" && echo "-A OUTPUT -p tcp -j V2RAY")
 		COMMIT
 	EOF
 
@@ -243,6 +268,7 @@ add_v2ray_rules() {
 		if [ "$addition_proxy" = "dns" ] ; then
 			d_port="--dport 53"
 		fi
+
 		iptables-restore --noflush <<-EOF 2>/dev/null
 			*mangle
 			:V2RAY -
@@ -580,7 +606,7 @@ add_transport_settings() {
 	fi
 
 	json_add_object "transport"
-	eval "$(jshn -r "$json" 2>/dev/null | grep -v "json_init")"
+	eval "$(get_commands_from_json "$json")"
 	json_close_object
 }
 
@@ -640,33 +666,35 @@ add_inbound_setting() {
 			TRANSPARENT_PROXY_ADDITION=""
 		fi
 
+		if [ "x$transparent_proxy_router" = "x1" ] ; then
+			TRANSPARENT_PROXY_ROUTER="1"
+		else
+			TRANSPARENT_PROXY_ROUTER=""
+		fi
+
 		json_add_object "settings"
 		json_add_string "network" "$network_types"
 		json_add_int "timeout" "30"
 		json_add_boolean "followRedirect" "1"
 		json_close_object
 	else
-		if [ -f "$INBOUND_SETTINGS_JSON" ] ; then
-			local json
-			json="$(get_value_from_file "$INBOUND_SETTINGS_JSON" "$section")"
+		local json
+		json="$(get_value_from_file "$INBOUND_SETTINGS_JSON" "$section")"
 
-			if [ -n "$json" ] ; then
-				json_add_object "settings"
-				eval "$(jshn -r "$json" 2>/dev/null | grep -v "json_init")"
-				json_close_object
-			fi
+		if [ -n "$json" ] ; then
+			json_add_object "settings"
+			eval "$(get_commands_from_json "$json")"
+			json_close_object
 		fi
 	fi
 
-	if [ -f "$INBOUND_STREAM_SETTINGS_JSON" ] ; then
-		local json
-		json="$(get_value_from_file "$INBOUND_STREAM_SETTINGS_JSON" "$section")"
+	local json
+	json="$(get_value_from_file "$INBOUND_STREAM_SETTINGS_JSON" "$section")"
 
-		if [ -n "$json" ] ; then
-			json_add_object "streamSettings"
-			eval "$(jshn -r "$json" 2>/dev/null | grep -v "json_init")"
-			json_close_object
-		fi
+	if [ -n "$json" ] ; then
+		json_add_object "streamSettings"
+		eval "$(get_commands_from_json "$json")"
+		json_close_object
 	fi
 
 	json_close_object
@@ -698,47 +726,56 @@ add_outbound_setting() {
 	json_add_int "concurrency" "$mux_concurrency"
 	json_close_object
 
-	if [ -f "$OUTBOUND_SETTINGS_JSON" ] ; then
-		local json
-		json="$(get_value_from_file "$OUTBOUND_SETTINGS_JSON" "$section")"
+	local json
+	json="$(get_value_from_file "$OUTBOUND_SETTINGS_JSON" "$section")"
 
-		if [ -n "$json" ] ; then
-			local commands
-			commands="$(jshn -r "$json" 2>/dev/null | grep -v "json_init")"
+	if [ -n "$json" ] ; then
+		local commands
+		commands="$(get_commands_from_json "$json")"
 
-			json_add_object "settings"
-			eval "$commands"
-			json_close_object
+		json_add_object "settings"
+		eval "$commands"
+		json_close_object
 
-			if [ -n "$TRANSPARENT_PROXY_ENABLED" ] ; then
-				local address_commands="$(echo "$commands" | grep "'address'" | cut -d';' -f1 | cut -d' ' -f3)"
-				if [ -n "$address_commands" ] ; then
-					local a
-					for a in $address_commands ; do
-						# remove single quotes
-						eval "local address=$a"
-						# check if is a IPv4 address
-						if [ -n "$(echo "$address" | cut -d'.' -f4)" ] ; then
-							if [ -z "$TRANSPARENT_PROXY_SERVER_IPS" ] ; then
-								TRANSPARENT_PROXY_SERVER_IPS="$address"
-							else
-								TRANSPARENT_PROXY_SERVER_IPS="$TRANSPARENT_PROXY_SERVER_IPS $address"
-							fi
-						fi
-					done
-				fi
+		if [ -n "$TRANSPARENT_PROXY_ENABLED" ] ; then
+			local address_commands
+			address_commands="$(echo "$commands" | grep "'address'" | cut -d';' -f1 | cut -d' ' -f3)"
+
+			if [ -n "$address_commands" ] ; then
+				local a
+				for a in $address_commands ; do
+					# remove single quotes
+					eval "local address=$a"
+
+					# check if is a IPv4 address
+					test -n "$(echo "$address" | cut -d'.' -f4)" && \
+						append_address "$address"
+				done
 			fi
-
 		fi
+
 	fi
 
-	if [ -f "$OUTBOUND_STREAM_SETTINGS_JSON" ] ; then
-		local json
-		json="$(get_value_from_file "$OUTBOUND_STREAM_SETTINGS_JSON" "$section")"
+	add_so_mark() {
+		json_add_object "sockopt"
+		json_add_int "mark" 255
+		json_close_object
+	}
 
-		if [ -n "$json" ] ; then
+	local json
+	json="$(get_value_from_file "$OUTBOUND_STREAM_SETTINGS_JSON" "$section")"
+
+	if [ -n "$json" ] ; then
+		json_add_object "streamSettings"
+		eval "$(get_commands_from_json "$json")"
+
+		test -n "$TRANSPARENT_PROXY_ROUTER" && add_so_mark
+
+		json_close_object
+	else
+		if [ -n "$TRANSPARENT_PROXY_ROUTER" ] ; then
 			json_add_object "streamSettings"
-			eval "$(jshn -r "$json" 2>/dev/null | grep -v "json_init")"
+			add_so_mark
 			json_close_object
 		fi
 	fi
@@ -867,6 +904,7 @@ start_service() {
 	if [ -n "$TRANSPARENT_PROXY_ENABLED" ] ; then
 		add_v2ray_rules "$TRANSPARENT_PROXY_PORT" \
 			"$TRANSPARENT_PROXY_SERVER_IPS" \
+			"$TRANSPARENT_PROXY_ROUTER" \
 			"$TRANSPARENT_PROXY_ADDITION"
 	fi
 
