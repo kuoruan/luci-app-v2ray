@@ -33,9 +33,9 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
 	( . /etc/uci-defaults/40_luci-v2ray ) && rm -f /etc/uci-defaults/40_luci-v2ray
 fi
 
-chmod 755 $${IPKG_INSTROOT}/etc/init.d/v2ray >/dev/null 2>&1
-ln -sf /etc/init.d/v2ray \
-	$${IPKG_INSTROOT}/etc/rc.d/S99v2ray >/dev/null 2>&1
+chmod 755 "$${IPKG_INSTROOT}/etc/init.d/v2ray" >/dev/null 2>&1
+ln -sf "../init.d/v2ray" \
+	"$${IPKG_INSTROOT}/etc/rc.d/S99v2ray" >/dev/null 2>&1
 exit 0
 endef
 
