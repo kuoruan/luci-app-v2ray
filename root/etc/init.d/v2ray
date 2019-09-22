@@ -255,7 +255,7 @@ add_v2ray_rules() {
 		$(for r in $reserved_ips ; do echo "-A V2RAY -d $r -j RETURN" ; done)
 		$(test -n "$proxy_router" && echo "-A V2RAY -p tcp -j RETURN -m mark --mark 0xff")
 		-A V2RAY -p tcp -j REDIRECT --to-ports $port
-		-A PREROUTING -p tcp -j V2RAY
+		-A PREROUTING -i br-lan -p tcp -j V2RAY
 		$(test -n "$proxy_router" && echo "-A OUTPUT -p tcp -j V2RAY")
 		COMMIT
 	EOF
@@ -277,7 +277,7 @@ add_v2ray_rules() {
 			$(for r in $reserved_ips ; do echo "-A V2RAY -d $r -j RETURN" ; done)
 			-A V2RAY -p udp $d_port -j TPROXY --on-port $port --tproxy-mark 0x01/0x01
 			#-A V2RAY_MARK -p udp $d_port -j MARK --set-mark 1
-			-A PREROUTING -p udp -j V2RAY
+			-A PREROUTING -i br-lan -p udp -j V2RAY
 			#-A OUTPUT -p udp -j V2RAY_MARK
 			COMMIT
 		EOF
