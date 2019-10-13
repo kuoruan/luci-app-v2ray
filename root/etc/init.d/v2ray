@@ -11,7 +11,6 @@ NAME=v2ray
 CONFIG_FOLDER=/var/etc/$NAME
 
 TRANSPARENT_PROXY_ENABLED=
-TRANSPARENT_PROXY_ROUTER=
 TRANSPARENT_PROXY_ADDITION=
 TRANSPARENT_PROXY_PORT=
 TRANSPARENT_PROXY_SERVER_IPS=
@@ -201,7 +200,6 @@ inbound_section_validate() {
 		'transparent_proxy_enabled:bool:0' \
 		'transparent_proxy_udp:bool:0' \
 		'transparent_proxy_dns:bool:0' \
-		'transparent_proxy_router:bool:0' \
 		'tag:string' \
 		'sniffing_enabled:bool:0' \
 		'sniffing_dest_override:list(or("http", "tls"))' \
@@ -223,8 +221,7 @@ outbound_section_validate() {
 add_v2ray_rules() {
 	local port="$1"
 	local server_ips="$2"
-	local proxy_router="$3"
-	local addition_proxy="$4"
+	local addition_proxy="$3"
 
 	# https://en.wikipedia.org/wiki/Reserved_IP_addresses
 	local reserved_ips="$(cat >&1 <<-EOF
@@ -253,10 +250,10 @@ add_v2ray_rules() {
 		:V2RAY -
 		$(for s in $server_ips ; do echo "-A V2RAY -d $s -j RETURN" ; done)
 		$(for r in $reserved_ips ; do echo "-A V2RAY -d $r -j RETURN" ; done)
-		$(test -n "$proxy_router" && echo "-A V2RAY -p tcp -j RETURN -m mark --mark 0xff")
+		-A V2RAY -p tcp -j RETURN -m mark --mark 0xff
 		-A V2RAY -p tcp -j REDIRECT --to-ports $port
 		-A PREROUTING -p tcp -j V2RAY
-		$(test -n "$proxy_router" && echo "-A OUTPUT -p tcp -j V2RAY")
+		-A OUTPUT -p tcp -j V2RAY
 		COMMIT
 	EOF
 
@@ -666,12 +663,6 @@ add_inbound_setting() {
 			TRANSPARENT_PROXY_ADDITION=""
 		fi
 
-		if [ "x$transparent_proxy_router" = "x1" ] ; then
-			TRANSPARENT_PROXY_ROUTER="1"
-		else
-			TRANSPARENT_PROXY_ROUTER=""
-		fi
-
 		json_add_object "settings"
 		json_add_string "network" "$network_types"
 		json_add_int "timeout" "30"
@@ -768,16 +759,12 @@ add_outbound_setting() {
 	if [ -n "$json" ] ; then
 		json_add_object "streamSettings"
 		eval "$(get_commands_from_json "$json")"
-
-		test -n "$TRANSPARENT_PROXY_ROUTER" && add_so_mark
-
+		add_so_mark
 		json_close_object
 	else
-		if [ -n "$TRANSPARENT_PROXY_ROUTER" ] ; then
-			json_add_object "streamSettings"
-			add_so_mark
-			json_close_object
-		fi
+		json_add_object "streamSettings"
+		add_so_mark
+		json_close_object
 	fi
 
 	json_close_object
@@ -904,7 +891,6 @@ start_service() {
 	if [ -n "$TRANSPARENT_PROXY_ENABLED" ] ; then
 		add_v2ray_rules "$TRANSPARENT_PROXY_PORT" \
 			"$TRANSPARENT_PROXY_SERVER_IPS" \
-			"$TRANSPARENT_PROXY_ROUTER" \
 			"$TRANSPARENT_PROXY_ADDITION"
 	fi
 
