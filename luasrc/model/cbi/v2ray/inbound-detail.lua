@@ -61,6 +61,11 @@ o:value("vmess")
 o = s:option(Flag, "transparent_proxy_enabled", "%s - %s" % { translate("Transparent proxy"), translate("Enabled") })
 o:depends("protocol", "dokodemo-door")
 
+o = s:option(Value, "settings_timeout", "%s - %s" % { translate("Transparent proxy"), translate("Timeout") }, translate("Time limit for inbound data(seconds)"))
+o:depends("transparent_proxy_enabled", "1")
+o.datatype = "uinteger"
+o.placeholder = "300"
+
 o = s:option(Flag, "transparent_proxy_udp", "%s - %s" %{ translate("Transparent proxy"), translate("UDP traffic") })
 o:depends("transparent_proxy_enabled", "1")
 

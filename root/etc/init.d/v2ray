@@ -198,6 +198,7 @@ inbound_section_validate() {
 		'listen:ipaddr:0.0.0.0' \
 		'protocol:string' \
 		'transparent_proxy_enabled:bool:0' \
+		'settings_timeout:uinteger:300' \
 		'transparent_proxy_udp:bool:0' \
 		'transparent_proxy_dns:bool:0' \
 		'tag:string' \
@@ -652,20 +653,20 @@ add_inbound_setting() {
 		TRANSPARENT_PROXY_ENABLED="1"
 		TRANSPARENT_PROXY_PORT="$port"
 
-		local network_types="tcp"
+		local settings_network="tcp"
 		if [ "x$transparent_proxy_udp" = "x1" ] ; then
 			TRANSPARENT_PROXY_ADDITION="udp"
-			network_types="$network_types,udp"
+			settings_network="$settings_network,udp"
 		elif [ "x$transparent_proxy_dns" = "x1" ] ; then
 			TRANSPARENT_PROXY_ADDITION="dns"
-			network_types="$network_types,udp"
+			settings_network="$settings_network,udp"
 		else
 			TRANSPARENT_PROXY_ADDITION=""
 		fi
 
 		json_add_object "settings"
-		json_add_string "network" "$network_types"
-		json_add_int "timeout" "30"
+		json_add_string "network" "$settings_network"
+		json_add_int "timeout" "$settings_timeout"
 		json_add_boolean "followRedirect" "1"
 		json_close_object
 	else

@@ -59,9 +59,9 @@ msgstr ""
 msgid "Alias"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:121
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:126
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:129
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:131
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:134
 msgid "Allocate"
 msgstr ""
 
@@ -116,7 +116,7 @@ msgstr ""
 msgid "Collecting data..."
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:129
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:134
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:104
 msgid "Concurrency"
 msgstr ""
@@ -149,7 +149,7 @@ msgstr ""
 msgid "DNS server"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:67
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:72
 msgid "DNS traffic"
 msgstr ""
 
@@ -157,7 +157,7 @@ msgstr ""
 msgid "Debug"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:117
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:122
 msgid "Dest override"
 msgstr ""
 
@@ -205,7 +205,7 @@ msgstr ""
 
 #: luasrc/model/cbi/v2ray/dns.lua:25
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:61
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:115
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:120
 #: luasrc/model/cbi/v2ray/main.lua:62 luasrc/model/cbi/v2ray/main.lua:118
 #: luasrc/model/cbi/v2ray/main.lua:121
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:102
@@ -366,12 +366,12 @@ msgstr ""
 msgid "Protocol"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:93
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:98
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:78
 msgid "Protocol transport options, JSON string"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:71
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:76
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:58
 msgid "Protocol-specific settings, JSON string"
 msgstr ""
@@ -380,7 +380,7 @@ msgstr ""
 msgid "Proxy settings"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:126
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:131
 msgid "Refresh"
 msgstr ""
 
@@ -444,14 +444,14 @@ msgstr ""
 msgid "Send through"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:71
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:76
 #: luasrc/model/cbi/v2ray/main.lua:124
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:58
 msgid "Settings"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:115
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:117
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:120
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:122
 msgid "Sniffing"
 msgstr ""
 
@@ -483,11 +483,11 @@ msgstr ""
 msgid "Stats user uplink"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:121
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:126
 msgid "Strategy"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:93
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:98
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:78
 msgid "Stream settings"
 msgstr ""
@@ -497,7 +497,7 @@ msgid "System"
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/dns.lua:28
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:113
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:118
 #: luasrc/model/cbi/v2ray/inbound-list.lua:45
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:98
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:100
@@ -510,13 +510,22 @@ msgstr ""
 msgid "This will restart service when config file changes."
 msgstr ""
 
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:64
+msgid "Time limit for inbound data(seconds)"
+msgstr ""
+
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:64
+msgid "Timeout"
+msgstr ""
+
 #: luasrc/model/cbi/v2ray/inbound-list.lua:50
 msgid "Transparent Proxy"
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:61
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:64
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:67
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:69
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:72
 msgid "Transparent proxy"
 msgstr ""
 
@@ -529,7 +538,7 @@ msgstr ""
 msgid "Type"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:64
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:69
 msgid "UDP traffic"
 msgstr ""
 
@@ -578,8 +587,8 @@ msgstr ""
 msgid "Yes"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:78
-#: luasrc/model/cbi/v2ray/inbound-detail.lua:98
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:83
+#: luasrc/model/cbi/v2ray/inbound-detail.lua:103
 #: luasrc/model/cbi/v2ray/main.lua:133
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:63
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:83
