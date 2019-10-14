@@ -23,10 +23,14 @@ if m.uci:get("v2ray", sid) ~= "inbound" then
 	return
 end
 
-local local_ips = { "0.0.0.0", "127.0.0.1" }
+local local_ips = { "0.0.0.0", "127.0.0.1", "::" }
 
 for _, v in ipairs(nixio.getifaddrs()) do
-	if v.addr and v.family == "inet" and v.name ~= "lo" and not util.contains(local_ips, v.addr) then
+	if v.addr and
+		(v.family == "inet" or v.family == "inet6") and
+		v.name ~= "lo" and
+		not util.contains(local_ips, v.addr)
+	then
 		util.append(local_ips, v.addr)
 	end
 end

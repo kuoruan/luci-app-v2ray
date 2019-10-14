@@ -23,16 +23,17 @@ if m.uci:get("v2ray", sid) ~= "outbound" then
 	return
 end
 
-local local_ips = { "0.0.0.0" }
+local local_ips = { "0.0.0.0", "::" }
 
 for _, v in ipairs(nixio.getifaddrs()) do
-	if v.addr and v.family == "inet" and v.name ~= "lo" and not util.contains(local_ips, v.addr) then
+	if v.addr and
+		(v.family == "inet" or v.family == "inet6") and
+		v.name ~= "lo" and
+		not util.contains(local_ips, v.addr)
+	then
 		util.append(local_ips, v.addr)
 	end
 end
-
-local outbound_settings = "/etc/v2ray/outbound-settings.json"
-local outbound_stream_settings = "/etc/v2ray/outbound-stream-settings.json"
 
 s = m:section(NamedSection, sid, "outbound")
 s.anonymous = true
