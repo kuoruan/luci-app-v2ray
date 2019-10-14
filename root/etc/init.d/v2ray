@@ -267,7 +267,6 @@ add_v2ray_rules() {
 	EOF
 	)"
 
-	# ToutyRater/v2ray-guide#24
 	iptables-restore --noflush <<-EOF 2>/dev/null
 		*nat
 		:V2RAY -
