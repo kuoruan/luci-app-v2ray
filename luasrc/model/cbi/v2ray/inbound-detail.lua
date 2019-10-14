@@ -30,9 +30,6 @@ for _, v in ipairs(nixio.getifaddrs()) do
 	end
 end
 
-local inbound_settings = "/etc/v2ray/inbound-settings.json"
-local inbound_stream_settings = "/etc/v2ray/inbound-stream-settings.json"
-
 s = m:section(NamedSection, sid, "inbound")
 s.anonymous = true
 s.addremove = false
@@ -86,13 +83,31 @@ o.validate = function (self, value, section)
 	end
 end
 o.cfgvalue = function (self, section)
-	return v2ray.get_value_from_file(inbound_settings, section)
+	local key = self.map:get(section, "settings") or ""
+
+	if key == "" then
+		return ""
+	end
+
+	return v2ray.get_setting(key)
 end
 o.write = function (self, section, value)
-	return v2ray.add_value_to_file(inbound_settings, section, value)
+	local key = self.map:get(section, "settings") or ""
+
+	if key == "" then
+		key = v2ray.random_setting_key()
+	end
+
+	return v2ray.save_setting(key, value) and self.map:set(section, "settings", key)
 end
 o.remove = function (self, section, value)
-	return v2ray.remove_value_from_file(inbound_settings, section)
+	local key = self.map:get(section, "settings") or ""
+
+	if key == "" then
+		return true
+	end
+
+	return v2ray.remove_setting(key) and self.map:del(section, "settings")
 end
 
 o = s:option(TextValue, "_stream_settings", translate("Stream settings"), translate("Protocol transport options, JSON string"))
@@ -106,13 +121,29 @@ o.validate = function (self, value, section)
 	end
 end
 o.cfgvalue = function (self, section)
-	return v2ray.get_value_from_file(inbound_stream_settings, section)
+	local key = self.map:get(section, "stream_settings") or ""
+
+	if key == "" then
+		return ""
+	end
+
+	return v2ray.get_stream_setting(key)
 end
 o.write = function (self, section, value)
-	return v2ray.add_value_to_file(inbound_stream_settings, section, value)
+	local key = self.map:get(section, "stream_settings") or ""
+
+	if key == "" then
+		key = v2ray.random_setting_key()
+	end
+	return v2ray.save_stream_setting(key, value) and self.map:set(section, "stream_settings", key)
 end
 o.remove = function (self, section, value)
-	return v2ray.remove_value_from_file(inbound_stream_settings, section)
+	local key = self.map:get(section, "stream_settings") or ""
+
+	if key == "" then
+		return true
+	end
+	return v2ray.remove_stream_setting(key) and self.map:del(section, "stream_settings")
 end
 
 o = s:option(Value, "tag", translate("Tag"))

@@ -9,8 +9,6 @@ local v2ray = require "luci.model.v2ray"
 
 local m, s, o
 
-local transport = "/etc/v2ray/transport.json"
-
 local inbound_keys, inbound_table, outbound_keys, outbound_table = {}, {}, {}, {}
 
 uci:foreach("v2ray", "inbound", function(s)
@@ -125,9 +123,6 @@ o = s:option(TextValue, "_transport", "%s - %s" % { translate("Transport"), tran
 o:depends("transport_enabled", "1")
 o.wrap = "off"
 o.rows = 5
-o.cfgvalue = function (self, section)
-	return v2ray.get_value_from_file(transport, section)
-end
 o.validate = function (self, value, section)
 	if not v2ray.is_json_string(value) then
 		return nil, translate("invalid JSON")
@@ -135,11 +130,30 @@ o.validate = function (self, value, section)
 		return value
 	end
 end
+o.cfgvalue = function (self, section)
+	local key = self.map:get(section, "transport") or ""
+
+	if key == "" then
+		return ""
+	end
+
+	return v2ray.get_transport(key)
+end
 o.write = function (self, section, value)
-	return v2ray.add_value_to_file(transport, section, value)
+	local key = self.map:get(section, "transport") or ""
+
+	if key == "" then
+		key = v2ray.random_setting_key()
+	end
+	return v2ray.save_transport(key, value) and self.map:set(section, "transport", key)
 end
 o.remove = function (self, section, value)
-	return v2ray.remove_value_from_file(transport, section)
+	local key = self.map:get(section, "transport") or ""
+
+	if key == "" then
+		return true
+	end
+	return v2ray.remove_transport(key) and self.map:del(section, "transport")
 end
 
 return m

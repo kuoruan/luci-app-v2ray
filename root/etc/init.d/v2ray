@@ -15,12 +15,6 @@ TRANSPARENT_PROXY_ADDITION=
 TRANSPARENT_PROXY_PORT=
 TRANSPARENT_PROXY_SERVER_IPS=
 
-INBOUND_SETTINGS_JSON="/etc/v2ray/inbound-settings.json"
-INBOUND_STREAM_SETTINGS_JSON="/etc/v2ray/inbound-stream-settings.json"
-OUTBOUND_SETTINGS_JSON="/etc/v2ray/outbound-settings.json"
-OUTBOUND_STREAM_SETTINGS_JSON="/etc/v2ray/outbound-stream-settings.json"
-TRANSPORT_JSON="/etc/v2ray/transport.json"
-
 if [ -r /usr/share/libubox/jshn.sh ] ; then
 	. /usr/share/libubox/jshn.sh
 elif [ -r /lib/functions/jshn.sh ] ; then
@@ -56,19 +50,6 @@ v2ray_file_validate() {
 	eval "$file --version 2>/dev/null" | grep -q "V2Ray"
 }
 
-get_value_from_file() {
-	local file="$1"
-	local key="$2"
-
-	test -f "$file" || return
-
-	cat >&1 <<-EOF | lua - 2>/dev/null
-	local v2ray = require "luci.model.v2ray"
-	local json = v2ray.get_value_from_file("$file", "$key")
-	print(json)
-	EOF
-}
-
 get_value_from_json() {
 	local json="$1"
 	local key="$2"
@@ -95,6 +76,42 @@ get_commands_from_json() {
 	jshn -r "$json" 2>/dev/null | grep -v "json_init"
 }
 
+get_setting_by_key() {
+	local key="$1"
+
+	test -n "$key" || return
+
+	cat >&1 <<-EOF | lua - 2>/dev/null
+	local v2ray = require "luci.model.v2ray"
+	local json = v2ray.get_setting("$key")
+	print(json)
+	EOF
+}
+
+get_stream_settings_by_key() {
+	local key="$1"
+
+	test -n "$key" || return
+
+	cat >&1 <<-EOF | lua - 2>/dev/null
+	local v2ray = require "luci.model.v2ray"
+	local json = v2ray.get_stream_setting("$key")
+	print(json)
+	EOF
+}
+
+get_transport_by_key() {
+	local key="$1"
+
+	test -n "$key" || return
+
+	cat >&1 <<-EOF | lua - 2>/dev/null
+	local v2ray = require "luci.model.v2ray"
+	local json = v2ray.get_transport("$key")
+	print(json)
+	EOF
+}
+
 append_address() {
 	local address="$1"
 	if [ -z "$TRANSPARENT_PROXY_SERVER_IPS" ] ; then
@@ -115,6 +132,7 @@ v2ray_section_validate() {
 		'error_log:string' \
 		'stats_enabled:bool:0' \
 		'transport_enabled:bool:0' \
+		'transport:string' \
 		'inbounds:list(uci("v2ray", "@inbound"))' \
 		'outbounds:list(uci("v2ray", "@outbound"))'
 }
@@ -201,6 +219,8 @@ inbound_section_validate() {
 		'settings_timeout:uinteger:300' \
 		'transparent_proxy_udp:bool:0' \
 		'transparent_proxy_dns:bool:0' \
+		'settings:string' \
+		'stream_settings:string' \
 		'tag:string' \
 		'sniffing_enabled:bool:0' \
 		'sniffing_dest_override:list(or("http", "tls"))' \
@@ -214,6 +234,8 @@ outbound_section_validate() {
 		'send_through:ipaddr:0.0.0.0' \
 		'protocol:string' \
 		'tag:string' \
+		'settings:string' \
+		'stream_settings:string' \
 		'proxy_settings_tag:string' \
 		'mux_enabled:bool:0' \
 		'mux_concurrency:uinteger:8'
@@ -589,17 +611,17 @@ add_reverse_settings() {
 }
 
 add_transport_settings() {
-	local section="$1"
+	local key="$1"
 
-	if [ ! -f "$TRANSPORT_JSON" ] ; then
-		_err "Transport config file not found: $transport_json"
+	if [ -z "$key" ] ; then
+		_err "Transport config key is empty."
 		return 1
 	fi
 
 	local json
-	json="$(get_value_from_file "$TRANSPORT_JSON" "$section")"
+	json="$(get_transport_by_key "$key")"
 	if [ -z "$json" ] ; then
-		_err "Invalid transport config: $section"
+		_err "Invalid transport config: $key"
 		return 1
 	fi
 
@@ -671,7 +693,7 @@ add_inbound_setting() {
 		json_close_object
 	else
 		local json
-		json="$(get_value_from_file "$INBOUND_SETTINGS_JSON" "$section")"
+		json="$(get_setting_by_key "$settings")"
 
 		if [ -n "$json" ] ; then
 			json_add_object "settings"
@@ -681,7 +703,7 @@ add_inbound_setting() {
 	fi
 
 	local json
-	json="$(get_value_from_file "$INBOUND_STREAM_SETTINGS_JSON" "$section")"
+	json="$(get_stream_settings_by_key "$stream_settings")"
 
 	if [ -n "$json" ] ; then
 		json_add_object "streamSettings"
@@ -719,7 +741,7 @@ add_outbound_setting() {
 	json_close_object
 
 	local json
-	json="$(get_value_from_file "$OUTBOUND_SETTINGS_JSON" "$section")"
+	json="$(get_setting_by_key "$settings")"
 
 	if [ -n "$json" ] ; then
 		local commands
@@ -755,7 +777,7 @@ add_outbound_setting() {
 	}
 
 	local json
-	json="$(get_value_from_file "$OUTBOUND_STREAM_SETTINGS_JSON" "$section")"
+	json="$(get_stream_settings_by_key "$stream_settings")"
 
 	if [ -n "$json" ] ; then
 		json_add_object "streamSettings"
@@ -830,7 +852,7 @@ start_instance() {
 		add_reverse_settings "$section"
 
 		if [ "x$transport_enabled" = "x1" ] ; then
-			add_transport_settings "$section"
+			add_transport_settings "$transport"
 		fi
 
 		if [ -n "$inbounds" ] ; then
