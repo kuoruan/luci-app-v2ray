@@ -7,7 +7,8 @@ local m, s, o
 
 local sid = arg[1]
 
-m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Edit Policy Level") })
+m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Edit Policy Level") },
+	translatef("Details: %s", "<a href=\"https://www.v2ray.com/en/configuration/policy.html#levelpolicyobject\" target=\"_blank\">LevelPolicyObject</a>"))
 m.redirect = dsp.build_url("admin/services/v2ray/policy")
 
 if m.uci:get("v2ray", sid) ~= "policy_level" then

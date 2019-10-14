@@ -16,7 +16,8 @@ uci:foreach("v2ray", "dns_server", function(s)
 	end
 end)
 
-m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("DNS") })
+m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("DNS") },
+	translatef("Details: %s", "<a href=\"https://www.v2ray.com/en/configuration/dns.html#dnsobject\" target=\"_blank\">DnsObject</a>"))
 
 s1 = m:section(NamedSection, "main_dns", "dns")
 s1.anonymous = true

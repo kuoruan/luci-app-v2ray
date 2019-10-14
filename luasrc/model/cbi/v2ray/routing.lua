@@ -25,7 +25,8 @@ uci:foreach("v2ray", "routing_balancer", function(s)
 	end
 end)
 
-m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Routing") })
+m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Routing") },
+	translatef("Details: %s", "<a href=\"https://www.v2ray.com/en/configuration/routing.html#routingobject\" target=\"_blank\">RoutingObject</a>"))
 
 s1 = m:section(NamedSection, "main_routing", "routing")
 s1.anonymous = true

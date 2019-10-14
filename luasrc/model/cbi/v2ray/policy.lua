@@ -17,7 +17,8 @@ uci:foreach("v2ray", "policy_level", function(s)
 	end
 end)
 
-m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Policy") })
+m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Policy") },
+	translatef("Details: %s", "<a href=\"https://www.v2ray.com/en/configuration/policy.html#policyobject\" target=\"_blank\">PolicyObject</a>"))
 
 s1 = m:section(NamedSection, "main_policy", "policy")
 s1.anonymous = true

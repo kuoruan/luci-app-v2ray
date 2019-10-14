@@ -11,7 +11,8 @@ local m, s, o
 
 local sid = arg[1]
 
-m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Edit Outbound") })
+m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Edit Outbound") },
+	translatef("Details: %s", "<a href=\"https://www.v2ray.com/en/configuration/overview.html#outboundobject\" target=\"_blank\">OutboundObject</a>"))
 m.redirect = dsp.build_url("admin/services/v2ray/outbounds")
 m.on_after_save = function ()
 	sys.call("/etc/init.d/v2ray reload 2>/dev/null")
