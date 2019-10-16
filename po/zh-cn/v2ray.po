@@ -199,7 +199,7 @@ msgstr "捐助：%s"
 
 #: luasrc/model/cbi/v2ray/policy-level-detail.lua:39
 msgid "Downlink only"
-msgstr "连接上行线路关闭后的时间限制"
+msgstr "上行连接关闭等待时间"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:14
 msgid "Edit Inbound"
@@ -559,7 +559,7 @@ msgstr "UDP 流量"
 
 #: luasrc/model/cbi/v2ray/policy-level-detail.lua:35
 msgid "Uplink only"
-msgstr "连接上行线路关闭后的时间限制"
+msgstr "下行连接关闭等待时间"
 
 #: luasrc/model/cbi/v2ray/main.lua:77
 msgid "Use custom config file"
