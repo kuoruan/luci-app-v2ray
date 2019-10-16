@@ -283,15 +283,16 @@ add_v2ray_rules() {
 		iptables-restore --noflush <<-EOF 2>/dev/null
 			*mangle
 			:V2RAY -
-			:V2RAY_MARK -
 			-A V2RAY -p udp -j RETURN -m mark --mark 0xff
-			-A V2RAY_MARK -p udp -j RETURN -m mark --mark 0xff
 			$(for s in $server_ips ; do echo "-A V2RAY -p udp -d $s -j RETURN" ; done)
 			$(for r in $reserved_ips ; do echo "-A V2RAY -p udp -d $r -j RETURN" ; done)
-			-A V2RAY -p udp -j TPROXY --on-port $port --tproxy-mark 0x01/0x01
-			-A V2RAY_MARK -p udp -j MARK --set-mark 1
-			-A PREROUTING -p udp $d_port -j V2RAY
-			-A OUTPUT -p udp $d_port -j V2RAY_MARK
+			-A V2RAY -p udp $d_port -j TPROXY --on-port $port --tproxy-mark 0x01/0x01
+			-A PREROUTING -p udp -j V2RAY
+
+			:V2RAY_MARK -
+			-A V2RAY_MARK -p udp -j RETURN -m mark --mark 0xff
+			-A V2RAY_MARK -p udp $d_port -j MARK --set-mark 1
+			-A OUTPUT -p udp -j V2RAY_MARK
 			COMMIT
 		EOF
 	fi
