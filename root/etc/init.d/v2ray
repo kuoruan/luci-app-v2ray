@@ -41,15 +41,6 @@ _err() {
 	_log "err" $@
 }
 
-v2ray_file_validate() {
-	local file="$1"
-
-	test -f "$file" || return 1
-	test -x "$file" || chmod 755 "$file"
-
-	eval "$file --version 2>/dev/null" | grep -q "V2Ray"
-}
-
 get_value_from_json() {
 	local json="$1"
 	local key="$2"
@@ -816,10 +807,12 @@ start_instance() {
 		return 0
 	fi
 
-	if [ -z "$v2ray_file" ] || ! ( v2ray_file_validate "$v2ray_file" ) ; then
+	if [ -z "$v2ray_file" ] || [ ! -s "$v2ray_file" ] ; then
 		_err "Invalid V2Ray file."
 		return 1
 	fi
+
+	test -x "$v2ray_file" || chmod 755 "$v2ray_file"
 
 	local temp_config
 
