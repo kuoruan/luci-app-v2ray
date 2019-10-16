@@ -217,6 +217,7 @@ inbound_section_validate() {
 		'protocol:string' \
 		'transparent_proxy_enabled:bool:0' \
 		'settings_timeout:uinteger:300' \
+		'settings_user_level:uinteger' \
 		'transparent_proxy_udp:bool:0' \
 		'transparent_proxy_dns:bool:0' \
 		'settings:string' \
@@ -691,24 +692,26 @@ add_inbound_setting() {
 		json_add_string "network" "$settings_network"
 		json_add_int "timeout" "$settings_timeout"
 		json_add_boolean "followRedirect" "1"
+		test -n "$settings_user_level" && \
+			json_add_int "userLevel" "$settings_user_level"
 		json_close_object
 	else
-		local json
-		json="$(get_setting_by_key "$settings")"
+		local settings_json
+		settings_json="$(get_setting_by_key "$settings")"
 
-		if [ -n "$json" ] ; then
+		if [ -n "$settings_json" ] ; then
 			json_add_object "settings"
-			eval "$(get_commands_from_json "$json")"
+			eval "$(get_commands_from_json "$settings_json")"
 			json_close_object
 		fi
 	fi
 
-	local json
-	json="$(get_stream_settings_by_key "$stream_settings")"
+	local stream_settings_json
+	stream_settings_json="$(get_stream_settings_by_key "$stream_settings")"
 
-	if [ -n "$json" ] ; then
+	if [ -n "$stream_settings_json" ] ; then
 		json_add_object "streamSettings"
-		eval "$(get_commands_from_json "$json")"
+		eval "$(get_commands_from_json "$stream_settings_json")"
 		json_close_object
 	fi
 
@@ -741,20 +744,20 @@ add_outbound_setting() {
 	json_add_int "concurrency" "$mux_concurrency"
 	json_close_object
 
-	local json
-	json="$(get_setting_by_key "$settings")"
+	local settings_json
+	settings_json="$(get_setting_by_key "$settings")"
 
-	if [ -n "$json" ] ; then
-		local commands
-		commands="$(get_commands_from_json "$json")"
+	if [ -n "$settings_json" ] ; then
+		local settings_commands
+		settings_commands="$(get_commands_from_json "$settings_json")"
 
 		json_add_object "settings"
-		eval "$commands"
+		eval "$settings_commands"
 		json_close_object
 
 		if [ -n "$TRANSPARENT_PROXY_ENABLED" ] ; then
 			local address_commands
-			address_commands="$(echo "$commands" | grep "'address'" | cut -d';' -f1 | cut -d' ' -f3)"
+			address_commands="$(echo "$settings_commands" | grep "'address'" | cut -d';' -f1 | cut -d' ' -f3)"
 
 			if [ -n "$address_commands" ] ; then
 				local a
@@ -771,23 +774,28 @@ add_outbound_setting() {
 
 	fi
 
-	add_so_mark() {
+	add_sockopt_so_mark() {
 		json_add_object "sockopt"
-		json_add_int "mark" 255
+		json_add_int "mark" "255"
 		json_close_object
 	}
 
-	local json
-	json="$(get_stream_settings_by_key "$stream_settings")"
+	local stream_settings_json
+	stream_settings_json="$(get_stream_settings_by_key "$stream_settings")"
 
-	if [ -n "$json" ] ; then
+	if [ -n "$stream_settings_json" ] ; then
+		local stream_settings_commands
+		stream_settings_commands="$(get_commands_from_json "$stream_settings_json")"
+
 		json_add_object "streamSettings"
-		eval "$(get_commands_from_json "$json")"
-		add_so_mark
+		eval "$stream_settings_commands"
+		if ! ( echo "$stream_settings_commands" | grep -q "'sockopt'" ) ; then
+			add_sockopt_so_mark
+		fi
 		json_close_object
 	else
 		json_add_object "streamSettings"
-		add_so_mark
+		add_sockopt_so_mark
 		json_close_object
 	fi
 

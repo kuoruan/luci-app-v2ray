@@ -68,6 +68,10 @@ o:depends("transparent_proxy_enabled", "1")
 o.datatype = "uinteger"
 o.placeholder = "300"
 
+o = s:option(Value, "settings_user_level", "%s - %s" % { translate("Transparent proxy"), translate("User level") }, translate("All connections share this level"))
+o:depends("transparent_proxy_enabled", "1")
+o.datatype = "uinteger"
+
 o = s:option(Flag, "transparent_proxy_udp", "%s - %s" %{ translate("Transparent proxy"), translate("UDP traffic") })
 o:depends("transparent_proxy_enabled", "1")
 
