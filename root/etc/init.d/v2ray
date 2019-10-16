@@ -739,10 +739,12 @@ add_outbound_setting() {
 		json_close_object
 	fi
 
-	json_add_object "mux"
-	json_add_boolean "enabled" "$mux_enabled"
-	json_add_int "concurrency" "$mux_concurrency"
-	json_close_object
+	if [ "x$mux_enabled" = "x1" ] ; then
+		json_add_object "mux"
+		json_add_boolean "enabled" "1"
+		json_add_int "concurrency" "$mux_concurrency"
+		json_close_object
+	fi
 
 	local settings_json
 	settings_json="$(get_setting_by_key "$settings")"
