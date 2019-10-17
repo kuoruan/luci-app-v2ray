@@ -272,8 +272,8 @@ add_v2ray_rules() {
 	EOF
 
 	if [ -n "$addition_proxy" ] ; then
-		ip rule add fwmark 1 lookup 100
 		ip route add local default dev lo table 100 2>/dev/null
+		ip rule add fwmark 1 lookup 100
 
 		local d_port=""
 		if [ "$addition_proxy" = "dns" ] ; then
@@ -284,8 +284,6 @@ add_v2ray_rules() {
 			*mangle
 			:V2RAY -
 			-A V2RAY -p udp -j RETURN -m mark --mark 0xff
-			$(for s in $server_ips ; do echo "-A V2RAY -p udp -d $s -j RETURN" ; done)
-			$(for r in $reserved_ips ; do echo "-A V2RAY -p udp -d $r -j RETURN" ; done)
 			-A V2RAY -p udp $d_port -j TPROXY --on-port $port --tproxy-mark 0x01/0x01
 			-A PREROUTING -p udp -j V2RAY
 
@@ -301,9 +299,10 @@ add_v2ray_rules() {
 clear_v2ray_rules() {
 	iptables-save --counters | grep -v "V2RAY" | iptables-restore --counters
 
+	while ip rule del fwmark 1 lookup 100 2>/dev/null ; do true ; done
+
 	ip route flush table 100
 	ip route del local default dev lo table 100 2>/dev/null
-	while ip rule del fwmark 1 lookup 100 2>/dev/null ; do true ; done
 }
 
 add_dns_settings() {
