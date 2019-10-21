@@ -758,9 +758,14 @@ add_outbound_setting() {
 					# remove single quotes
 					eval "local address=$a"
 
+					local b
+					# use ping to get and check ip address
+					# -c1 to send only one packet, -t1 so that we won't wait for a reply.
+					b=$(ping -c1 -t1 $address | sed -nE 's/^PING[^(]+\(([^)]+)\).*/\1/p')
+					
 					# check if is a IPv4 address
-					test -n "$(echo "$address" | cut -d'.' -f4)" && \
-						append_address "$address"
+					test -n "$(echo "$b" | cut -d'.' -f4)" && \
+						append_address "$b"
 				done
 			fi
 		fi
