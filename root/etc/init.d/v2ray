@@ -67,38 +67,15 @@ get_commands_from_json() {
 	jshn -r "$json" 2>/dev/null | grep -v "json_init"
 }
 
-get_setting_by_key() {
-	local key="$1"
+get_json_content() {
+	local type="$1"
+	local key="$2"
 
 	test -n "$key" || return
 
 	cat >&1 <<-EOF | lua - 2>/dev/null
 	local v2ray = require "luci.model.v2ray"
-	local json = v2ray.get_setting("$key")
-	print(json)
-	EOF
-}
-
-get_stream_settings_by_key() {
-	local key="$1"
-
-	test -n "$key" || return
-
-	cat >&1 <<-EOF | lua - 2>/dev/null
-	local v2ray = require "luci.model.v2ray"
-	local json = v2ray.get_stream_setting("$key")
-	print(json)
-	EOF
-}
-
-get_transport_by_key() {
-	local key="$1"
-
-	test -n "$key" || return
-
-	cat >&1 <<-EOF | lua - 2>/dev/null
-	local v2ray = require "luci.model.v2ray"
-	local json = v2ray.get_transport("$key")
+	local json = v2ray.get_${type}("$key")
 	print(json)
 	EOF
 }
@@ -612,7 +589,7 @@ add_transport_settings() {
 	fi
 
 	local json
-	json="$(get_transport_by_key "$key")"
+	json="$(get_json_content "transport" "$key")"
 	if [ -z "$json" ] ; then
 		_err "Invalid transport config: $key"
 		return 1
@@ -688,7 +665,7 @@ add_inbound_setting() {
 		json_close_object
 	else
 		local settings_json
-		settings_json="$(get_setting_by_key "$settings")"
+		settings_json="$(get_json_content "setting" "$settings")"
 
 		if [ -n "$settings_json" ] ; then
 			json_add_object "settings"
@@ -698,7 +675,7 @@ add_inbound_setting() {
 	fi
 
 	local stream_settings_json
-	stream_settings_json="$(get_stream_settings_by_key "$stream_settings")"
+	stream_settings_json="$(get_json_content "stream_setting" "$stream_settings")"
 
 	if [ -n "$stream_settings_json" ] ; then
 		json_add_object "streamSettings"
@@ -738,7 +715,7 @@ add_outbound_setting() {
 	fi
 
 	local settings_json
-	settings_json="$(get_setting_by_key "$settings")"
+	settings_json="$(get_json_content "setting" "$settings")"
 
 	if [ -n "$settings_json" ] ; then
 		local settings_commands
@@ -762,7 +739,7 @@ add_outbound_setting() {
 					# use ping to get and check ip address
 					# -c1 to send only one packet, -t1 so that we won't wait for a reply.
 					b=$(ping -c1 -t1 $address | sed -nE 's/^PING[^(]+\(([^)]+)\).*/\1/p')
-					
+
 					# check if is a IPv4 address
 					test -n "$(echo "$b" | cut -d'.' -f4)" && \
 						append_address "$b"
@@ -779,7 +756,7 @@ add_outbound_setting() {
 	}
 
 	local stream_settings_json
-	stream_settings_json="$(get_stream_settings_by_key "$stream_settings")"
+	stream_settings_json="$(get_json_content "stream_setting" "$stream_settings")"
 
 	if [ -n "$stream_settings_json" ] ; then
 		local stream_settings_commands
