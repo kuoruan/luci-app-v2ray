@@ -233,26 +233,26 @@ function is_ipv6(addr)
 
 	if addrs ~= nil and #addrs > 1 then
 		local nc, dc = 0, false -- chunk count, double colon
-    for chunk, colons in addrs:gmatch("([^:]*)(:*)") do
+		for chunk, colons in addrs:gmatch("([^:]*)(:*)") do
 			if nc > (dc and 7 or 8) then -- max allowed chunks
 				return false
 			end
 
 			if #chunk > 0 and tonumber(chunk, 16) > 65535 then
-        return false
-      end
+				return false
+			end
 
 			if #colons > 0 then
-        -- max consecutive colons allowed: 2
+				-- max consecutive colons allowed: 2
 				if #colons > 2 then return false end
 
-        -- double colon shall appear only once
+				-- double colon shall appear only once
 				if #colons == 2 and dc == true then return false end
 
 				if #colons == 2 and dc == false then dc = true end
-      end
-      nc = nc + 1
-    end
+			end
+			nc = nc + 1
+		end
 
 		return true
 	end
