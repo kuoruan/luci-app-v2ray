@@ -752,24 +752,21 @@ add_outbound_setting() {
 		json_close_object
 
 		if [ -n "$TRANSPARENT_PROXY_ENABLED" ] ; then
-			local address_commands
-			address_commands="$(echo "$settings_commands" | grep "'address'" | cut -d';' -f1 | cut -d' ' -f3)"
+			local addrs
+			addrs="$(echo "$settings_commands" | sed -n "s/^json.*'address'[[:space:]]'\([^']*\)'.*/\1/p")"
 
-			if [ -n "$address_commands" ] ; then
-				local a
-				for a in $address_commands ; do
-					# remove single quotes
-					eval "local address=$a"
-
-					if is_ipv4_address "$address" ; then
-						append_address "$address"
-					elif is_ipv6_address "$address" ; then
+			if [ -n "$addrs" ] ; then
+				local addr
+				for addr in $addrs ; do
+					if is_ipv4_address "$addr" ; then
+						append_address "$addr"
+					elif is_ipv6_address "$addr" ; then
 						# not impl
 					else
 						local ipv4
 						# use ping to get and check ip address
 						# -c1 to send only one packet, -t1 so that we won't wait for a reply.
-						ipv4="$(ping -c1 -t1 "$address" | sed -n 's/^PING[^(]*(\([^)]*\)).*/\1/p')"
+						ipv4="$(ping -c1 -t1 "$addr" | sed -n 's/^PING[^(]*(\([^)]*\)).*/\1/p')"
 
 						is_ipv4_address "$ipv4" && append_address "$ipv4"
 					fi
