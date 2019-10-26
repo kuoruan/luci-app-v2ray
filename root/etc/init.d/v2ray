@@ -80,6 +80,32 @@ get_json_content() {
 	EOF
 }
 
+is_ipv4_address() {
+	local addr="$1"
+
+	test -n "$addr" || return 1
+
+	cat >&1 <<-EOF | lua - 2>/dev/null
+	local v2ray = require "luci.model.v2ray"
+	if v2ray.is_ipv4("$addr") ~= true then
+		os.exit(1)
+	end
+	EOF
+}
+
+is_ipv6_address() {
+	local addr="$1"
+
+	test -n "$addr" || return 1
+
+	cat >&1 <<-EOF | lua - 2>/dev/null
+	local v2ray = require "luci.model.v2ray"
+	if v2ray.is_ipv6("$addr") ~= true then
+		os.exit(1)
+	end
+	EOF
+}
+
 append_address() {
 	local address="$1"
 	if [ -z "$TRANSPARENT_PROXY_SERVER_IPS" ] ; then
@@ -735,14 +761,18 @@ add_outbound_setting() {
 					# remove single quotes
 					eval "local address=$a"
 
-					local b
-					# use ping to get and check ip address
-					# -c1 to send only one packet, -t1 so that we won't wait for a reply.
-					b=$(ping -c1 -t1 $address | sed -nE 's/^PING[^(]+\(([^)]+)\).*/\1/p')
+					if is_ipv4_address "$address" ; then
+						append_address "$address"
+					elif is_ipv6_address "$address" ; then
+						# not impl
+					else
+						local b
+						# use ping to get and check ip address
+						# -c1 to send only one packet, -t1 so that we won't wait for a reply.
+						b="$(ping -c1 -t1 "$address" | sed -nE 's/^PING[^(]+\(([^)]+)\).*/\1/p')"
 
-					# check if is a IPv4 address
-					test -n "$(echo "$b" | cut -d'.' -f4)" && \
-						append_address "$b"
+						is_ipv4_address "$b" && append_address "$b"
+					fi
 				done
 			fi
 		fi

@@ -200,3 +200,62 @@ end
 function remove_transport(key)
 	return remove_value_from_file(data_transport, key)
 end
+
+function is_ipv4(addr)
+	if addr == nil or type(addr) ~= "string" then
+		return false
+	end
+
+	local chunks = {
+		addr:match("(%d+)%.(%d+)%.(%d+)%.(%d+)")
+	}
+
+	if (#chunks == 4) then
+		for _, v in pairs(chunks) do
+			local n = tonumber(v)
+			if (n < 0 or n > 255) then
+				return false
+			end
+		end
+
+		return true
+	else
+		return false
+	end
+end
+
+function is_ipv6(addr)
+	if addr == nil or type(addr) ~= "string" then
+		return false
+	end
+
+	local addrs = addr:match("^([a-fA-F0-9:]+)$")
+
+	if addrs ~= nil and #addrs > 1 then
+		local nc, dc = 0, false -- chunk count, double colon
+    for chunk, colons in addrs:gmatch("([^:]*)(:*)") do
+			if nc > (dc and 7 or 8) then -- max allowed chunks
+				return false
+			end
+
+			if #chunk > 0 and tonumber(chunk, 16) > 65535 then
+        return false
+      end
+
+			if #colons > 0 then
+        -- max consecutive colons allowed: 2
+				if #colons > 2 then return false end
+
+        -- double colon shall appear only once
+				if #colons == 2 and dc == true then return false end
+
+				if #colons == 2 and dc == false then dc = true end
+      end
+      nc = nc + 1
+    end
+
+		return true
+	end
+
+	return false
+end
