@@ -766,12 +766,12 @@ add_outbound_setting() {
 					elif is_ipv6_address "$address" ; then
 						# not impl
 					else
-						local b
+						local ipv4
 						# use ping to get and check ip address
 						# -c1 to send only one packet, -t1 so that we won't wait for a reply.
-						b="$(ping -c1 -t1 "$address" | sed -nE 's/^PING[^(]+\(([^)]+)\).*/\1/p')"
+						ipv4="$(ping -c1 -t1 "$address" | sed -n 's/^PING[^(]*(\([^)]*\)).*/\1/p')"
 
-						is_ipv4_address "$b" && append_address "$b"
+						is_ipv4_address "$ipv4" && append_address "$ipv4"
 					fi
 				done
 			fi
