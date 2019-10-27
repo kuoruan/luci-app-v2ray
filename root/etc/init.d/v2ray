@@ -762,6 +762,7 @@ add_outbound_setting() {
 						append_address "$addr"
 					elif is_ipv6_address "$addr" ; then
 						# not impl
+						true
 					else
 						local ipv4
 						# use ping to get and check ip address
