@@ -11,9 +11,10 @@ NAME=v2ray
 CONFIG_FOLDER=/var/etc/$NAME
 
 TRANSPARENT_PROXY_ENABLED=
-TRANSPARENT_PROXY_ADDITION=
 TRANSPARENT_PROXY_PORT=
-TRANSPARENT_PROXY_SERVER_IPS=
+TRANSPARENT_PROXY_SERVERS_IPV4=
+TRANSPARENT_PROXY_SERVERS_IPV6=
+TRANSPARENT_PROXY_ADDITION=
 
 if [ -r /usr/share/libubox/jshn.sh ] ; then
 	. /usr/share/libubox/jshn.sh
@@ -80,38 +81,27 @@ get_json_content() {
 	EOF
 }
 
-is_ipv4_address() {
-	local addr="$1"
-
-	test -n "$addr" || return 1
-
-	cat >&1 <<-EOF | lua - 2>/dev/null
-	local v2ray = require "luci.model.v2ray"
-	if v2ray.is_ipv4("$addr") ~= true then
-		os.exit(1)
-	end
-	EOF
-}
-
-is_ipv6_address() {
-	local addr="$1"
-
-	test -n "$addr" || return 1
-
-	cat >&1 <<-EOF | lua - 2>/dev/null
-	local v2ray = require "luci.model.v2ray"
-	if v2ray.is_ipv6("$addr") ~= true then
-		os.exit(1)
-	end
-	EOF
-}
-
-append_address() {
+append_server_ipv4() {
 	local address="$1"
-	if [ -z "$TRANSPARENT_PROXY_SERVER_IPS" ] ; then
-		TRANSPARENT_PROXY_SERVER_IPS="$address"
+
+	test -n "$address" || return
+
+	if [ -z "$TRANSPARENT_PROXY_SERVERS_IPV4" ] ; then
+		TRANSPARENT_PROXY_SERVERS_IPV4="$address"
 	else
-		TRANSPARENT_PROXY_SERVER_IPS="$TRANSPARENT_PROXY_SERVER_IPS $address"
+		TRANSPARENT_PROXY_SERVERS_IPV4="$TRANSPARENT_PROXY_SERVERS_IPV4 $address"
+	fi
+}
+
+append_server_ipv6() {
+	local address="$1"
+
+	test -n "$address" || return
+
+	if [ -z "$TRANSPARENT_PROXY_SERVERS_IPV6" ] ; then
+		TRANSPARENT_PROXY_SERVERS_IPV6="$address"
+	else
+		TRANSPARENT_PROXY_SERVERS_IPV6="$TRANSPARENT_PROXY_SERVERS_IPV6 $address"
 	fi
 }
 
@@ -238,11 +228,12 @@ outbound_section_validate() {
 
 add_v2ray_rules() {
 	local port="$1"
-	local server_ips="$2"
-	local addition_proxy="$3"
+	local servers_ipv4="$2"
+	local servers_ipv6="$3"
+	local addition_proxy="$4"
 
 	# https://en.wikipedia.org/wiki/Reserved_IP_addresses
-	local reserved_ips="$(cat >&1 <<-EOF
+	local reserved_ipv4="$(cat >&1 <<-EOF
 		0.0.0.0/8
 		10.0.0.0/8
 		100.64.0.0/10
@@ -262,12 +253,31 @@ add_v2ray_rules() {
 	EOF
 	)"
 
+	local reserved_ipv6="$(cat >&1 <<-EOF
+		::/0
+		::/128
+		::1/128
+		::ffff:0:0/96
+		::ffff:0:0:0/96
+		64:ff9b::/96
+		100::/64
+		2001::/32
+		2001:20::/28
+		2001:db8::/32
+		2002::/16
+		fc00::/7
+		203.0.113.0/24
+		fe80::/10
+		ff00::/8
+	EOF
+	)"
+
 	iptables-restore --noflush <<-EOF 2>/dev/null
 		*nat
 		:V2RAY -
 		-A V2RAY -p tcp -j RETURN -m mark --mark 0xff
-		$(for s in $server_ips ; do echo "-A V2RAY -p tcp -d $s -j RETURN" ; done)
-		$(for r in $reserved_ips ; do echo "-A V2RAY -p tcp -d $r -j RETURN" ; done)
+		$(for s4 in $servers_ipv4 ; do echo "-A V2RAY -p tcp -d $s4 -j RETURN" ; done)
+		$(for r4 in $reserved_ipv4 ; do echo "-A V2RAY -p tcp -d $r4 -j RETURN" ; done)
 		-A V2RAY -p tcp -j REDIRECT --to-ports $port
 		-A PREROUTING -p tcp -j V2RAY
 		-A OUTPUT -p tcp -j V2RAY
@@ -752,28 +762,19 @@ add_outbound_setting() {
 		json_close_object
 
 		if [ -n "$TRANSPARENT_PROXY_ENABLED" ] ; then
-			local addrs
-			addrs="$(echo "$settings_commands" | sed -n "s/^json.*'address'[[:space:]]'\([^']*\)'.*/\1/p")"
-
-			if [ -n "$addrs" ] ; then
-				local addr
-				for addr in $addrs ; do
-					if is_ipv4_address "$addr" ; then
-						append_address "$addr"
-					elif is_ipv6_address "$addr" ; then
-						# not impl
-						true
-					else
-						for ip in $(resolveip -t 5 "$addr") ; do
-							if is_ipv4_address "$ip" ; then
-								append_address "$ip"
-							fi
-						done
-					fi
+			local addr
+			for addr in $(echo "$settings_commands" | sed -n "s/^json.*'address'[[:space:]]'\([^']*\)'.*/\1/p") ; do
+				local ipv4
+				for ipv4 in $(resolveip -4 -t 5 "$addr") ; do
+					append_server_ipv4 "$ipv4"
 				done
-			fi
-		fi
 
+				local ipv6
+				for ipv6 in $(resolveip -6 -t 5 "$addr") ; do
+					append_server_ipv6 "$ipv6"
+				done
+			done
+		fi
 	fi
 
 	add_sockopt_so_mark() {
@@ -926,13 +927,15 @@ start_service() {
 
 	if [ -n "$TRANSPARENT_PROXY_ENABLED" ] ; then
 		add_v2ray_rules "$TRANSPARENT_PROXY_PORT" \
-			"$TRANSPARENT_PROXY_SERVER_IPS" \
+			"$TRANSPARENT_PROXY_SERVERS_IPV4" \
+			"$TRANSPARENT_PROXY_SERVERS_IPV6" \
 			"$TRANSPARENT_PROXY_ADDITION"
 	fi
 
 	unset TRANSPARENT_PROXY_ENABLED \
 		TRANSPARENT_PROXY_PORT \
-		TRANSPARENT_PROXY_SERVER_IPS \
+		TRANSPARENT_PROXY_SERVERS_IPV4 \
+		TRANSPARENT_PROXY_SERVERS_IPV6 \
 		TRANSPARENT_PROXY_ADDITION
 }
 
