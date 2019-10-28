@@ -5,12 +5,34 @@ local nixio = require "nixio"
 local util = require "luci.util"
 local json = require "luci.jsonc"
 local sys = require "luci.sys"
+local uci = require "luci.model.uci".cursor()
 
 module("luci.model.v2ray", package.seeall)
 
 local data_settings = "/etc/v2ray/data-settings.json"
 local data_stream_settings = "/etc/v2ray/data-stream-settings.json"
 local data_transport = "/etc/v2ray/data-transport.json"
+
+local gfwlist_urls = {
+	["github"] = "https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt",
+	["gitlab"] = "https://gitlab.com/gfwlist/gfwlist/raw/master/gfwlist.txt",
+	["pagure"] = "https://pagure.io/gfwlist/raw/master/f/gfwlist.txt",
+	["bitbucket"] = "https://bitbucket.org/gfwlist/gfwlist/raw/HEAD/gfwlist.txt"
+}
+
+local apnic_delegated_urls = {
+	["apnic"] = "https://ftp.apnic.net/stats/apnic/delegated-apnic-latest",
+	["arin"] = "https://ftp.arin.net/pub/stats/apnic/delegated-apnic-latest",
+	["ripe"] = "https://ftp.ripe.net/pub/stats/apnic/delegated-apnic-latest",
+	["iana"] = "https://ftp.iana.org/pub/mirror/rirstats/apnic/delegated-apnic-latest"
+}
+
+local apnic_delegated_extended_url = "https://ftp.apnic.net/stats/apnic/delegated-apnic-extended-latest"
+local cn_zone_url = "http://www.ipdeny.com/ipblocks/data/countries/cn.zone"
+
+local gfwlist_file = "/etc/v2ray/gfwlist.txt"
+local chnroute_file_ipv4 = "/etc/v2ray/chnroute.txt"
+local chnroute_file_ipv6 = "/etc/v2ray/chnroute6.txt"
 
 function random_setting_key()
 	return sys.uniqueid(4)
@@ -33,7 +55,7 @@ function object_to_json_string(obj, format)
 		format = true
 	end
 
-	if type(obj) == 'table' and not next(obj) then
+	if type(obj) == "table" and not next(obj) then
 		return "{}"
 	end
 
@@ -199,4 +221,174 @@ end
 
 function remove_transport(key)
 	return remove_value_from_file(data_transport, key)
+end
+
+function get_url_content(url)
+	local f = sys.httpget(url, true)
+
+	if f ~= nil then
+		local file = f:read("*all")
+		f:close()
+
+		return file
+	end
+
+	return nil
+end
+
+function generate_gfwlist()
+	local gfwlist_mirror = uci:get("v2ray", "main_transparent_proxy", "gfwlist_mirror") or "github"
+
+	local gfwlist_url = gfwlist_urls[gfwlist_mirror]
+
+	if gfwlist_url == nil then
+		gfwlist_url = gfwlist_urls['github']
+	end
+
+	local content = get_url_content(gfwlist_url)
+
+	if content == nil or content == "" then
+		return false
+	end
+
+	local domains = {}
+
+	local content = string.gsub(content, "[\r\n%s]+", "")
+	local decoded = nixio.bin.b64decode(content)
+
+	for line in util.imatch(decoded) do
+		local start, _, domain = string.find(line, "(%w[%w%-_]+%.%w[%w%.%-_]+)")
+
+		if start ~= nil then
+			domains[domain] = true
+		end
+	end
+
+	if not next(domains) then
+		return false
+	end
+
+	local temp = sys.exec("mktemp /tmp/gfwlist.XXXXXX")
+
+	local out_temp = io.open(temp, "w")
+
+	for k in util.kspairs(domains) do
+		out_temp:write(k, "\n")
+	end
+
+	out_temp:flush()
+	out_temp:close()
+
+	local file_size = nixio.fs.stat(temp, "size")
+	if file_size and file_size > 1 then
+		local result = sys.call("cat %s >%s 2>/dev/null" % {
+			util.shellquote(temp),
+			util.shellquote(gfwlist_file)
+		})
+		return result == 0
+	end
+
+	nixio.fs.remove(temp)
+
+	return false
+end
+
+function generate_routelist()
+	local apnic_delegated_mirror = uci:get("v2ray", "main_transparent_proxy", "apnic_delegated_mirror") or "apnic"
+
+	local apnic_delegated_url = apnic_delegated_urls[apnic_delegated_mirror]
+
+	if apnic_delegated_url == nil then
+		apnic_delegated_url = apnic_delegated_urls['apnic']
+	end
+
+	local content = get_url_content(apnic_delegated_url)
+
+	if content == nil or content == "" then
+		return false, false
+	end
+
+	local result_ipv4, result_ipv6 = false, false
+
+	local temp_ipv4 = sys.exec("mktemp /tmp/chnroute.XXXXXX")
+	local temp_ipv6 = sys.exec("mktemp /tmp/chnroute6.XXXXXX")
+
+	local out_temp_ipv4 = io.open(temp_ipv4, "w")
+	local out_temp_ipv6 = io.open(temp_ipv6, "w")
+
+	for line in util.imatch(content) do
+		local start, _, type, ip, value = string.find(line, "CN|(ipv%d)|([%d%.:]+)|(%d+)")
+
+		if start ~= nil then
+			if type == "ipv4" then
+				local mask = 32 - math.log(tonumber(value)) / math.log(2)
+				out_temp_ipv4:write(string.format("%s/%d", ip, mask), "\n")
+			elseif type == "ipv6" then
+				out_temp_ipv6:write(string.format("%s/%s", ip, value), "\n")
+			end
+		end
+	end
+
+	out_temp_ipv4:flush()
+	out_temp_ipv4:close()
+
+	out_temp_ipv6:flush()
+	out_temp_ipv6:close()
+
+	local file_size_ipv4 = nixio.fs.stat(temp_ipv4, "size")
+	local file_size_ipv6 = nixio.fs.stat(temp_ipv6, "size")
+
+	if file_size_ipv4 and file_size_ipv4 > 1 then
+		local code = sys.call("cat %s >%s 2>/dev/null" % {
+			util.shellquote(temp_ipv4),
+			util.shellquote(chnroute_file_ipv4)
+		})
+
+		result_ipv4 = (code == 0)
+	end
+
+	if file_size_ipv6 and file_size_ipv6 > 1 then
+		local code = sys.call("cat %s >%s 2>/dev/null" % {
+			util.shellquote(temp_ipv6),
+			util.shellquote(chnroute_file_ipv6)
+		})
+
+		result_ipv6 = (code == 0)
+	end
+
+	nixio.fs.remove(temp_ipv4)
+	nixio.fs.remove(temp_ipv6)
+
+	return result_ipv4, result_ipv6
+end
+
+function get_gfwlist_status()
+	local gfwlist_size = util.exec("cat %s | grep -v '^$' | wc -l" % util.shellquote(gfwlist_file))
+	local gfwlist_time = util.exec("date -r %s '+%%Y/%%m/%%d %%H:%%M:%%S'" % util.shellquote(gfwlist_file))
+
+	return {
+		gfwlist = {
+			size = tonumber(gfwlist_size),
+			lastModify = gfwlist_time ~= "" and util.trim(gfwlist_time) or "-/-/-"
+		}
+	}
+end
+
+function get_routelist_status()
+	local chnroute_size = util.exec("cat %s | grep -v '^$' | wc -l" % util.shellquote(chnroute_file_ipv4))
+	local chnroute_time = util.exec("date -r %s '+%%Y/%%m/%%d %%H:%%M:%%S'" % util.shellquote(chnroute_file_ipv4))
+
+	local chnroute6_size = util.exec("cat %s | grep -v '^$' | wc -l" % util.shellquote(chnroute_file_ipv6))
+	local chnroute6_time = util.exec("date -r %s '+%%Y/%%m/%%d %%H:%%M:%%S'" % util.shellquote(chnroute_file_ipv4))
+
+	return {
+		chnroute = {
+			size = tonumber(chnroute_size),
+			lastModify = chnroute_time ~= "" and util.trim(chnroute_time) or "-/-/-"
+		},
+		chnroute6 = {
+			size = tonumber(chnroute6_size),
+			lastModify = chnroute6_time ~= "" and util.trim(chnroute6_time) or "-/-/-"
+		}
+	}
 end

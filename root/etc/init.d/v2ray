@@ -10,11 +10,31 @@ USE_PROCD=1
 NAME=v2ray
 CONFIG_FOLDER=/var/etc/$NAME
 
-TRANSPARENT_PROXY_ENABLED=
+FILE_CHNROUTE=/etc/v2ray/chnroute.txt
+FILE_CHNROUTE6=/etc/v2ray/chnroute6.txt
+FILE_GFWLIST=/etc/v2ray/gfwlist.txt
+FILE_DIRECTLIST=/etc/v2ray/directlist.txt
+FILE_PROXYLIST=/etc/v2ray/proxylist.txt
+
+FILE_V2RAY_DNSMASQ=/tmp/dnsmasq.d/$NAME
+FILE_V2RAY_DNSMASQ_CACHE=/tmp/$NAME.dnsmasq.cache
+
+IPSET_SRC_IGNORE_V4=v2ray_src_ignore_v4
+IPSET_SRC_IGNORE_V6=v2ray_src_ignore_v6
+IPSET_DST_PROXY_V4=v2ray_dst_proxy_v4
+IPSET_DST_PROXY_V6=v2ray_dst_proxy_v6
+IPSET_DST_DIRECT_V4=v2ray_dst_direct_v4
+IPSET_DST_DIRECT_V6=v2ray_dst_direct_v6
+
+OUTBOUND_SERVERS_V4=
+OUTBOUND_SERVERS_V6=
+
 TRANSPARENT_PROXY_PORT=
-TRANSPARENT_PROXY_SERVERS_IPV4=
-TRANSPARENT_PROXY_SERVERS_IPV6=
+TRANSPARENT_PROXY_MODE=
 TRANSPARENT_PROXY_ADDITION=
+
+PROXYLIST_DNS=
+DIRECTLIST_DNS=
 
 if [ -r /usr/share/libubox/jshn.sh ] ; then
 	. /usr/share/libubox/jshn.sh
@@ -75,9 +95,9 @@ get_json_content() {
 	test -n "$key" || return
 
 	cat >&1 <<-EOF | lua - 2>/dev/null
-	local v2ray = require "luci.model.v2ray"
-	local json = v2ray.get_${type}("$key")
-	print(json)
+		local v2ray = require "luci.model.v2ray"
+		local json = v2ray.get_${type}("$key")
+		print(json)
 	EOF
 }
 
@@ -86,10 +106,14 @@ append_server_ipv4() {
 
 	test -n "$address" || return
 
-	if [ -z "$TRANSPARENT_PROXY_SERVERS_IPV4" ] ; then
-		TRANSPARENT_PROXY_SERVERS_IPV4="$address"
+	if [ -z "$OUTBOUND_SERVERS_V4" ] ; then
+		OUTBOUND_SERVERS_V4="$address"
 	else
-		TRANSPARENT_PROXY_SERVERS_IPV4="$TRANSPARENT_PROXY_SERVERS_IPV4 $address"
+		OUTBOUND_SERVERS_V4="$(cat >&1 <<-EOF
+			$OUTBOUND_SERVERS_V4
+			$address
+		EOF
+		)"
 	fi
 }
 
@@ -98,10 +122,14 @@ append_server_ipv6() {
 
 	test -n "$address" || return
 
-	if [ -z "$TRANSPARENT_PROXY_SERVERS_IPV6" ] ; then
-		TRANSPARENT_PROXY_SERVERS_IPV6="$address"
+	if [ -z "$OUTBOUND_SERVERS_V6" ] ; then
+		OUTBOUND_SERVERS_V6="$address"
 	else
-		TRANSPARENT_PROXY_SERVERS_IPV6="$TRANSPARENT_PROXY_SERVERS_IPV6 $address"
+		OUTBOUND_SERVERS_V6="$(cat >&1 <<-EOF
+			$OUTBOUND_SERVERS_V6
+			$address
+		EOF
+		)"
 	fi
 }
 
@@ -199,11 +227,6 @@ inbound_section_validate() {
 		'port:or(port, portrange, string)' \
 		'listen:ipaddr:0.0.0.0' \
 		'protocol:string' \
-		'transparent_proxy_enabled:bool:0' \
-		'settings_timeout:uinteger:300' \
-		'settings_user_level:uinteger' \
-		'transparent_proxy_udp:bool:0' \
-		'transparent_proxy_dns:bool:0' \
 		'settings:string' \
 		'stream_settings:string' \
 		'tag:string' \
@@ -226,58 +249,27 @@ outbound_section_validate() {
 		'mux_concurrency:uinteger:8'
 }
 
+transparent_proxy_section_validate() {
+	uci_validate_section "$NAME" "transparent_proxy" "$1" \
+		'redirect_port:port' \
+		'udp_redirect_enabled:bool:0' \
+		'dns_redirect_enabled:bool:0' \
+		'proxy_mode:or("default", "cn_direct", "cn_proxy", "gfwlist_proxy"):default' \
+		'proxy_list_dns:string:127.0.0.1#53' \
+		'direct_list_dns:string:127.0.0.1#53'
+}
+
 add_v2ray_rules() {
 	local port="$1"
-	local servers_ipv4="$2"
-	local servers_ipv6="$3"
-	local addition_proxy="$4"
-
-	# https://en.wikipedia.org/wiki/Reserved_IP_addresses
-	local reserved_ipv4="$(cat >&1 <<-EOF
-		0.0.0.0/8
-		10.0.0.0/8
-		100.64.0.0/10
-		127.0.0.0/8
-		169.254.0.0/16
-		172.16.0.0/12
-		192.0.0.0/24
-		192.0.2.0/24
-		192.88.99.0/24
-		192.168.0.0/16
-		198.18.0.0/15
-		198.51.100.0/24
-		203.0.113.0/24
-		224.0.0.0/4
-		240.0.0.0/4
-		255.255.255.255/32
-	EOF
-	)"
-
-	local reserved_ipv6="$(cat >&1 <<-EOF
-		::/0
-		::/128
-		::1/128
-		::ffff:0:0/96
-		::ffff:0:0:0/96
-		64:ff9b::/96
-		100::/64
-		2001::/32
-		2001:20::/28
-		2001:db8::/32
-		2002::/16
-		fc00::/7
-		fe80::/10
-		ff00::/8
-	EOF
-	)"
+	local ext_args="$2"
+	local addition_proxy="$3"
 
 	iptables-restore --noflush <<-EOF 2>/dev/null
 		*nat
 		:V2RAY -
 		-A V2RAY -p tcp -j RETURN -m mark --mark 0xff
-		$(for s4 in $servers_ipv4 ; do echo "-A V2RAY -p tcp -d $s4 -j RETURN" ; done)
-		$(for r4 in $reserved_ipv4 ; do echo "-A V2RAY -p tcp -d $r4 -j RETURN" ; done)
-		-A V2RAY -p tcp -j REDIRECT --to-ports $port
+		-A V2RAY -p tcp -m set --match-set $IPSET_DST_DIRECT_V4 dst -j RETURN
+		-A V2RAY -p tcp $ext_args -j REDIRECT --to-ports $port
 		-A PREROUTING -p tcp -j V2RAY
 		-A OUTPUT -p tcp -j V2RAY
 		COMMIT
@@ -315,6 +307,108 @@ clear_v2ray_rules() {
 
 	ip route flush table 100
 	ip route del local default dev lo table 100 2>/dev/null
+}
+
+create_v2ray_ipset() {
+	# https://en.wikipedia.org/wiki/Reserved_IP_addresses
+	local reserved_v4="$(cat >&1 <<-EOF
+		0.0.0.0/8
+		10.0.0.0/8
+		100.64.0.0/10
+		127.0.0.0/8
+		169.254.0.0/16
+		172.16.0.0/12
+		192.0.0.0/24
+		192.0.2.0/24
+		192.88.99.0/24
+		192.168.0.0/16
+		198.18.0.0/15
+		198.51.100.0/24
+		203.0.113.0/24
+		224.0.0.0/4
+		240.0.0.0/4
+		255.255.255.255
+	EOF
+	)"
+
+	local reserved_v6="$(cat >&1 <<-EOF
+		::
+		::/128
+		::1/128
+		::ffff:0:0/96
+		::ffff:0:0:0/96
+		64:ff9b::/96
+		100::/64
+		2001::/32
+		2001:20::/28
+		2001:db8::/32
+		2002::/16
+		fc00::/7
+		fe80::/10
+		ff00::/8
+	EOF
+	)"
+
+	ipset -! restore <<-EOF 2>/dev/null
+		create $IPSET_SRC_IGNORE_V4 hash:ip hashsize 64 family inet
+		create $IPSET_SRC_IGNORE_V6 hash:ip hashsize 64 family inet6
+		create $IPSET_DST_PROXY_V4 hash:net hashsize 64 family inet
+		create $IPSET_DST_PROXY_V6 hash:net hashsize 64 family inet6
+		create $IPSET_DST_DIRECT_V4 hash:net hashsize 64 family inet
+		create $IPSET_DST_DIRECT_V6 hash:net hashsize 64 family inet6
+		$(echo "$reserved_v4" | sed "s/^/add $IPSET_DST_DIRECT_V4 /")
+		$(echo "$reserved_v6" | sed "s/^/add $IPSET_DST_DIRECT_V6 /")
+		$(echo "$OUTBOUND_SERVERS_V4" | grep -v "^$" | sed "s/^/add $IPSET_DST_DIRECT_V4 /")
+		$(echo "$OUTBOUND_SERVERS_V6" | grep -v "^$" | sed "s/^/add $IPSET_DST_DIRECT_V6 /")
+	EOF
+}
+
+destroy_v2ray_ipset() {
+	ipset -! restore <<-EOF 2>/dev/null
+		$(ipset -n list | grep "^v2ray" | sed "s/^/destroy /")
+	EOF
+}
+
+init_rules_for_listfile() {
+	echo "# AUTO-GENERATED FILE. DO NOT MODIFY." >"$FILE_V2RAY_DNSMASQ_CACHE"
+
+	# For direct list
+	local direct_content
+	direct_content="$(cat "$FILE_DIRECTLIST")"
+
+	echo "$direct_content" | \
+		grep -oE "[0-9]{1,3}(\.[0-9]{1,3}){3}(/[0-9]{1,2})?" | \
+		sed "s/^/add $IPSET_DST_DIRECT_V4 /" | \
+		ipset -! restore 2>/dev/null
+
+	echo "$direct_content" | \
+		grep -oE "([0-9a-fA-F]{0,4}:){1,7}([0-9a-fA-F]){0,4}(/[0-9]{1,2})?" | \
+		sed "s/^/add $IPSET_DST_DIRECT_V6 /" | \
+		ipset -! restore 2>/dev/null
+
+	echo "$direct_content" | \
+		grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" | \
+		sed "s|.*|server=/&/$DIRECTLIST_DNS\nipset=/&/$IPSET_DST_DIRECT_V4,$IPSET_DST_DIRECT_V6|" \
+		>>"$FILE_V2RAY_DNSMASQ_CACHE"
+
+	# For proxy list
+	local proxy_content
+	proxy_content="$(cat "$FILE_PROXYLIST")"
+
+	echo "$proxy_content" | \
+		grep -oE "[0-9]{1,3}(\.[0-9]{1,3}){3}(/[0-9]{1,2})?" | \
+		sed "s/^/add $IPSET_DST_PROXY_V4 /" | \
+		ipset -! restore 2>/dev/null
+
+	echo "$proxy_content" | \
+		grep -oE "([0-9a-fA-F]{0,4}:){1,7}([0-9a-fA-F]){0,4}(/[0-9]{1,2})?" | \
+		sed "s/^/add $IPSET_DST_PROXY_V6 /" | \
+		ipset -! restore 2>/dev/null
+
+	echo "$proxy_content" | \
+		grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" | \
+		sed "s|.*|server=/&/$PROXYLIST_DNS\nipset=/&/$IPSET_DST_PROXY_V4,$IPSET_DST_PROXY_V6|" \
+		>>"$FILE_V2RAY_DNSMASQ_CACHE"
 }
 
 add_dns_settings() {
@@ -674,39 +768,31 @@ add_inbound_setting() {
 		json_close_object
 	fi
 
-	if [ "x$protocol" = "xdokodemo-door" ] && \
-		[ -n "$port" ] && \
-		[ "x$transparent_proxy_enabled" = "x1" ] ; then
-		TRANSPARENT_PROXY_ENABLED="1"
-		TRANSPARENT_PROXY_PORT="$port"
+	add_redirect_settings() {
+		if [ "x$protocol" = "xdokodemo-door" ] && \
+			[ -n "$port" ] && [ "x$port" = "x$TRANSPARENT_PROXY_PORT" ] ; then
+			local settings_network="tcp"
+			if [ -n "$TRANSPARENT_PROXY_ADDITION" ] ; then
+				settings_network="$settings_network,udp"
+			fi
 
-		local settings_network="tcp"
-		if [ "x$transparent_proxy_udp" = "x1" ] ; then
-			TRANSPARENT_PROXY_ADDITION="udp"
-			settings_network="$settings_network,udp"
-		elif [ "x$transparent_proxy_dns" = "x1" ] ; then
-			TRANSPARENT_PROXY_ADDITION="dns"
-			settings_network="$settings_network,udp"
-		else
-			TRANSPARENT_PROXY_ADDITION=""
+			json_add_boolean "followRedirect" "1"
+			json_add_string "network" "$settings_network"
 		fi
+	}
 
+	local settings_json
+	settings_json="$(get_json_content "setting" "$settings")"
+
+	if [ -n "$settings_json" ] ; then
 		json_add_object "settings"
-		json_add_string "network" "$settings_network"
-		json_add_int "timeout" "$settings_timeout"
-		json_add_boolean "followRedirect" "1"
-		test -n "$settings_user_level" && \
-			json_add_int "userLevel" "$settings_user_level"
+		eval "$(get_commands_from_json "$settings_json")"
+		add_redirect_settings
 		json_close_object
 	else
-		local settings_json
-		settings_json="$(get_json_content "setting" "$settings")"
-
-		if [ -n "$settings_json" ] ; then
-			json_add_object "settings"
-			eval "$(get_commands_from_json "$settings_json")"
-			json_close_object
-		fi
+		json_add_object "settings"
+		add_redirect_settings
+		json_close_object
 	fi
 
 	local stream_settings_json
@@ -760,21 +846,18 @@ add_outbound_setting() {
 		eval "$settings_commands"
 		json_close_object
 
-		if [ -n "$TRANSPARENT_PROXY_ENABLED" ] ; then
-			local addr
-			for addr in $(echo "$settings_commands" | \
-				sed -n "s/^json.*'address'[[:space:]]'\([^']*\)'.*/\1/p") ; do
-				local ipv4
-				for ipv4 in $(resolveip -4 -t 5 "$addr") ; do
-					append_server_ipv4 "$ipv4"
-				done
-
-				local ipv6
-				for ipv6 in $(resolveip -6 -t 5 "$addr") ; do
-					append_server_ipv6 "$ipv6"
-				done
+		local addr
+		for addr in $(echo "$settings_commands" | sed -n "s/^json.*'address'[[:space:]]'\([^']*\)'.*/\1/p") ; do
+			local ipv4
+			for ipv4 in $(resolveip -4 -t 5 "$addr") ; do
+				append_server_ipv4 "$ipv4"
 			done
-		fi
+
+			local ipv6
+			for ipv6 in $(resolveip -6 -t 5 "$addr") ; do
+				append_server_ipv6 "$ipv6"
+			done
+		done
 	fi
 
 	add_sockopt_so_mark() {
@@ -803,6 +886,89 @@ add_outbound_setting() {
 	fi
 
 	json_close_object
+}
+
+init_transparent_proxy() {
+	local section="main_transparent_proxy"
+
+	if ! transparent_proxy_section_validate "$section" ; then
+		return 1
+	fi
+
+	test -n "$redirect_port" || return 0
+
+	TRANSPARENT_PROXY_PORT="$redirect_port"
+	TRANSPARENT_PROXY_MODE="$proxy_mode"
+
+	if [ "x$udp_proxy_enabled" = "x1" ] ; then
+		TRANSPARENT_PROXY_ADDITION="udp"
+	elif [ "x$dns_proxy_enabled" = "x1" ] ; then
+		TRANSPARENT_PROXY_ADDITION="dns"
+	else
+		TRANSPARENT_PROXY_ADDITION=
+	fi
+
+	PROXYLIST_DNS="$proxy_list_dns"
+	DIRECTLIST_DNS="$direct_list_dns"
+}
+
+set_transparent_proxy() {
+	clear_v2ray_rules
+	destroy_v2ray_ipset
+
+	if [ -z "$TRANSPARENT_PROXY_PORT" ] ; then
+		if [ -s "$FILE_V2RAY_DNSMASQ" ] ; then
+			rm -f "$FILE_V2RAY_DNSMASQ"
+
+			_info "Transparent proxy disabled, restarting dnsmasq..."
+			/etc/init.d/dnsmasq restart >/dev/null 2>&1
+		fi
+		return 0
+	fi
+
+	_info "Setting transparent proxy on port $TRANSPARENT_PROXY_PORT"
+	_info "Transparent proxy mode: $TRANSPARENT_PROXY_MODE"
+
+	create_v2ray_ipset
+	init_rules_for_listfile
+
+	local ext_args
+	case "$TRANSPARENT_PROXY_MODE" in
+		"cn_direct")
+			ipset -! restore <<-EOF 2>/dev/null
+				$(cat "$FILE_CHNROUTE" | grep -v "^$" | sed "s/^/add $IPSET_DST_DIRECT_V4 /")
+				$(cat "$FILE_CHNROUTE6" | grep -v "^$" | sed "s/^/add $IPSET_DST_DIRECT_V6 /")
+			EOF
+			ext_args=""
+			;;
+		"cn_proxy")
+			ipset -! restore <<-EOF 2>/dev/null
+				$(cat "$FILE_CHNROUTE" | grep -v "^$" | sed "s/^/add $IPSET_DST_PROXY_V4 /")
+				$(cat "$FILE_CHNROUTE6" | grep -v "^$" | sed "s/^/add $IPSET_DST_PROXY_V6 /")
+			EOF
+			ext_args="-m set --match-set $IPSET_DST_PROXY_V4 dst"
+			;;
+		"gfwlist_proxy")
+			cat "$FILE_GFWLIST" | grep -v "^$" | \
+				sed "s|.*|server=/&/$PROXYLIST_DNS\nipset=/&/$IPSET_DST_PROXY_V4,$IPSET_DST_PROXY_V6|" \
+					>> "$FILE_V2RAY_DNSMASQ_CACHE"
+			ext_args="-m set --match-set $IPSET_DST_PROXY_V4 dst"
+			;;
+		*)
+			ext_args=""
+			;;
+	esac
+
+	if [ -n "$(cat "$FILE_V2RAY_DNSMASQ_CACHE" | grep -v "^$" grev -v "^#")" ] ; then
+		cat "$FILE_V2RAY_DNSMASQ_CACHE" >"$FILE_V2RAY_DNSMASQ" 2>/dev/null
+
+		_info "Restarting dnsmasq..."
+		/etc/init.d/dnsmasq restart >/dev/null 2>&1
+	fi
+
+	rm -f "$FILE_V2RAY_DNSMASQ_CACHE"
+
+	add_v2ray_rules "$TRANSPARENT_PROXY_PORT" "$ext_args" "$TRANSPARENT_PROXY_ADDITION"
 }
 
 start_instance() {
@@ -915,30 +1081,23 @@ start_instance() {
 	procd_close_instance
 }
 
-service_triggers() {
-	procd_add_reload_trigger "$NAME"
-}
-
 start_service() {
 	config_load "$NAME"
+
+	init_transparent_proxy
 	config_foreach start_instance "v2ray"
+	set_transparent_proxy
 
-	clear_v2ray_rules
-
-	if [ -n "$TRANSPARENT_PROXY_ENABLED" ] ; then
-		add_v2ray_rules "$TRANSPARENT_PROXY_PORT" \
-			"$TRANSPARENT_PROXY_SERVERS_IPV4" \
-			"$TRANSPARENT_PROXY_SERVERS_IPV6" \
-			"$TRANSPARENT_PROXY_ADDITION"
-	fi
-
-	unset TRANSPARENT_PROXY_ENABLED \
+	unset OUTBOUND_SERVERS_V4 \
+		OUTBOUND_SERVERS_V6 \
 		TRANSPARENT_PROXY_PORT \
-		TRANSPARENT_PROXY_SERVERS_IPV4 \
-		TRANSPARENT_PROXY_SERVERS_IPV6 \
-		TRANSPARENT_PROXY_ADDITION
+		TRANSPARENT_PROXY_MODE \
+		TRANSPARENT_PROXY_ADDITION \
+		PROXYLIST_DNS \
+		DIRECTLIST_DNS
 }
 
 stop_service() {
 	clear_v2ray_rules
+	destroy_v2ray_ipset
 }

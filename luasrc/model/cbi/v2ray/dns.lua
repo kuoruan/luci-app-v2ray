@@ -48,7 +48,7 @@ o = s2:option(Value, "alias", translate("Alias"), translate("Any custom string")
 o.rmempty = false
 
 o = s2:option(Value, "address", translate("Address"))
-o.datatype = "ipaddr"
+o.datatype = "host"
 
 o = s2:option(Value, "port", translate("Port"))
 o.datatype = "port"

@@ -78,6 +78,10 @@ o = s:option(Value, "config_file", translate("Config file"), translate("Use cust
 o.datatype = "file"
 o:value("", translate("None"))
 
+o = s:option(Value, "access_log", translate("Access log file"))
+o:value("/dev/null")
+o:value("/var/log/v2ray-access.log")
+
 o = s:option(ListValue, "loglevel", translate("Log level"))
 o:depends("config_file", "")
 o:value("debug", translate("Debug"))
@@ -87,15 +91,9 @@ o:value("error", translate("Error"))
 o:value("none", translate("None"))
 o.default = "warning"
 
-o = s:option(Value, "access_log", translate("Access log file"))
-o:value("/dev/null")
-o:depends("loglevel", "debug")
-o:depends("loglevel", "info")
-o:depends("loglevel", "warning")
-o:depends("loglevel", "error")
-
 o = s:option(Value, "error_log", translate("Error log file"))
 o:value("/dev/null")
+o:value("/var/log/v2ray-error.log")
 o:depends("loglevel", "debug")
 o:depends("loglevel", "info")
 o:depends("loglevel", "warning")

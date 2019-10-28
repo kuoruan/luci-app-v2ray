@@ -1,0 +1,55 @@
+<%#
+ Copyright 2019 Xingwang Liao <kuoruan@gmail.com>
+ Licensed to the public under the MIT License.
+-%>
+
+<%
+local dsp = require "luci.dispatcher"
+-%>
+
+<%+cbi/valueheader%>
+
+<script type="text/javascript">//<![CDATA[
+	(new XHR()).get('<%=dsp.build_url("admin/services/v2ray/list-status")%>/<%=self.listtype%>', null,
+		function(x, data)
+		{
+			var s = document.getElementById('<%=self.option%>-status');
+
+			if (s)
+			{
+				var rv = data['<%=self.listtype%>'];
+				s.innerHTML = rv ?
+					String.format('<%:Total: %s, Date: %s%>', '<b style="color: #ff8c00;">' + rv.size + '</b>', rv.lastModify)
+					: '';
+			}
+		}
+	);
+
+  function update<%=self.option%>(btn)
+  {
+    btn.disabled = true;
+    btn.value    = '<%:Updating...%>';
+
+    (new XHR()).post('<%=dsp.build_url("admin/services/v2ray/list-update")%>',
+			{ token: '<%=token%>', type: '<%=self.listtype%>' },
+			function(x, data)
+			{
+				btn.disabled = false;
+				btn.value    = '<%:Update%>';
+
+				if (x.status === 200 && data) {
+					if (data['<%=self.listtype%>'] === true) {
+						alert('<%:List updated, reload page to see detail.%>');
+					} else {
+						alert('<%:List update failed, please try again later.%>');
+					}
+				}
+			}
+		);
+  }
+//]]></script>
+
+<span id="<%=self.option%>-status"><em><%:Collecting data...%></em></span>
+<input type="button" class="cbi-button cbi-button-apply" value="<%:Update%>" onclick="return update<%=self.option%>(this)" />
+
+<%+cbi/valuefooter%>

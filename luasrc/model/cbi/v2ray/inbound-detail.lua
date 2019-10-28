@@ -61,28 +61,7 @@ o:value("shadowsocks")
 o:value("socks")
 o:value("vmess")
 
-o = s:option(Flag, "transparent_proxy_enabled", "%s - %s" % { translate("Transparent proxy"), translate("Enabled") })
-o:depends("protocol", "dokodemo-door")
-
-o = s:option(Value, "settings_timeout", "%s - %s" % { translate("Transparent proxy"), translate("Timeout") }, translate("Time limit for inbound data(seconds)"))
-o:depends("transparent_proxy_enabled", "1")
-o.datatype = "uinteger"
-o.placeholder = "300"
-
-o = s:option(Value, "settings_user_level", "%s - %s" % { translate("Transparent proxy"), translate("User level") }, translate("All connections share this level"))
-o:depends("transparent_proxy_enabled", "1")
-o.datatype = "uinteger"
-
-o = s:option(Flag, "transparent_proxy_udp", "%s - %s" %{ translate("Transparent proxy"), translate("UDP traffic") })
-o:depends("transparent_proxy_enabled", "1")
-
-o = s:option(Flag, "transparent_proxy_dns", "%s - %s" %{ translate("Transparent proxy"), translate("DNS traffic") })
-o:depends({ transparent_proxy_enabled = "1", transparent_proxy_udp = "" })
-o:depends({ transparent_proxy_enabled = "1", transparent_proxy_udp = "0" })
-
 o = s:option(TextValue, "_settings", translate("Settings"), translate("Protocol-specific settings, JSON string"))
-o:depends("transparent_proxy_enabled", "")
-o:depends("transparent_proxy_enabled", "0")
 o.wrap = "off"
 o.rows = 5
 o.validate = function (self, value, section)
