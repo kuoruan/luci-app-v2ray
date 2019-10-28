@@ -764,12 +764,11 @@ add_outbound_setting() {
 						# not impl
 						true
 					else
-						local ipv4
-						# use ping to get and check ip address
-						# -c1 to send only one packet, -t1 so that we won't wait for a reply.
-						ipv4="$(ping -c1 -t1 "$addr" | sed -n 's/^PING[^(]*(\([^)]*\)).*/\1/p')"
-
-						is_ipv4_address "$ipv4" && append_address "$ipv4"
+						for ip in $(resolveip -t 5 "$addr") ; do
+							if is_ipv4_address "$ip" ; then
+								append_address "$ip"
+							fi
+						done
 					fi
 				done
 			fi
