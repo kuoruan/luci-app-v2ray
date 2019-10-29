@@ -23,6 +23,7 @@ Depends:
 - ip
 - iptables
 - iptables-mod-tproxy
+- resolveip
 
 For translations, please install ```luci-i18n-v2ray-*```.
 

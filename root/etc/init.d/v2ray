@@ -266,7 +266,6 @@ add_v2ray_rules() {
 		2001:db8::/32
 		2002::/16
 		fc00::/7
-		203.0.113.0/24
 		fe80::/10
 		ff00::/8
 	EOF
@@ -763,7 +762,8 @@ add_outbound_setting() {
 
 		if [ -n "$TRANSPARENT_PROXY_ENABLED" ] ; then
 			local addr
-			for addr in $(echo "$settings_commands" | sed -n "s/^json.*'address'[[:space:]]'\([^']*\)'.*/\1/p") ; do
+			for addr in $(echo "$settings_commands" | \
+				sed -n "s/^json.*'address'[[:space:]]'\([^']*\)'.*/\1/p") ; do
 				local ipv4
 				for ipv4 in $(resolveip -4 -t 5 "$addr") ; do
 					append_server_ipv4 "$ipv4"
