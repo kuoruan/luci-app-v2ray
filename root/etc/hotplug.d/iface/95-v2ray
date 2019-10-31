@@ -1,0 +1,21 @@
+#!/bin/sh
+
+if [ "x$ACTION" != "xifup" ] ; then
+  exit 0
+fi
+
+. /lib/functions/network.sh
+
+wan_iface=
+wan6_iface=
+
+network_find_wan wan_iface
+network_find_wan6 wan6_iface
+
+if [ "x$INTERFACE" = "x$wan_iface" ] || [ "x$INTERFACE" = "x$wan6_iface" ] ; then
+  enabled=$(uci get "v2ray.main.enabled" 2>/dev/null)
+
+  if [ "x$enabled" = "x1" ] ; then
+    /etc/init.d/v2ray restart 2>/dev/null
+  fi
+fi
