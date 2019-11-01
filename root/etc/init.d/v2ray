@@ -942,3 +942,8 @@ start_service() {
 stop_service() {
 	clear_v2ray_rules
 }
+
+service_triggers() {
+	procd_add_reload_trigger "v2ray" "firewall"
+	procd_add_raw_trigger "interface.*.up" 2000 /etc/init.d/v2ray reload
+}
