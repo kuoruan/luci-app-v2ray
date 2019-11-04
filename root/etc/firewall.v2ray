@@ -1,0 +1,3 @@
+#!/bin/sh
+
+test -s "/etc/init.d/v2ray" && /etc/init.d/v2ray reload
