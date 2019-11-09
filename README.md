@@ -21,9 +21,11 @@ Depends:
 - jshn
 - luci-lib-jsonc
 - ip
+- ipset
 - iptables
 - iptables-mod-tproxy
 - resolveip
+- dnsmasq-full (optional)
 
 For translations, please install ```luci-i18n-v2ray-*```.
 
