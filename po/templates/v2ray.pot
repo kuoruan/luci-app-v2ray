@@ -391,6 +391,7 @@ msgid "No"
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/main.lua:79 luasrc/model/cbi/v2ray/main.lua:91
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:33
 msgid "None"
 msgstr ""
 
