@@ -21,6 +21,10 @@ uci:foreach("v2ray", "inbound", function(s)
 end)
 
 m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Transparent Proxy") })
+m.apply_on_parse = true
+m.on_after_apply = function ()
+	sys.call("/etc/init.d/v2ray reload 2>/dev/null")
+end
 
 s = m:section(NamedSection, "main_transparent_proxy", "transparent_proxy")
 
