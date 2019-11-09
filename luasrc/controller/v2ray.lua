@@ -87,7 +87,6 @@ function list_status(type)
 	else
 		http.status(500, "Bad address")
 	end
-
 end
 
 function list_update()
