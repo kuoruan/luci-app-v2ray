@@ -169,12 +169,12 @@ msgstr "启用 DNS 代理"
 msgid "DNS server"
 msgstr "DNS 服务器"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:98
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:100
 msgid ""
 "DNS used for domains in direct list, format: <code>ip#port</code>. eg: %s"
 msgstr "直连列表中域名使用的 DNS，格式：<code>ip#port</code>。例如：%s"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:94
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:96
 msgid ""
 "DNS used for domains in proxy list, format: <code>ip#port</code>. eg: %s"
 msgstr "代理列表中域名使用的 DNS，格式：<code>ip#port</code>。例如：%s"
@@ -201,7 +201,7 @@ msgstr "重置指定类型"
 msgid "Details: %s"
 msgstr "查看详情：%s"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:97
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:99
 msgid "Direct list DNS"
 msgstr "直连列表 DNS"
 
@@ -269,7 +269,7 @@ msgstr "错误"
 msgid "Error log file"
 msgstr "错误日志文件"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:82
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:83
 msgid "Extra direct list"
 msgstr "额外的直连列表"
 
@@ -399,6 +399,11 @@ msgstr "无"
 msgid "Not Running"
 msgstr "服务未运行"
 
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:72
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:84
+msgid "One address per line. Allow types: DOMAIN, IP, CIDR. eg: %s, %s, %s"
+msgstr "每行一个地址，支持的类型：域名、IP、CIDR。例如：%s、%s、%s"
+
 #: luasrc/controller/v2ray.lua:28 luasrc/model/cbi/v2ray/outbound-list.lua:9
 msgid "Outbound"
 msgstr "出站连接"
@@ -452,7 +457,7 @@ msgstr "协议的底层传输配置，JSON 字符串"
 msgid "Protocol-specific settings, JSON string"
 msgstr "协议的配置内容，JSON 字符串"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:93
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:95
 msgid "Proxy list DNS"
 msgstr "代理列表 DNS"
 

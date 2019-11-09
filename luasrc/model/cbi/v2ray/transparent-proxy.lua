@@ -68,7 +68,8 @@ o = s:option(DummyValue, "_gfwlist", translate("GFWList"))
 o.template = "v2ray/list_status"
 o.listtype = "gfwlist"
 
-o = s:option(TextValue, "_proxy_list", translate("Extra proxy list"))
+o = s:option(TextValue, "_proxy_list", translate("Extra proxy list"),
+  translatef("One address per line. Allow types: DOMAIN, IP, CIDR. eg: %s, %s, %s", "www.google.com", "1.1.1.1", "192.168.0.0/16"))
 o.wrap = "off"
 o.rows = 5
 o.cfgvalue = function(self, section)
@@ -79,7 +80,8 @@ o.write = function(self, section, value)
 	fs.writefile("/etc/v2ray/proxylist.txt", value)
 end
 
-o = s:option(TextValue, "_direct_list", translate("Extra direct list"))
+o = s:option(TextValue, "_direct_list", translate("Extra direct list"),
+  translatef("One address per line. Allow types: DOMAIN, IP, CIDR. eg: %s, %s, %s", "www.google.com", "1.1.1.1", "192.168.0.0/16"))
 o.wrap = "off"
 o.rows = 5
 o.cfgvalue = function(self, section)

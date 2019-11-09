@@ -169,12 +169,12 @@ msgstr ""
 msgid "DNS server"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:98
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:100
 msgid ""
 "DNS used for domains in direct list, format: <code>ip#port</code>. eg: %s"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:94
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:96
 msgid ""
 "DNS used for domains in proxy list, format: <code>ip#port</code>. eg: %s"
 msgstr ""
@@ -201,7 +201,7 @@ msgstr ""
 msgid "Details: %s"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:97
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:99
 msgid "Direct list DNS"
 msgstr ""
 
@@ -269,7 +269,7 @@ msgstr ""
 msgid "Error log file"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:82
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:83
 msgid "Extra direct list"
 msgstr ""
 
@@ -399,6 +399,11 @@ msgstr ""
 msgid "Not Running"
 msgstr ""
 
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:72
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:84
+msgid "One address per line. Allow types: DOMAIN, IP, CIDR. eg: %s, %s, %s"
+msgstr ""
+
 #: luasrc/controller/v2ray.lua:28 luasrc/model/cbi/v2ray/outbound-list.lua:9
 msgid "Outbound"
 msgstr ""
@@ -452,7 +457,7 @@ msgstr ""
 msgid "Protocol-specific settings, JSON string"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:93
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:95
 msgid "Proxy list DNS"
 msgstr ""
 
