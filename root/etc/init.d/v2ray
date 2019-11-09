@@ -1100,4 +1100,9 @@ start_service() {
 stop_service() {
 	clear_v2ray_rules
 	destroy_v2ray_ipset
+
+	if [ -s "$FILE_V2RAY_DNSMASQ" ] ; then
+		rm -f "$FILE_V2RAY_DNSMASQ"
+		/etc/init.d/dnsmasq restart >/dev/null 2>&1
+	fi
 }
