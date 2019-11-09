@@ -21,7 +21,7 @@ msgstr ""
 msgid "A platform for building proxies to bypass network restrictions."
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:46
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:51
 msgid "APNIC delegated mirror"
 msgstr ""
 
@@ -108,8 +108,16 @@ msgstr ""
 msgid "Buffer size"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:52
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:57
 msgid "CHNRoute"
+msgstr ""
+
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:47
+msgid "CN Direct"
+msgstr ""
+
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:48
+msgid "CN Proxy"
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/main.lua:43
@@ -153,7 +161,7 @@ msgstr ""
 msgid "DNS Servers"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:36
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:41
 msgid "DNS proxy enabled"
 msgstr ""
 
@@ -161,18 +169,22 @@ msgstr ""
 msgid "DNS server"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:93
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:98
 msgid ""
 "DNS used for domains in direct list, format: <code>ip#port</code>. eg: %s"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:89
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:94
 msgid ""
 "DNS used for domains in proxy list, format: <code>ip#port</code>. eg: %s"
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/main.lua:87
 msgid "Debug"
+msgstr ""
+
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:46
+msgid "Default"
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:142
@@ -189,7 +201,7 @@ msgstr ""
 msgid "Details: %s"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:92
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:97
 msgid "Direct list DNS"
 msgstr ""
 
@@ -235,7 +247,7 @@ msgstr ""
 msgid "Edit Routing Rule"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:27
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:32
 msgid "Enable transparent proxy on Dokodemo-door port"
 msgstr ""
 
@@ -257,11 +269,11 @@ msgstr ""
 msgid "Error log file"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:77
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:82
 msgid "Extra direct list"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:66
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:71
 msgid "Extra proxy list"
 msgstr ""
 
@@ -273,11 +285,15 @@ msgstr ""
 msgid "For more information, please visit: %s"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:62
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:67
 msgid "GFWList"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:56
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:49
+msgid "GFWList Proxy"
+msgstr ""
+
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:61
 msgid "GFWList mirror"
 msgstr ""
 
@@ -435,11 +451,11 @@ msgstr ""
 msgid "Protocol-specific settings, JSON string"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:88
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:93
 msgid "Proxy list DNS"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:40
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:45
 msgid "Proxy mode"
 msgstr ""
 
@@ -447,7 +463,7 @@ msgstr ""
 msgid "Proxy settings"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:27
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:32
 msgid "Redirect port"
 msgstr ""
 
@@ -586,7 +602,7 @@ msgid "Total: %s, Date: %s"
 msgstr ""
 
 #: luasrc/controller/v2ray.lua:45 luasrc/model/cbi/v2ray/inbound-list.lua:65
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:23
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:24
 msgid "Transparent Proxy"
 msgstr ""
 
@@ -599,7 +615,7 @@ msgstr ""
 msgid "Type"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:34
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:39
 msgid "UDP proxy enabled"
 msgstr ""
 
@@ -633,7 +649,7 @@ msgstr ""
 #: luasrc/model/cbi/v2ray/policy.lua:20 luasrc/model/cbi/v2ray/reverse.lua:8
 #: luasrc/model/cbi/v2ray/routing-rule-detail.lua:10
 #: luasrc/model/cbi/v2ray/routing.lua:28
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:23
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:24
 msgid "V2Ray"
 msgstr ""
 

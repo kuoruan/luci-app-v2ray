@@ -3,6 +3,7 @@
 
 local uci = require "luci.model.uci".cursor()
 local fs = require "nixio.fs"
+local sys = require "luci.sys"
 
 local m, s, o
 
@@ -42,10 +43,10 @@ o:depends("udp_proxy_enabled", "")
 o:depends("udp_proxy_enabled", "0")
 
 o = s:option(ListValue, "proxy_mode", translate("Proxy mode"))
-o:value("default", "Default")
-o:value("cn_direct", "CN Direct")
-o:value("cn_proxy", "CN Proxy")
-o:value("gfwlist_proxy", "GFWList Proxy")
+o:value("default", translate("Default"))
+o:value("cn_direct", translate("CN Direct"))
+o:value("cn_proxy", translate("CN Proxy"))
+o:value("gfwlist_proxy", translate("GFWList Proxy"))
 
 o = s:option(ListValue, "apnic_delegated_mirror", translate("APNIC delegated mirror"))
 o:value("apnic", "APNIC")
