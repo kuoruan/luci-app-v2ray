@@ -254,8 +254,8 @@ outbound_section_validate() {
 transparent_proxy_section_validate() {
 	uci_validate_section "$NAME" "transparent_proxy" "$1" \
 		'redirect_port:port' \
-		'udp_redirect_enabled:bool:0' \
-		'dns_redirect_enabled:bool:0' \
+		'udp_proxy_enabled:bool:0' \
+		'dns_proxy_enabled:bool:0' \
 		'proxy_mode:or("default", "cn_direct", "cn_proxy", "gfwlist_proxy"):default' \
 		'proxy_list_dns:string:127.0.0.1#53' \
 		'direct_list_dns:string:127.0.0.1#53'
