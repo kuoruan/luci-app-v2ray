@@ -1,9 +1,8 @@
 #!/bin/sh
 
+# v2ray main
 v2ray=$(uci -q get v2ray.@v2ray[-1])
-if [ -z "$v2ray" ] ; then
-	uci -q add v2ray v2ray
-fi
+test -n "$v2ray" || uci -q add v2ray v2ray
 if [ "x$v2ray" != "xmain" ] ; then
 	uci -q batch <<-EOF >/dev/null
 		rename v2ray.@v2ray[-1]="main"
@@ -12,10 +11,9 @@ if [ "x$v2ray" != "xmain" ] ; then
 	EOF
 fi
 
+# dns
 dns=$(uci -q get v2ray.@dns[-1])
-if [ -z "$dns" ] ; then
-	uci -q add v2ray dns
-fi
+test -n "$dns" || uci -q add v2ray dns
 if [ "x$dns" != "xmain_dns" ] ; then
 	uci -q batch <<-EOF >/dev/null
 		rename v2ray.@dns[-1]="main_dns"
@@ -24,10 +22,9 @@ if [ "x$dns" != "xmain_dns" ] ; then
 	EOF
 fi
 
+# routing
 routing=$(uci -q get v2ray.@routing[-1])
-if [ -z "$routing" ] ; then
-	uci -q add v2ray routing
-fi
+test -n "$routing" || uci -q add v2ray routing
 if [ "x$routing" != "xmain_routing" ] ; then
 	uci -q batch <<-EOF >/dev/null
 		rename v2ray.@routing[-1]="main_routing"
@@ -36,10 +33,9 @@ if [ "x$routing" != "xmain_routing" ] ; then
 	EOF
 fi
 
+# policy
 policy=$(uci -q get v2ray.@policy[-1])
-if [ -z "$policy" ] ; then
-	uci -q add v2ray routing
-fi
+test -n "$policy" || uci -q add v2ray policy
 if [ "x$policy" != "xmain_policy" ] ; then
 	uci -q batch <<-EOF >/dev/null
 		rename v2ray.@policy[-1]="main_policy"
@@ -48,14 +44,24 @@ if [ "x$policy" != "xmain_policy" ] ; then
 	EOF
 fi
 
+# reverse
 reverse=$(uci -q get v2ray.@reverse[-1])
-if [ -z "$reverse" ] ; then
-	uci -q add v2ray routing
-fi
+test -n "$reverse" || uci -q add v2ray reverse
 if [ "x$reverse" != "xmain_reverse" ] ; then
 	uci -q batch <<-EOF >/dev/null
 		rename v2ray.@reverse[-1]="main_reverse"
 		set v2ray.main_reverse.enabled="0"
+		commit v2ray
+	EOF
+fi
+
+# transparent_proxy
+transparent_proxy=$(uci -q get v2ray.@transparent_proxy[-1])
+test -n "$transparent_proxy" || uci -q add v2ray transparent_proxy
+if [ "x$transparent_proxy" != "xmain_transparent_proxy" ] ; then
+	uci -q batch <<-EOF >/dev/null
+		rename v2ray.@reverse[-1]="main_transparent_proxy"
+		set v2ray.main_transparent_proxy.redirect_port=""
 		commit v2ray
 	EOF
 fi
@@ -76,4 +82,5 @@ uci -q batch <<-EOF >/dev/null
 EOF
 
 rm -rf /tmp/luci-indexcache /tmp/luci-modulecache
+
 exit 0
