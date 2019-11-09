@@ -959,7 +959,7 @@ set_transparent_proxy() {
 			;;
 	esac
 
-	if [ -n "$(cat "$FILE_V2RAY_DNSMASQ_CACHE" | grep -v "^$" grev -v "^#")" ] ; then
+	if [ -n "$(cat "$FILE_V2RAY_DNSMASQ_CACHE" | grep -v "^$" | grev -v "^#")" ] ; then
 		cat "$FILE_V2RAY_DNSMASQ_CACHE" >"$FILE_V2RAY_DNSMASQ" 2>/dev/null
 
 		_info "Restarting dnsmasq..."
