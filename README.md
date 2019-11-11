@@ -25,7 +25,7 @@ Depends:
 - iptables
 - iptables-mod-tproxy
 - resolveip
-- dnsmasq-full (optional)
+- dnsmasq-full (dnsmasq ipset is required)
 
 For translations, please install ```luci-i18n-v2ray-*```.
 
