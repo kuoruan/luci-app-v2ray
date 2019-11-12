@@ -69,10 +69,13 @@ script:
   - ./scripts/feeds update -a >/dev/null
   - ./scripts/feeds install -a >/dev/null
   - make defconfig
-  - make package/$PACKAGE/{clean,compile} V=s
+  - make package/$PACKAGE/{clean,compile} -j2
   - find "$SDK_HOME/bin/"
   - find "$SDK_HOME/bin/" -name luci-*-v2ray*.ipk -exec cp {} "$TRAVIS_BUILD_DIR" \;
   - ls -hl "$TRAVIS_BUILD_DIR" | grep .*\.ipk
+after_failure:
+  - cd "$SDK_HOME"
+  - make package/$PACKAGE/compile V=s
 deploy:
   provider: releases
   file_glob: true
