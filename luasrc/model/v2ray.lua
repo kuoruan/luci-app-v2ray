@@ -51,7 +51,7 @@ function object_to_json_string(obj, format)
 		return ""
 	end
 
-	if format == nil then
+	if not format then
 		format = true
 	end
 
@@ -226,7 +226,7 @@ end
 function get_url_content(url)
 	local f = sys.httpget(url, true)
 
-	if f ~= nil then
+	if f then
 		local file = f:read("*all")
 		f:close()
 
@@ -241,13 +241,13 @@ function generate_gfwlist()
 
 	local gfwlist_url = gfwlist_urls[gfwlist_mirror]
 
-	if gfwlist_url == nil then
+	if not gfwlist_url then
 		gfwlist_url = gfwlist_urls['github']
 	end
 
 	local content = get_url_content(gfwlist_url)
 
-	if content == nil or content == "" then
+	if not content or content == "" then
 		return false
 	end
 
@@ -262,7 +262,7 @@ function generate_gfwlist()
 			not string.match(line, "^%d+%.%d+%.%d+%.%d+") then
 			local start, _, domain = string.find(line, "(%w[%w%-_]+%.%w[%w%.%-_]+)")
 
-			if start ~= nil then
+			if start then
 				domains[domain] = true
 			end
 		end
@@ -273,9 +273,13 @@ function generate_gfwlist()
 	end
 
 	local result = false
-	local temp = sys.exec("mktemp /tmp/gfwlist.XXXXXX")
+	local temp = util.trim(sys.exec("mktemp /tmp/gfwlist.XXXXXX"))
 
 	local out_temp = io.open(temp, "w")
+
+	if not out_temp then
+		return false
+	end
 
 	for k in util.kspairs(domains) do
 		out_temp:write(k, "\n")
@@ -304,28 +308,32 @@ function generate_routelist()
 
 	local apnic_delegated_url = apnic_delegated_urls[apnic_delegated_mirror]
 
-	if apnic_delegated_url == nil then
+	if not apnic_delegated_url then
 		apnic_delegated_url = apnic_delegated_urls['apnic']
 	end
 
 	local content = get_url_content(apnic_delegated_url)
 
-	if content == nil or content == "" then
+	if not content or content == "" then
 		return false, false
 	end
 
 	local result_ipv4, result_ipv6 = false, false
 
-	local temp_ipv4 = sys.exec("mktemp /tmp/chnroute.XXXXXX")
-	local temp_ipv6 = sys.exec("mktemp /tmp/chnroute6.XXXXXX")
+	local temp_ipv4 = util.trim(sys.exec("mktemp /tmp/chnroute.XXXXXX"))
+	local temp_ipv6 = util.trim(sys.exec("mktemp /tmp/chnroute6.XXXXXX"))
 
 	local out_temp_ipv4 = io.open(temp_ipv4, "w")
 	local out_temp_ipv6 = io.open(temp_ipv6, "w")
 
+	if not out_temp_ipv4 or not out_temp_ipv6 then
+		return false, false
+	end
+
 	for line in util.imatch(content) do
 		local start, _, type, ip, value = string.find(line, "CN|(ipv%d)|([%d%.:]+)|(%d+)")
 
-		if start ~= nil then
+		if start then
 			if type == "ipv4" then
 				local mask = 32 - math.log(tonumber(value)) / math.log(2)
 				out_temp_ipv4:write(string.format("%s/%d", ip, mask), "\n")
