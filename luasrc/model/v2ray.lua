@@ -257,10 +257,14 @@ function generate_gfwlist()
 	local decoded = nixio.bin.b64decode(content)
 
 	for line in util.imatch(decoded) do
-		local start, _, domain = string.find(line, "(%w[%w%-_]+%.%w[%w%.%-_]+)")
+		if not string.match(line, "^$") and
+			not string.match(line, "^[!%[@]") and
+			not string.match(line, "^%d+%.%d+%.%d+%.%d+") then
+			local start, _, domain = string.find(line, "(%w[%w%-_]+%.%w[%w%.%-_]+)")
 
-		if start ~= nil then
-			domains[domain] = true
+			if start ~= nil then
+				domains[domain] = true
+			end
 		end
 	end
 
