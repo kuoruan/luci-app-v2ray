@@ -272,6 +272,7 @@ function generate_gfwlist()
 		return false
 	end
 
+	local result = false
 	local temp = sys.exec("mktemp /tmp/gfwlist.XXXXXX")
 
 	local out_temp = io.open(temp, "w")
@@ -285,16 +286,17 @@ function generate_gfwlist()
 
 	local file_size = nixio.fs.stat(temp, "size")
 	if file_size and file_size > 1 then
-		local result = sys.call("cat %s >%s 2>/dev/null" % {
+		local code = sys.call("cat %s >%s 2>/dev/null" % {
 			util.shellquote(temp),
 			util.shellquote(gfwlist_file)
 		})
-		return result == 0
+
+		result = (code == 0)
 	end
 
 	nixio.fs.remove(temp)
 
-	return false
+	return result
 end
 
 function generate_routelist()
