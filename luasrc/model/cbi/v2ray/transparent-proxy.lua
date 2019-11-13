@@ -93,11 +93,9 @@ o.write = function(self, section, value)
 end
 
 o = s:option(Value, "proxy_list_dns", translate("Proxy list DNS"),
-  translatef("DNS used for domains in proxy list, format: <code>ip#port</code>. eg: %s", "127.0.0.1#53"))
-o.placeholder = "127.0.0.1#53"
+  translatef("DNS used for domains in proxy list, format: <code>ip#port</code>. eg: %s", "1.1.1.1#53"))
 
 o = s:option(Value, "direct_list_dns", translate("Direct list DNS"),
-  translatef("DNS used for domains in direct list, format: <code>ip#port</code>. eg: %s", "127.0.0.1#53"))
-o.placeholder = "127.0.0.1#53"
+  translatef("DNS used for domains in direct list, format: <code>ip#port</code>. eg: %s", "114.114.114.114#53"))
 
 return m
