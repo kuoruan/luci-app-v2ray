@@ -434,7 +434,7 @@ init_rules_for_listfile() {
 }
 
 gracefully_restart_dnsmasq() {
-	local restart="${1:=$DNSMASQ_RESTART_EXPECTED}"
+	local restart="${1:-$DNSMASQ_RESTART_EXPECTED}"
 
 	if [ "x$restart" = "x1" ] ; then
 		_info "Restarting dnsmasq..."
@@ -928,7 +928,7 @@ init_transparent_proxy() {
 	config_get dns_proxy_enabled "$tp_cfg" "dns_proxy_enabled"
 
 	if [ -n "$redirect_port" ] && \
-		! validate_data "port" redirect_port 2>/dev/null ; then
+		! validate_data "port" "$redirect_port" 2>/dev/null ; then
 		_err "Transparent proxy redirect port is invalid."
 		return 1
 	fi
