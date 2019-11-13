@@ -10,12 +10,6 @@ USE_PROCD=1
 NAME=v2ray
 CONFIG_FOLDER=/var/etc/$NAME
 
-FILE_CHNROUTE=/etc/v2ray/chnroute.txt
-FILE_CHNROUTE6=/etc/v2ray/chnroute6.txt
-FILE_GFWLIST=/etc/v2ray/gfwlist.txt
-FILE_DIRECTLIST=/etc/v2ray/directlist.txt
-FILE_PROXYLIST=/etc/v2ray/proxylist.txt
-
 FILE_V2RAY_DNSMASQ=/tmp/dnsmasq.d/$NAME
 FILE_V2RAY_DNSMASQ_CACHE=/tmp/$NAME.dnsmasq.cache
 
@@ -101,6 +95,15 @@ get_json_content() {
 		local json = v2ray.get_${type}("$key")
 		print(json)
 	EOF
+}
+
+get_file_content() {
+	local filename="$1"
+
+	test -n "$filename" || return
+	test -r "/etc/v2ray/${filename}.txt" || return
+
+	cat "/etc/v2ray/${filename}.txt" | grep -v "^$"
 }
 
 append_server_ipv4() {
@@ -257,8 +260,8 @@ transparent_proxy_section_validate() {
 		'udp_proxy_enabled:bool:0' \
 		'dns_proxy_enabled:bool:0' \
 		'proxy_mode:or("default", "cn_direct", "cn_proxy", "gfwlist_proxy"):default' \
-		'proxy_list_dns:string:127.0.0.1#53' \
-		'direct_list_dns:string:127.0.0.1#53'
+		'proxy_list_dns:string' \
+		'direct_list_dns:string'
 }
 
 add_v2ray_rules() {
@@ -312,6 +315,9 @@ clear_v2ray_rules() {
 }
 
 create_v2ray_ipset() {
+	local outbound_v4="$1"
+	local outbound_v6="$2"
+
 	# https://en.wikipedia.org/wiki/Reserved_IP_addresses
 	local reserved_v4="$(cat >&1 <<-EOF
 		0.0.0.0/8
@@ -360,8 +366,8 @@ create_v2ray_ipset() {
 		create $IPSET_DST_DIRECT_V6 hash:net hashsize 64 family inet6
 		$(echo "$reserved_v4" | sed "s/^/add $IPSET_DST_DIRECT_V4 /")
 		$(echo "$reserved_v6" | sed "s/^/add $IPSET_DST_DIRECT_V6 /")
-		$(echo "$OUTBOUND_SERVERS_V4" | grep -v "^$" | sed "s/^/add $IPSET_DST_DIRECT_V4 /")
-		$(echo "$OUTBOUND_SERVERS_V6" | grep -v "^$" | sed "s/^/add $IPSET_DST_DIRECT_V6 /")
+		$(echo "$outbound_v4" | grep -v "^$" | sed "s/^/add $IPSET_DST_DIRECT_V4 /")
+		$(echo "$outbound_v6" | grep -v "^$" | sed "s/^/add $IPSET_DST_DIRECT_V6 /")
 	EOF
 }
 
@@ -372,11 +378,14 @@ destroy_v2ray_ipset() {
 }
 
 init_rules_for_listfile() {
+	local direct_list_dns="$1"
+	local proxy_list_dns="$2"
+
 	echo "# AUTO-GENERATED FILE. DO NOT MODIFY." >"$FILE_V2RAY_DNSMASQ_CACHE"
 
 	# For direct list
 	local direct_content
-	direct_content="$(cat "$FILE_DIRECTLIST")"
+	direct_content="$(get_file_content "directlist")"
 
 	echo "$direct_content" | \
 		grep -oE "[0-9]{1,3}(\.[0-9]{1,3}){3}(/[0-9]{1,2})?" | \
@@ -388,14 +397,21 @@ init_rules_for_listfile() {
 		sed "s/^/add $IPSET_DST_DIRECT_V6 /" | \
 		ipset -! restore 2>/dev/null
 
-	echo "$direct_content" | \
-		grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" | \
-		sed "s|.*|server=/&/$DIRECTLIST_DNS\nipset=/&/$IPSET_DST_DIRECT_V4,$IPSET_DST_DIRECT_V6|" \
-		>>"$FILE_V2RAY_DNSMASQ_CACHE"
+	if [ -n "$direct_list_dns" ] ; then
+		echo "$direct_content" | \
+			grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" | \
+			sed "s|.*|server=/&/$proxy_list_dns\nipset=/&/$IPSET_DST_DIRECT_V4,$IPSET_DST_DIRECT_V6|" \
+			>>"$FILE_V2RAY_DNSMASQ_CACHE"
+	else
+		echo "$direct_content" | \
+			grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" | \
+			sed "s|.*|ipset=/&/$IPSET_DST_DIRECT_V4,$IPSET_DST_DIRECT_V6|" \
+			>>"$FILE_V2RAY_DNSMASQ_CACHE"
+	fi
 
 	# For proxy list
 	local proxy_content
-	proxy_content="$(cat "$FILE_PROXYLIST")"
+	proxy_content="$(get_file_content "proxylist")"
 
 	echo "$proxy_content" | \
 		grep -oE "[0-9]{1,3}(\.[0-9]{1,3}){3}(/[0-9]{1,2})?" | \
@@ -407,10 +423,17 @@ init_rules_for_listfile() {
 		sed "s/^/add $IPSET_DST_PROXY_V6 /" | \
 		ipset -! restore 2>/dev/null
 
-	echo "$proxy_content" | \
-		grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" | \
-		sed "s|.*|server=/&/$PROXYLIST_DNS\nipset=/&/$IPSET_DST_PROXY_V4,$IPSET_DST_PROXY_V6|" \
-		>>"$FILE_V2RAY_DNSMASQ_CACHE"
+	if [ -n "$proxy_list_dns" ] ; then
+		echo "$proxy_content" | \
+			grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" | \
+			sed "s|.*|server=/&/$proxy_list_dns\nipset=/&/$IPSET_DST_PROXY_V4,$IPSET_DST_PROXY_V6|" \
+			>>"$FILE_V2RAY_DNSMASQ_CACHE"
+	else
+		echo "$proxy_content" | \
+			grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" | \
+			sed "s|.*|ipset=/&/$IPSET_DST_PROXY_V4,$IPSET_DST_PROXY_V6|" \
+			>>"$FILE_V2RAY_DNSMASQ_CACHE"
+	fi
 }
 
 restart_dnsmasq() {
@@ -942,33 +965,40 @@ set_transparent_proxy() {
 	_info "Setting transparent proxy on port $TRANSPARENT_PROXY_PORT"
 	_info "Transparent proxy mode: $TRANSPARENT_PROXY_MODE"
 
-	create_v2ray_ipset
-	init_rules_for_listfile
+	create_v2ray_ipset "$OUTBOUND_SERVERS_V4" "$OUTBOUND_SERVERS_V6"
+	init_rules_for_listfile "$DIRECTLIST_DNS" "$PROXYLIST_DNS"
 
 	local ext_args
-	case "$TRANSPARENT_PROXY_MODE" in
+	case "${TRANSPARENT_PROXY_MODE:=default}" in
 		"cn_direct")
 			ipset -! restore <<-EOF 2>/dev/null
-				$(cat "$FILE_CHNROUTE" | grep -v "^$" | sed "s/^/add $IPSET_DST_DIRECT_V4 /")
-				$(cat "$FILE_CHNROUTE6" | grep -v "^$" | sed "s/^/add $IPSET_DST_DIRECT_V6 /")
+				$(get_file_content "chnroute" | sed "s/^/add $IPSET_DST_DIRECT_V4 /")
+				$(get_file_content "chnroute6" | sed "s/^/add $IPSET_DST_DIRECT_V6 /")
 			EOF
-			ext_args=""
+			ext_args=
 			;;
 		"cn_proxy")
 			ipset -! restore <<-EOF 2>/dev/null
-				$(cat "$FILE_CHNROUTE" | grep -v "^$" | sed "s/^/add $IPSET_DST_PROXY_V4 /")
-				$(cat "$FILE_CHNROUTE6" | grep -v "^$" | sed "s/^/add $IPSET_DST_PROXY_V6 /")
+				$(get_file_content "chnroute" | sed "s/^/add $IPSET_DST_PROXY_V4 /")
+				$(get_file_content "chnroute6" | sed "s/^/add $IPSET_DST_PROXY_V6 /")
 			EOF
 			ext_args="-m set --match-set $IPSET_DST_PROXY_V4 dst"
 			;;
 		"gfwlist_proxy")
-			cat "$FILE_GFWLIST" | grep -v "^$" | \
-				sed "s|.*|server=/&/$PROXYLIST_DNS\nipset=/&/$IPSET_DST_PROXY_V4,$IPSET_DST_PROXY_V6|" \
+			local gfwlist="$(get_file_content "gfwlist")"
+			if [ -n "$PROXYLIST_DNS" ] ; then
+				echo "$gfwlist" | \
+					sed "s|.*|server=/&/$PROXYLIST_DNS\nipset=/&/$IPSET_DST_PROXY_V4,$IPSET_DST_PROXY_V6|" \
 					>> "$FILE_V2RAY_DNSMASQ_CACHE"
+			else
+				echo "$gfwlist" | \
+					sed "s|.*|ipset=/&/$IPSET_DST_PROXY_V4,$IPSET_DST_PROXY_V6|" \
+					>> "$FILE_V2RAY_DNSMASQ_CACHE"
+			fi
 			ext_args="-m set --match-set $IPSET_DST_PROXY_V4 dst"
 			;;
 		*)
-			ext_args=""
+			ext_args=
 			;;
 	esac
 
