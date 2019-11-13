@@ -929,7 +929,7 @@ init_transparent_proxy() {
 
 	if [ -n "$redirect_port" ] && \
 		! validate_data "port" "$redirect_port" 2>/dev/null ; then
-		_err "Transparent proxy redirect port is invalid."
+		_err "Transparent proxy redirect port is invalid: $redirect_port"
 		return 1
 	fi
 
