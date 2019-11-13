@@ -1,10 +1,10 @@
 #!/bin/sh
 
 # v2ray main
-v2ray=$(uci -q get v2ray.@v2ray[-1])
-test -n "$v2ray" || uci -q add v2ray v2ray
-if [ "x$v2ray" != "xmain" ] ; then
+v2ray=$(uci -q get v2ray.main)
+if [ "x$v2ray" != "xv2ray" ] ; then
 	uci -q batch <<-EOF >/dev/null
+		add v2ray v2ray
 		rename v2ray.@v2ray[-1]="main"
 		set v2ray.main.enabled="0"
 		commit v2ray
@@ -12,10 +12,10 @@ if [ "x$v2ray" != "xmain" ] ; then
 fi
 
 # dns
-dns=$(uci -q get v2ray.@dns[-1])
-test -n "$dns" || uci -q add v2ray dns
-if [ "x$dns" != "xmain_dns" ] ; then
+dns=$(uci -q get v2ray.main_dns)
+if [ "x$dns" != "xdns" ] ; then
 	uci -q batch <<-EOF >/dev/null
+		add v2ray dns
 		rename v2ray.@dns[-1]="main_dns"
 		set v2ray.main_dns.enabled="0"
 		commit v2ray
@@ -23,10 +23,10 @@ if [ "x$dns" != "xmain_dns" ] ; then
 fi
 
 # routing
-routing=$(uci -q get v2ray.@routing[-1])
-test -n "$routing" || uci -q add v2ray routing
-if [ "x$routing" != "xmain_routing" ] ; then
+routing=$(uci -q get v2ray.main_routing)
+if [ "x$routing" != "xrouting" ] ; then
 	uci -q batch <<-EOF >/dev/null
+		add v2ray routing
 		rename v2ray.@routing[-1]="main_routing"
 		set v2ray.main_routing.enabled="0"
 		commit v2ray
@@ -34,10 +34,10 @@ if [ "x$routing" != "xmain_routing" ] ; then
 fi
 
 # policy
-policy=$(uci -q get v2ray.@policy[-1])
-test -n "$policy" || uci -q add v2ray policy
-if [ "x$policy" != "xmain_policy" ] ; then
+policy=$(uci -q get v2ray.main_policy)
+if [ "x$policy" != "xpolicy" ] ; then
 	uci -q batch <<-EOF >/dev/null
+		add v2ray policy
 		rename v2ray.@policy[-1]="main_policy"
 		set v2ray.main_policy.enabled="0"
 		commit v2ray
@@ -45,10 +45,10 @@ if [ "x$policy" != "xmain_policy" ] ; then
 fi
 
 # reverse
-reverse=$(uci -q get v2ray.@reverse[-1])
-test -n "$reverse" || uci -q add v2ray reverse
-if [ "x$reverse" != "xmain_reverse" ] ; then
+reverse=$(uci -q get v2ray.main_reverse)
+if [ "x$reverse" != "xreverse" ] ; then
 	uci -q batch <<-EOF >/dev/null
+		add v2ray reverse
 		rename v2ray.@reverse[-1]="main_reverse"
 		set v2ray.main_reverse.enabled="0"
 		commit v2ray
@@ -56,11 +56,11 @@ if [ "x$reverse" != "xmain_reverse" ] ; then
 fi
 
 # transparent_proxy
-transparent_proxy=$(uci -q get v2ray.@transparent_proxy[-1])
-test -n "$transparent_proxy" || uci -q add v2ray transparent_proxy
-if [ "x$transparent_proxy" != "xmain_transparent_proxy" ] ; then
+transparent_proxy=$(uci -q get v2ray.main_transparent_proxy)
+if [ "x$transparent_proxy" != "xtransparent_proxy" ] ; then
 	uci -q batch <<-EOF >/dev/null
-		rename v2ray.@reverse[-1]="main_transparent_proxy"
+		add v2ray transparent_proxy
+		rename v2ray.@transparent_proxy[-1]="main_transparent_proxy"
 		set v2ray.main_transparent_proxy.redirect_port=""
 		commit v2ray
 	EOF
