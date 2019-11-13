@@ -23,14 +23,11 @@ IPSET_DST_DIRECT_V6=v2ray_dst_direct_v6
 OUTBOUND_SERVERS_V4=
 OUTBOUND_SERVERS_V6=
 
+TRANSPARENT_PROXY_EXPECTED=0
 TRANSPARENT_PROXY_PORT=
-TRANSPARENT_PROXY_MODE=
 TRANSPARENT_PROXY_ADDITION=
 
-PROXYLIST_DNS=
-DIRECTLIST_DNS=
-
-DNSMASQ_RESTART=
+DNSMASQ_RESTART_EXPECTED=0
 
 if [ -r /usr/share/libubox/jshn.sh ] ; then
 	. /usr/share/libubox/jshn.sh
@@ -400,7 +397,7 @@ init_rules_for_listfile() {
 	if [ -n "$direct_list_dns" ] ; then
 		echo "$direct_content" | \
 			grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" | \
-			sed "s|.*|server=/&/$proxy_list_dns\nipset=/&/$IPSET_DST_DIRECT_V4,$IPSET_DST_DIRECT_V6|" \
+			sed "s|.*|server=/&/$direct_list_dns\nipset=/&/$IPSET_DST_DIRECT_V4,$IPSET_DST_DIRECT_V6|" \
 			>>"$FILE_V2RAY_DNSMASQ_CACHE"
 	else
 		echo "$direct_content" | \
@@ -436,9 +433,14 @@ init_rules_for_listfile() {
 	fi
 }
 
-restart_dnsmasq() {
-	/etc/init.d/dnsmasq restart >/dev/null 2>&1
-	DNSMASQ_RESTART=
+gracefully_restart_dnsmasq() {
+	local restart="${1:=$DNSMASQ_RESTART_EXPECTED}"
+
+	if [ "x$restart" = "x1" ] ; then
+		_info "Restarting dnsmasq..."
+		/etc/init.d/dnsmasq restart >/dev/null 2>&1
+		DNSMASQ_RESTART_EXPECTED=0
+	fi
 }
 
 add_dns_settings() {
@@ -672,9 +674,8 @@ add_policy_settings() {
 				json_add_int "downlinkOnly" "$downlink_only"
 				json_add_boolean "statsUserUplink" "$stats_user_uplink"
 				json_add_boolean "statsUserDownlink" "$stats_user_downlink"
-				if [ -n "$buffer_size" ] ; then
+				test -n "$buffer_size" && \
 					json_add_int "bufferSize" "$buffer_size"
-				fi
 				json_close_object
 			fi
 		done
@@ -802,9 +803,9 @@ add_inbound_setting() {
 		if [ "x$protocol" = "xdokodemo-door" ] && \
 			[ -n "$port" ] && [ "x$port" = "x$TRANSPARENT_PROXY_PORT" ] ; then
 			local settings_network="tcp"
-			if [ -n "$TRANSPARENT_PROXY_ADDITION" ] ; then
+
+			test -n "$TRANSPARENT_PROXY_ADDITION" && \
 				settings_network="$settings_network,udp"
-			fi
 
 			json_add_boolean "followRedirect" "1"
 			json_add_string "network" "$settings_network"
@@ -919,23 +920,20 @@ add_outbound_setting() {
 }
 
 init_transparent_proxy() {
-	if [ "x$1" != "xmain" ] ; then
-		unset TRANSPARENT_PROXY_PORT \
-			TRANSPARENT_PROXY_MODE \
-			TRANSPARENT_PROXY_ADDITION
-		return 0
-	fi
+	local tp_cfg="main_transparent_proxy"
+	local redirect_port udp_proxy_enabled dns_proxy_enabled
 
-	local section="main_transparent_proxy"
+	config_get redirect_port "$tp_cfg" "redirect_port"
+	config_get udp_proxy_enabled "$tp_cfg" "udp_proxy_enabled"
+	config_get dns_proxy_enabled "$tp_cfg" "dns_proxy_enabled"
 
-	if ! transparent_proxy_section_validate "$section" ; then
+	if [ -n "$redirect_port" ] && \
+		! validate_data "port" redirect_port 2>/dev/null ; then
+		_err "Transparent proxy redirect port is invalid."
 		return 1
 	fi
 
-	test -n "$redirect_port" || return 0
-
 	TRANSPARENT_PROXY_PORT="$redirect_port"
-	TRANSPARENT_PROXY_MODE="$proxy_mode"
 
 	if [ "x$udp_proxy_enabled" = "x1" ] ; then
 		TRANSPARENT_PROXY_ADDITION="udp"
@@ -944,32 +942,35 @@ init_transparent_proxy() {
 	else
 		TRANSPARENT_PROXY_ADDITION=
 	fi
-
-	PROXYLIST_DNS="$proxy_list_dns"
-	DIRECTLIST_DNS="$direct_list_dns"
 }
 
-set_transparent_proxy() {
-	if [ "x$1" != "xmain" ] ; then
-		return 0
-	fi
-
+setup_transparent_proxy() {
 	if [ -z "$TRANSPARENT_PROXY_PORT" ] ; then
-		if [ "x$DNSMASQ_RESTART" = "x1" ] ; then
-			_info "Transparent proxy disabled, restarting dnsmasq..."
-			restart_dnsmasq
-		fi
+		_info "Transparent proxy disabled."
 		return 0
 	fi
 
-	_info "Setting transparent proxy on port $TRANSPARENT_PROXY_PORT"
-	_info "Transparent proxy mode: $TRANSPARENT_PROXY_MODE"
+	if [ "x$TRANSPARENT_PROXY_EXPECTED" != "x1" ] ; then
+		_info "No v2ray instance enabled, skip transparent proxy."
+		return 0
+	fi
+
+	_info "Setting transparent proxy on port: $TRANSPARENT_PROXY_PORT"
+
+	local tp_cfg="main_transparent_proxy"
+	local proxy_mode direct_list_dns proxy_list_dns
+
+	config_get proxy_mode "$tp_cfg" "proxy_mode"
+	config_get direct_list_dns "$tp_cfg" "direct_list_dns"
+	config_get proxy_list_dns "$tp_cfg" "proxy_list_dns"
+
+	_info "Transparent proxy mode: $proxy_mode"
 
 	create_v2ray_ipset "$OUTBOUND_SERVERS_V4" "$OUTBOUND_SERVERS_V6"
-	init_rules_for_listfile "$DIRECTLIST_DNS" "$PROXYLIST_DNS"
+	init_rules_for_listfile "$direct_list_dns" "$proxy_list_dns"
 
 	local ext_args
-	case "${TRANSPARENT_PROXY_MODE:=default}" in
+	case "${proxy_mode:-default}" in
 		"cn_direct")
 			ipset -! restore <<-EOF 2>/dev/null
 				$(get_file_content "chnroute" | sed "s/^/add $IPSET_DST_DIRECT_V4 /")
@@ -1004,14 +1005,22 @@ set_transparent_proxy() {
 
 	if [ -n "$(cat "$FILE_V2RAY_DNSMASQ_CACHE" | grep -v "^$" | grep -v "^#")" ] ; then
 		cat "$FILE_V2RAY_DNSMASQ_CACHE" >"$FILE_V2RAY_DNSMASQ" 2>/dev/null
-
-		_info "Restarting dnsmasq..."
-		restart_dnsmasq
+		DNSMASQ_RESTART_EXPECTED=1
 	fi
 
 	rm -f "$FILE_V2RAY_DNSMASQ_CACHE"
 
 	add_v2ray_rules "$TRANSPARENT_PROXY_PORT" "$ext_args" "$TRANSPARENT_PROXY_ADDITION"
+}
+
+clear_transparent_proxy() {
+	clear_v2ray_rules
+	destroy_v2ray_ipset
+
+	if [ -s "$FILE_V2RAY_DNSMASQ" ] ; then
+		rm -f "$FILE_V2RAY_DNSMASQ"
+		DNSMASQ_RESTART_EXPECTED=1
+	fi
 }
 
 start_instance() {
@@ -1078,8 +1087,6 @@ start_instance() {
 			add_transport_settings "$transport"
 		fi
 
-		init_transparent_proxy "$section"
-
 		if [ -n "$inbounds" ] ; then
 			json_add_array "inbounds"
 			local is
@@ -1108,6 +1115,8 @@ start_instance() {
 		fi
 	fi
 
+	TRANSPARENT_PROXY_EXPECTED=1
+
 	procd_open_instance "$NAME.$section"
 	procd_set_param command "$v2ray_file"
 	procd_append_param command "--config=$temp_config"
@@ -1124,42 +1133,33 @@ start_instance() {
 	procd_set_param stdout 1
 	procd_set_param pidfile "/var/run/${NAME}.${section}.pid"
 	procd_close_instance
-
-	set_transparent_proxy "$section"
 }
 
 start_service() {
-	clear_v2ray_rules
-	destroy_v2ray_ipset
+	config_load "$NAME"
 
-	if [ -s "$FILE_V2RAY_DNSMASQ" ] ; then
-		rm -f "$FILE_V2RAY_DNSMASQ"
-		DNSMASQ_RESTART=1
+	clear_transparent_proxy
+
+	if ! init_transparent_proxy ; then
+		gracefully_restart_dnsmasq
+		return 1
 	fi
 
-	config_load "$NAME"
 	config_foreach start_instance "v2ray"
 
-	if [ "x$DNSMASQ_RESTART" = "x1" ] ; then
-		restart_dnsmasq
-	fi
+	setup_transparent_proxy
+
+	gracefully_restart_dnsmasq
 
 	unset OUTBOUND_SERVERS_V4 \
 		OUTBOUND_SERVERS_V6 \
+		TRANSPARENT_PROXY_EXPECTED \
 		TRANSPARENT_PROXY_PORT \
-		TRANSPARENT_PROXY_MODE \
 		TRANSPARENT_PROXY_ADDITION \
-		PROXYLIST_DNS \
-		DIRECTLIST_DNS \
-		DNSMASQ_RESTART
+		DNSMASQ_RESTART_EXPECTED
 }
 
 stop_service() {
-	clear_v2ray_rules
-	destroy_v2ray_ipset
-
-	if [ -s "$FILE_V2RAY_DNSMASQ" ] ; then
-		rm -f "$FILE_V2RAY_DNSMASQ"
-		restart_dnsmasq
-	fi
+	clear_transparent_proxy
+	gracefully_restart_dnsmasq
 }
