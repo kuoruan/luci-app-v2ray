@@ -83,6 +83,7 @@ o.datatype = "file"
 o:value("", translate("None"))
 
 o = s:option(Value, "access_log", translate("Access log file"))
+o:depends("config_file", "")
 o:value("/dev/null")
 o:value("/var/log/v2ray-access.log")
 
