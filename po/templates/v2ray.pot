@@ -1,7 +1,7 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8"
 
-#: luasrc/model/cbi/v2ray/main.lua:120
+#: luasrc/model/cbi/v2ray/main.lua:128
 msgid "<code>transport</code> field in top level configuration, JSON string"
 msgstr ""
 
@@ -29,7 +29,7 @@ msgstr ""
 msgid "About"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:81
+#: luasrc/model/cbi/v2ray/main.lua:88
 msgid "Access log file"
 msgstr ""
 
@@ -137,7 +137,7 @@ msgstr ""
 msgid "Concurrency"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:77
+#: luasrc/model/cbi/v2ray/main.lua:82
 msgid "Config file"
 msgstr ""
 
@@ -169,7 +169,7 @@ msgstr ""
 msgid "DNS server"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:100
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:99
 msgid ""
 "DNS used for domains in direct list, format: <code>ip#port</code>. eg: %s"
 msgstr ""
@@ -179,7 +179,7 @@ msgid ""
 "DNS used for domains in proxy list, format: <code>ip#port</code>. eg: %s"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:87
+#: luasrc/model/cbi/v2ray/main.lua:95
 msgid "Debug"
 msgstr ""
 
@@ -201,11 +201,11 @@ msgstr ""
 msgid "Details: %s"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:99
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:98
 msgid "Direct list DNS"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:73
+#: luasrc/model/cbi/v2ray/main.lua:78
 msgid ""
 "Directory where geoip.dat and geosite.dat files are, default: same directory "
 "as V2Ray file."
@@ -253,19 +253,19 @@ msgstr ""
 
 #: luasrc/model/cbi/v2ray/dns.lua:26
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:140
-#: luasrc/model/cbi/v2ray/main.lua:60 luasrc/model/cbi/v2ray/main.lua:114
-#: luasrc/model/cbi/v2ray/main.lua:117
+#: luasrc/model/cbi/v2ray/main.lua:64 luasrc/model/cbi/v2ray/main.lua:122
+#: luasrc/model/cbi/v2ray/main.lua:125
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:140
 #: luasrc/model/cbi/v2ray/policy.lua:27 luasrc/model/cbi/v2ray/reverse.lua:15
 #: luasrc/model/cbi/v2ray/routing.lua:35
 msgid "Enabled"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:90
+#: luasrc/model/cbi/v2ray/main.lua:98
 msgid "Error"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:94
+#: luasrc/model/cbi/v2ray/main.lua:102
 msgid "Error log file"
 msgstr ""
 
@@ -326,7 +326,7 @@ msgstr ""
 msgid "Inbound Tag"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:102
+#: luasrc/model/cbi/v2ray/main.lua:110
 msgid "Inbound proxies"
 msgstr ""
 
@@ -334,7 +334,7 @@ msgstr ""
 msgid "Inbound tag"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:88
+#: luasrc/model/cbi/v2ray/main.lua:96
 msgid "Info"
 msgstr ""
 
@@ -368,7 +368,7 @@ msgstr ""
 msgid "Listen"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:85
+#: luasrc/model/cbi/v2ray/main.lua:93
 msgid "Log level"
 msgstr ""
 
@@ -390,7 +390,7 @@ msgstr ""
 msgid "No"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:79 luasrc/model/cbi/v2ray/main.lua:91
+#: luasrc/model/cbi/v2ray/main.lua:86 luasrc/model/cbi/v2ray/main.lua:99
 #: luasrc/model/cbi/v2ray/transparent-proxy.lua:33
 msgid "None"
 msgstr ""
@@ -412,7 +412,7 @@ msgstr ""
 msgid "Outbound Tag"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:108
+#: luasrc/model/cbi/v2ray/main.lua:116
 msgid "Outbound proxies"
 msgstr ""
 
@@ -477,7 +477,7 @@ msgstr ""
 msgid "Refresh"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:63
+#: luasrc/model/cbi/v2ray/main.lua:67
 msgid "Reload Service"
 msgstr ""
 
@@ -538,7 +538,7 @@ msgid "Send through"
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:64
-#: luasrc/model/cbi/v2ray/main.lua:120
+#: luasrc/model/cbi/v2ray/main.lua:128
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:62
 msgid "Settings"
 msgstr ""
@@ -556,7 +556,7 @@ msgstr ""
 msgid "Source: %s"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:114
+#: luasrc/model/cbi/v2ray/main.lua:122
 msgid "Stats"
 msgstr ""
 
@@ -599,7 +599,7 @@ msgstr ""
 msgid "Tag"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:63
+#: luasrc/model/cbi/v2ray/main.lua:67
 msgid "This will restart service when config file changes."
 msgstr ""
 
@@ -612,7 +612,7 @@ msgstr ""
 msgid "Transparent Proxy"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:117 luasrc/model/cbi/v2ray/main.lua:120
+#: luasrc/model/cbi/v2ray/main.lua:125 luasrc/model/cbi/v2ray/main.lua:128
 msgid "Transport"
 msgstr ""
 
@@ -637,8 +637,10 @@ msgstr ""
 msgid "Uplink only"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:77
-msgid "Use custom config file"
+#: luasrc/model/cbi/v2ray/main.lua:83
+msgid ""
+"Use custom config file. If you want to setup transparent proxy, add server "
+"IP and domains to 'Extra direct list'."
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/routing-rule-detail.lua:42
@@ -659,11 +661,11 @@ msgstr ""
 msgid "V2Ray"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:73
+#: luasrc/model/cbi/v2ray/main.lua:77
 msgid "V2Ray asset location"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:69
+#: luasrc/model/cbi/v2ray/main.lua:73
 msgid "V2Ray file"
 msgstr ""
 
@@ -671,7 +673,7 @@ msgstr ""
 msgid "Version: %s"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:89
+#: luasrc/model/cbi/v2ray/main.lua:97
 msgid "Warning"
 msgstr ""
 
@@ -681,7 +683,7 @@ msgstr ""
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:69
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:107
-#: luasrc/model/cbi/v2ray/main.lua:126
+#: luasrc/model/cbi/v2ray/main.lua:134
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:67
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:105
 msgid "invalid JSON"

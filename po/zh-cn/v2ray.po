@@ -1,7 +1,7 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8\n"
 
-#: luasrc/model/cbi/v2ray/main.lua:120
+#: luasrc/model/cbi/v2ray/main.lua:128
 msgid "<code>transport</code> field in top level configuration, JSON string"
 msgstr "配置文件中的 <code>transport</code> 项，JSON 字符串"
 
@@ -29,7 +29,7 @@ msgstr "APNIC 分配列表镜像"
 msgid "About"
 msgstr "关于"
 
-#: luasrc/model/cbi/v2ray/main.lua:81
+#: luasrc/model/cbi/v2ray/main.lua:88
 msgid "Access log file"
 msgstr "访问日志文件"
 
@@ -137,7 +137,7 @@ msgstr "正在收集数据..."
 msgid "Concurrency"
 msgstr "随机端口数量"
 
-#: luasrc/model/cbi/v2ray/main.lua:77
+#: luasrc/model/cbi/v2ray/main.lua:82
 msgid "Config file"
 msgstr "配置文件"
 
@@ -169,7 +169,7 @@ msgstr "启用 DNS 代理"
 msgid "DNS server"
 msgstr "DNS 服务器"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:100
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:99
 msgid ""
 "DNS used for domains in direct list, format: <code>ip#port</code>. eg: %s"
 msgstr "直连列表中域名使用的 DNS，格式：<code>ip#port</code>。例如：%s"
@@ -179,7 +179,7 @@ msgid ""
 "DNS used for domains in proxy list, format: <code>ip#port</code>. eg: %s"
 msgstr "代理列表中域名使用的 DNS，格式：<code>ip#port</code>。例如：%s"
 
-#: luasrc/model/cbi/v2ray/main.lua:87
+#: luasrc/model/cbi/v2ray/main.lua:95
 msgid "Debug"
 msgstr "调试"
 
@@ -201,11 +201,11 @@ msgstr "重置指定类型"
 msgid "Details: %s"
 msgstr "查看详情：%s"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:99
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:98
 msgid "Direct list DNS"
 msgstr "直连列表 DNS"
 
-#: luasrc/model/cbi/v2ray/main.lua:73
+#: luasrc/model/cbi/v2ray/main.lua:78
 msgid ""
 "Directory where geoip.dat and geosite.dat files are, default: same directory "
 "as V2Ray file."
@@ -253,19 +253,19 @@ msgstr "在 Dokodemo-door 端口上启用透明代理"
 
 #: luasrc/model/cbi/v2ray/dns.lua:26
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:140
-#: luasrc/model/cbi/v2ray/main.lua:60 luasrc/model/cbi/v2ray/main.lua:114
-#: luasrc/model/cbi/v2ray/main.lua:117
+#: luasrc/model/cbi/v2ray/main.lua:64 luasrc/model/cbi/v2ray/main.lua:122
+#: luasrc/model/cbi/v2ray/main.lua:125
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:140
 #: luasrc/model/cbi/v2ray/policy.lua:27 luasrc/model/cbi/v2ray/reverse.lua:15
 #: luasrc/model/cbi/v2ray/routing.lua:35
 msgid "Enabled"
 msgstr "已启用"
 
-#: luasrc/model/cbi/v2ray/main.lua:90
+#: luasrc/model/cbi/v2ray/main.lua:98
 msgid "Error"
 msgstr "错误"
 
-#: luasrc/model/cbi/v2ray/main.lua:94
+#: luasrc/model/cbi/v2ray/main.lua:102
 msgid "Error log file"
 msgstr "错误日志文件"
 
@@ -326,7 +326,7 @@ msgstr "入站连接"
 msgid "Inbound Tag"
 msgstr "入站连接标识"
 
-#: luasrc/model/cbi/v2ray/main.lua:102
+#: luasrc/model/cbi/v2ray/main.lua:110
 msgid "Inbound proxies"
 msgstr "入站代理"
 
@@ -334,7 +334,7 @@ msgstr "入站代理"
 msgid "Inbound tag"
 msgstr "入站连接标识"
 
-#: luasrc/model/cbi/v2ray/main.lua:88
+#: luasrc/model/cbi/v2ray/main.lua:96
 msgid "Info"
 msgstr "信息"
 
@@ -368,7 +368,7 @@ msgstr "列表已更新，刷新页面查看详情。"
 msgid "Listen"
 msgstr "监听地址"
 
-#: luasrc/model/cbi/v2ray/main.lua:85
+#: luasrc/model/cbi/v2ray/main.lua:93
 msgid "Log level"
 msgstr "日志等级"
 
@@ -390,7 +390,7 @@ msgstr "网络"
 msgid "No"
 msgstr "否"
 
-#: luasrc/model/cbi/v2ray/main.lua:79 luasrc/model/cbi/v2ray/main.lua:91
+#: luasrc/model/cbi/v2ray/main.lua:86 luasrc/model/cbi/v2ray/main.lua:99
 #: luasrc/model/cbi/v2ray/transparent-proxy.lua:33
 msgid "None"
 msgstr "无"
@@ -412,7 +412,7 @@ msgstr "出站连接"
 msgid "Outbound Tag"
 msgstr "出站连接标识"
 
-#: luasrc/model/cbi/v2ray/main.lua:108
+#: luasrc/model/cbi/v2ray/main.lua:116
 msgid "Outbound proxies"
 msgstr "出站代理"
 
@@ -477,7 +477,7 @@ msgstr "转发端口"
 msgid "Refresh"
 msgstr "随机端口刷新间隔"
 
-#: luasrc/model/cbi/v2ray/main.lua:63
+#: luasrc/model/cbi/v2ray/main.lua:67
 msgid "Reload Service"
 msgstr "重载服务"
 
@@ -538,7 +538,7 @@ msgid "Send through"
 msgstr "发送 IP 地址"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:64
-#: luasrc/model/cbi/v2ray/main.lua:120
+#: luasrc/model/cbi/v2ray/main.lua:128
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:62
 msgid "Settings"
 msgstr "配置"
@@ -556,7 +556,7 @@ msgstr "来源地址"
 msgid "Source: %s"
 msgstr "源码：%s"
 
-#: luasrc/model/cbi/v2ray/main.lua:114
+#: luasrc/model/cbi/v2ray/main.lua:122
 msgid "Stats"
 msgstr "统计信息"
 
@@ -599,7 +599,7 @@ msgstr "系统"
 msgid "Tag"
 msgstr "标识"
 
-#: luasrc/model/cbi/v2ray/main.lua:63
+#: luasrc/model/cbi/v2ray/main.lua:67
 msgid "This will restart service when config file changes."
 msgstr "如果配置文件发生变化，此操作会重启服务"
 
@@ -612,7 +612,7 @@ msgstr "总共：%s，日期：%s"
 msgid "Transparent Proxy"
 msgstr "透明代理"
 
-#: luasrc/model/cbi/v2ray/main.lua:117 luasrc/model/cbi/v2ray/main.lua:120
+#: luasrc/model/cbi/v2ray/main.lua:125 luasrc/model/cbi/v2ray/main.lua:128
 msgid "Transport"
 msgstr "底层传输"
 
@@ -637,9 +637,11 @@ msgstr "更新中..."
 msgid "Uplink only"
 msgstr "下行连接关闭等待时间"
 
-#: luasrc/model/cbi/v2ray/main.lua:77
-msgid "Use custom config file"
-msgstr "使用自定义配置文件"
+#: luasrc/model/cbi/v2ray/main.lua:83
+msgid ""
+"Use custom config file. If you want to setup transparent proxy, add server "
+"IP and domains to 'Extra direct list'."
+msgstr "使用自定义配置文件。如果你想配置透明代理，需要将你服务器的 IP 和域名添加到“额外的直连列表”。"
 
 #: luasrc/model/cbi/v2ray/routing-rule-detail.lua:42
 msgid "User"
@@ -659,11 +661,11 @@ msgstr "用户"
 msgid "V2Ray"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:73
+#: luasrc/model/cbi/v2ray/main.lua:77
 msgid "V2Ray asset location"
 msgstr "V2Ray 资源文件路径"
 
-#: luasrc/model/cbi/v2ray/main.lua:69
+#: luasrc/model/cbi/v2ray/main.lua:73
 msgid "V2Ray file"
 msgstr "V2Ray 文件"
 
@@ -671,7 +673,7 @@ msgstr "V2Ray 文件"
 msgid "Version: %s"
 msgstr "版本：%s"
 
-#: luasrc/model/cbi/v2ray/main.lua:89
+#: luasrc/model/cbi/v2ray/main.lua:97
 msgid "Warning"
 msgstr "警告"
 
@@ -681,7 +683,7 @@ msgstr "是"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:69
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:107
-#: luasrc/model/cbi/v2ray/main.lua:126
+#: luasrc/model/cbi/v2ray/main.lua:134
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:67
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:105
 msgid "invalid JSON"

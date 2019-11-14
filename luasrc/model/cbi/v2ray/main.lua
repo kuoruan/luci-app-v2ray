@@ -74,11 +74,14 @@ o = s:option(Value, "v2ray_file", translate("V2Ray file"), v2ray_version())
 o.datatype = "file"
 o.placeholder = "/usr/bin/v2ray"
 
-o = s:option(Value, "asset_location", translate("V2Ray asset location"), translate("Directory where geoip.dat and geosite.dat files are, default: same directory as V2Ray file."))
+o = s:option(Value, "asset_location", translate("V2Ray asset location"),
+	translate("Directory where geoip.dat and geosite.dat files are, default: same directory as V2Ray file."))
 o.datatype = "directory"
 o.placeholder = "/usr/bin"
 
-o = s:option(Value, "config_file", translate("Config file"), translate("Use custom config file"))
+o = s:option(Value, "config_file", translate("Config file"),
+	translate("Use custom config file. \
+		If you want to setup transparent proxy, add server IP and domains to 'Extra direct list'."))
 o.datatype = "file"
 o:value("", translate("None"))
 
