@@ -1065,13 +1065,16 @@ start_instance() {
 		json_set_namespace "$section" old_ns
 		json_init
 
-		if [ -n "$loglevel" ] && [ "$loglevel" != "none" ] ; then
-			json_add_object "log"
-			json_add_string "loglevel" "$loglevel"
+		json_add_object "log"
+		test -n "$access_log" && \
 			json_add_string "access" "$access_log"
+
+		if [ -n "$loglevel" ] && [ "$loglevel" != "none" ] ; then
+			json_add_string "loglevel" "$loglevel"
 			json_add_string "error" "$error_log"
-			json_close_object
 		fi
+		json_close_object
+
 
 		if [ "x$stats_enabled" = "x1" ] ; then
 			json_add_object "stats"
