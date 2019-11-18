@@ -36,7 +36,7 @@ m = SimpleForm("v2ray", "%s - %s" % { translate("V2Ray"), translate("About") },
 			"<a href=\"https://blog.kuoruan.com/donate\" target=\"_blank\">https://blog.kuoruan.com/donate</a>"
 		),
 		translatef("Current Config File: %s", config_file),
-		"<pre style=\"-moz-tab-size: 4;tab-size: 4;\">%s</pre>" % config_content,
+		"<pre style=\"-moz-tab-size: 4;-o-tab-size: 4;tab-size: 4;word-break: break-all;\">%s</pre>" % config_content,
 	})
 
 m.reset = false

@@ -2,7 +2,6 @@
 -- Licensed to the public under the MIT License.
 
 local dsp = require "luci.dispatcher"
-local v2ray = require "luci.model.v2ray"
 
 local m, s, o
 
@@ -21,20 +20,6 @@ s.create = function (...)
 		luci.http.redirect(s.extedit % sid)
 		return
 	end
-end
-s.remove = function (self, section)
-	local settings_key = self.map:get(section, "settings") or ""
-	local stream_settings_key = self.map:get(section, "stream_settings") or ""
-
-	if settings_key ~= "" then
-		v2ray.remove_setting(settings_key)
-	end
-
-	if stream_settings_key ~= "" then
-		v2ray.remove_stream_setting(stream_settings_key)
-	end
-
-	return TypedSection.remove(self, section)
 end
 
 o = s:option(DummyValue, "alias", translate("Alias"))
@@ -57,15 +42,14 @@ o.cfgvalue = function (...)
 	return Value.cfgvalue(...) or "?"
 end
 
-o = s:option(DummyValue, "tag", translate("Tag"))
+o = s:option(DummyValue, "ss_network", translate("Stream Network"))
 o.cfgvalue = function (...)
 	return Value.cfgvalue(...) or "?"
 end
 
-o = s:option(DummyValue, "transparent_proxy_enabled", translate("Transparent Proxy"))
+o = s:option(DummyValue, "tag", translate("Tag"))
 o.cfgvalue = function (...)
-	local v = Value.cfgvalue(...)
-	return v == "1" and translate("Yes") or translate("No")
+	return Value.cfgvalue(...) or "?"
 end
 
 return m

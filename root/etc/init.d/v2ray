@@ -170,7 +170,7 @@ dns_server_section_validate() {
 routing_section_validate() {
 	uci_validate_section "$NAME" "routing" "$1" \
 		'enabled:bool:0' \
-		'domain_strategy:or("AsIs", "IPIfNonMatch", "IPOnDemand"):AsIs' \
+		'domain_strategy:or("AsIs", "IPIfNonMatch", "IPOnDemand")' \
 		'rules:list(uci("v2ray", "@routing_rule"))' \
 		'balancers:list(uci("v2ray", "@routing_balancer"))'
 }
@@ -229,8 +229,77 @@ inbound_section_validate() {
 		'port:or(port, portrange, string)' \
 		'listen:ipaddr:0.0.0.0' \
 		'protocol:string' \
-		'settings:string' \
-		'stream_settings:string' \
+		's_dokodemo_door_address:host' \
+		's_dokodemo_door_port:port' \
+		's_dokodemo_door_network:list(or("tcp", "udp"))' \
+		's_dokodemo_door_timeout:uinteger' \
+		's_dokodemo_door_follow_redirect:bool:0' \
+		's_dokodemo_door_user_level:uiterger' \
+		's_http_account_user:string' \
+		's_http_account_pass:string' \
+		's_http_allow_transparent:bool:0' \
+		's_http_timeout:uinteger' \
+		's_http_user_level:uinteger' \
+		's_mtproto_user_email:string' \
+		's_mtproto_user_secret:string' \
+		's_mtproto_user_level:uinteger' \
+		's_shadowsocks_email:string' \
+		's_shadowsocks_method:string' \
+		's_shadowsocks_password:string' \
+		's_shadowsocks_level:uinteger' \
+		's_shadowsocks_ota:bool:0' \
+		's_shadowsocks_network:list(or("tcp", "udp")):tcp' \
+		's_socks_auth:or("noauth", "password")' \
+		's_socks_account_user:string' \
+		's_socks_account_pass:string' \
+		's_socks_udp:bool:0' \
+		's_socks_ip:host' \
+		's_socks_user_level:uinteger' \
+		's_vmess_client_id:string' \
+		's_vmess_client_alter_id:and("uinteger", max(65535))' \
+		's_vmess_client_email:string' \
+		's_vmess_client_user_level:uinteger' \
+		's_vmess_default_alter_id:and("uinteger", max(65535))' \
+		's_vmess_default_user_level:uinteger' \
+		's_vmess_detour_to:string' \
+		's_vmess_disable_insecure_encryption:bool:0' \
+		'ss_network:or("tcp", "kcp", "ws", "http", "domainsocket", "quic")' \
+		'ss_security:or("none", "tls")' \
+		'ss_tls_server_name:host' \
+		'ss_tls_alpn:string' \
+		'ss_tls_allow_insecure:bool:0' \
+		'ss_tls_allow_insecure_ciphers:bool:0' \
+		'ss_tls_disable_system_root:bool:0' \
+		'ss_tls_cert_usage:or("encipherment", "verify", "issue")' \
+		'ss_tls_cert_fiile:string' \
+		'ss_tls_key_file:string' \
+		'ss_tcp_header_type:or("none", "http")' \
+		'ss_tcp_header_request_version:string' \
+		'ss_tcp_header_request_method:string:GET' \
+		'ss_tcp_header_request_path:string' \
+		'ss_tcp_header_request_headers:list(string)' \
+		'ss_tcp_header_response_version:string' \
+		'ss_tcp_header_response_status:string' \
+		'ss_tcp_header_response_reason:string' \
+		'ss_tcp_header_response_headers:list(string)' \
+		'ss_kcp_mtu:and(min(576), max(1460))' \
+		'ss_kcp_tti:and(min(10), max(100))' \
+		'ss_kcp_uplink_capacity:uinteger' \
+		'ss_kcp_downlink_capacity:uinteger' \
+		'ss_kcp_congestion:bool:0' \
+		'ss_kcp_read_buffer_size:uinteger' \
+		'ss_kcp_write_buffer_size:uinteger' \
+		'ss_kcp_header_type:or("none", "srtp", "utp", "wechat-video", "dtls", "wireguard")' \
+		'ss_websocket_path:string' \
+		'ss_websocket_headers:list(string)' \
+		'ss_http_host:list(host)' \
+		'ss_http_path:string' \
+		'ss_domainsocket_path:string' \
+		'ss_quic_security:or("aes-128-gcm", "chacha20-poly1305", "none")' \
+		'ss_quic_key:string' \
+		'ss_quic_header_type:or("none", "srtp", "utp", "wechat-video", "dtls", "wireguard")' \
+		'ss_sockopt_tcp_fast_open:or("0", "1")' \
+		'ss_sockopt_tproxy:or("redirect", "tproxy", "off")' \
 		'tag:string' \
 		'sniffing_enabled:bool:0' \
 		'sniffing_dest_override:list(or("http", "tls"))' \
@@ -244,7 +313,72 @@ outbound_section_validate() {
 		'send_through:ipaddr:0.0.0.0' \
 		'protocol:string' \
 		'tag:string' \
-		'settings:string' \
+		's_blackhole_reponse_type:or("none", "http")' \
+		's_dns_network:or("tcp", "udp")' \
+		's_dns_address:host' \
+		's_dns_port:port' \
+		's_freedom_domain_strategy:or("AsIs", "UseIP", "UseIPv4", "UseIPv6")' \
+		's_freedom_redirect:string' \
+		's_freedom_user_level:uinteger' \
+		's_http_server_address:host' \
+		's_http_server_port:port' \
+		's_http_account_user:string' \
+		's_http_account_pass:string' \
+		's_shadowsocks_email:string' \
+		's_shadowsocks_address:host' \
+		's_shadowsocks_port:port' \
+		's_shadowsocks_method:string' \
+		's_shadowsocks_password:string' \
+		's_shadowsocks_level:uinteger' \
+		's_shadowsocks_ota:bool:0' \
+		's_socks_server_address:host' \
+		's_socks_server_port:port' \
+		's_socks_account_user:string' \
+		's_socks_account_pass:string' \
+		's_socks_user_level:uinteger' \
+		's_vmess_address:host' \
+		's_vmess_port:port' \
+		's_vmess_user_id:string' \
+		's_vmess_user_alter_id:and("uinteger", max(65535))' \
+		's_vmess_user_security:or("auto", "aes-128-gcm", "chacha20-poly1305", "none")' \
+		's_vmess_user_level:uinteger' \
+		'ss_network:or("tcp", "kcp", "ws", "http", "domainsocket", "quic")' \
+		'ss_security:or("none", "tls")' \
+		'ss_tls_server_name:host' \
+		'ss_tls_alpn:string' \
+		'ss_tls_allow_insecure:bool:0' \
+		'ss_tls_allow_insecure_ciphers:bool:0' \
+		'ss_tls_disable_system_root:bool:0' \
+		'ss_tls_cert_usage:or("encipherment", "verify", "issue")' \
+		'ss_tls_cert_fiile:string' \
+		'ss_tls_key_file:string' \
+		'ss_tcp_header_type:or("none", "http")' \
+		'ss_tcp_header_request_version:string' \
+		'ss_tcp_header_request_method:string' \
+		'ss_tcp_header_request_path:string' \
+		'ss_tcp_header_request_headers:list(string)' \
+		'ss_tcp_header_response_version:string' \
+		'ss_tcp_header_response_status:string' \
+		'ss_tcp_header_response_reason:string' \
+		'ss_tcp_header_response_headers:list(string)' \
+		'ss_kcp_mtu:and(min(576), max(1460))' \
+		'ss_kcp_tti:and(min(10), max(100))' \
+		'ss_kcp_uplink_capacity:uinteger' \
+		'ss_kcp_downlink_capacity:uinteger' \
+		'ss_kcp_congestion:bool:0' \
+		'ss_kcp_read_buffer_size:uinteger' \
+		'ss_kcp_write_buffer_size:uinteger' \
+		'ss_kcp_header_type:or("none", "srtp", "utp", "wechat-video", "dtls", "wireguard")' \
+		'ss_websocket_path:string' \
+		'ss_websocket_headers:list(string)' \
+		'ss_http_host:list(host)' \
+		'ss_http_path:string' \
+		'ss_domainsocket_path:string' \
+		'ss_quic_security:or("aes-128-gcm", "chacha20-poly1305", "none")' \
+		'ss_quic_key:string' \
+		'ss_quic_header_type:or("none", "srtp", "utp", "wechat-video", "dtls", "wireguard")' \
+		'ss_sockopt_mark:uinteger' \
+		'ss_sockopt_tcp_fast_open:or("0", "1")' \
 		'stream_settings:string' \
 		'proxy_settings_tag:string' \
 		'mux_enabled:bool:0' \
@@ -535,7 +669,8 @@ add_routing_settings() {
 
 	json_add_object "routing"
 
-	json_add_string "domainStrategy" "$domain_strategy"
+	test -n "$domain_strategy" && \
+		json_add_string "domainStrategy" "$domain_strategy"
 
 	if [ -n "$rules" ] ; then
 		json_add_array "rules"
@@ -772,6 +907,338 @@ add_inbound_setting() {
 	json_add_int "port" "$port"
 	json_add_string "protocol" "$protocol"
 
+	case "${protocol:-x}" in
+		"dokodemo-door")
+			json_add_object "settings"
+
+			if [ -n "$port" ] && [ "x$port" = "x$TRANSPARENT_PROXY_PORT" ] ; then
+				local settings_network="tcp"
+
+				test -n "$TRANSPARENT_PROXY_ADDITION" && \
+					settings_network="$settings_network,udp"
+
+				json_add_boolean "followRedirect" "1"
+				json_add_string "network" "$settings_network"
+			else
+				test -n "$s_dokodemo_door_address" && \
+					json_add_string "address" "$s_dokodemo_door_address"
+				test -n "$port" && \
+					json_add_int "port" "$s_dokodemo_door_port"
+				test -n "$s_dokodemo_door_network" && \
+					json_add_string "network" "$(echo "$s_dokodemo_door_network" | tr -s ' ' ',')"
+			fi
+
+			test -n "$s_dokodemo_door_timeout" && \
+				json_add_int "timeout" "$s_dokodemo_door_timeout"
+
+			json_add_boolean "followRedirect" "$s_dokodemo_door_follow_redirect"
+
+			test -n "$s_dokodemo_door_user_level" && \
+				json_add_int "userLevel" "$s_dokodemo_door_user_level"
+
+			json_close_object
+			;;
+		"http")
+			json_add_object "settings"
+
+			if [ -n "$s_http_account_user" ] ; then
+				json_add_array "accounts"
+				json_add_object
+				json_add_string "user" "$s_http_account_user"
+				json_add_string "pass" "$s_http_account_pass"
+				json_close_object
+				json_close_array
+			fi
+
+			json_add_boolean "allowTransparent" "$s_http_allow_transparent"
+
+			test -n "$s_http_timeout" && \
+				json_add_int "timeout" "$s_http_timeout"
+			test -n "$s_http_user_level" && \
+				json_add_int "userLevel" "$s_http_user_level"
+
+			json_close_object
+			;;
+		"mtproto")
+			json_add_object "settings"
+
+			if [ -n "$s_mtproto_user_email" ] ; then
+				json_add_array "users"
+				json_add_object ""
+				json_add_string "email" "$s_mtproto_user_email"
+				json_add_string "secret" "$s_mtproto_user_secret"
+				test -n "$s_mtproto_user_level" && \
+					json_add_int "level" "$s_mtproto_user_level"
+				json_close_object
+				json_close_array
+			fi
+
+			json_close_object
+			;;
+		"shadowsocks")
+			json_add_object "settings"
+
+			json_add_string "method" "$s_shadowsocks_method"
+			json_add_string "password" "$s_shadowsocks_password"
+			test -n "$s_shadowsocks_email" && \
+				json_add_string "email" "$s_shadowsocks_email"
+			test -n "$s_shadowsocks_level" && \
+				json_add_int "level" "$s_shadowsocks_level"
+			json_add_boolean "ota" "$s_shadowsocks_ota"
+			json_add_string "network" "$(echo "$s_shadowsocks_network" | tr -s ' ' ',')"
+
+			json_close_object
+			;;
+		"socks")
+			json_add_object "settings"
+
+			json_add_string "auth" "$s_socks_auth"
+			if [ -n "$s_socks_account_user" ] ; then
+				json_add_array "accounts"
+				json_add_object ""
+				json_add_string "user" "$s_socks_account_user"
+				json_add_string "pass" "$s_socks_account_pass"
+				json_close_object
+				json_close_array
+			fi
+			json_add_boolean "udp" "$s_socks_udp"
+			test -n "$s_socks_ip" && \
+				json_add_string "ip" "$s_socks_ip"
+			test -n "$s_socks_user_level" && \
+				json_add_int "userLevel" "$s_socks_user_level"
+
+			json_close_object
+			;;
+		"vmess")
+			json_add_object "settings"
+
+			if [ -n "$s_vmess_client_id" ] ; then
+				json_add_array "clients"
+				json_add_object ""
+				json_add_string "id" "$s_vmess_client_id"
+				test -n "$s_vmess_client_alter_id" && \
+					json_add_string "alterId" "$s_vmess_client_alter_id"
+				test -n "$s_vmess_client_email" && \
+					json_add_string "email" "$s_vmess_client_email"
+				test -n "$s_vmess_client_user_level" && \
+					json_add_int "level" "$s_vmess_client_user_level"
+				json_close_object
+				json_close_array
+			fi
+
+			json_add_object "default"
+			test -n "$s_vmess_default_alter_id" && \
+				json_add_int "alterId" "$s_vmess_default_alter_id"
+			test -n "$s_vmess_default_user_level" && \
+				json_add_int "level" "$s_vmess_default_user_level"
+			json_close_object
+
+			if [ -n "$s_vmess_detour_to" ] ; then
+				json_add_object "detour"
+				json_add_string "to" "$s_vmess_detour_to"
+				json_close_object
+			fi
+
+			json_add_boolean "disableInsecureEncryption" "$s_vmess_disable_insecure_encryption"
+
+			json_close_object
+			;;
+	esac
+
+	json_add_object "streamSettings"
+	test -n "$ss_network" && \
+		json_add_string "network" "$ss_network"
+
+	test -n "$ss_security" && \
+		json_add_string "security" "$ss_security"
+
+	if [ "x$ss_security" = "xtls" ] ; then
+		json_add_object "tlsSettings"
+
+		json_add_string "serverName" "$ss_tls_server_name"
+		if [ -n "$ss_tls_alpn" ] ; then
+			json_add_array "alpn"
+			json_add_string "" "$ss_tls_alpn"
+			json_close_array
+		fi
+		json_add_boolean "allowInsecure" "$ss_tls_allow_insecure"
+		json_add_boolean "allowInsecureCiphers" "$ss_tls_allow_insecure_ciphers"
+		json_add_boolean "disableSystemRoot" "$ss_tls_disable_system_root"
+
+		json_add_array "certificates"
+		if [ -n "$ss_tls_cert_fiile" ] ; then
+			json_add_string "certificateFile" "$ss_tls_cert_fiile"
+			json_add_string "keyFile" "$ss_tls_key_file"
+			test -n "$ss_tls_cert_usage" && \
+				json_add_string "usage" "$ss_tls_cert_usage"
+		fi
+		json_close_array
+
+		json_close_object
+	fi
+
+	case "${ss_network:-x}" in
+		"tcp")
+			json_add_object "tcpSettings"
+			if [ -n "$ss_tcp_header_type" ] ; then
+				json_add_object "header"
+				json_add_string "type" "$ss_tcp_header_type"
+
+				if [ "$ss_tcp_header_type" = "http" ] ; then
+					json_add_object "request"
+					test -n "$ss_tcp_header_request_version" && \
+						json_add_string "version" "$ss_tcp_header_request_version"
+					json_add_string "method" "$ss_tcp_header_request_method"
+
+					if [ -n "$ss_tcp_header_request_path" ] ; then
+						json_add_array "path"
+						json_add_string "" "$ss_tcp_header_request_path"
+						json_close_array
+					fi
+
+					if [ -n "$ss_tcp_header_request_headers" ] ; then
+						json_add_object "headers"
+
+						handle_request_header() {
+							local h="$1"
+
+							local name="$(echo "$h" | cut -d'=' -f1)"
+							local value="$(echo "$h" | cut -d'=' -f2)"
+
+							if [ -n "$name" ] && [ -n "$value" ] ; then
+								json_add_array "$name"
+								json_add_string "" "$value"
+								json_close_array
+							fi
+						}
+						config_list_foreach "$section" "ss_tcp_header_request_headers" handle_request_header
+
+						json_close_object
+					fi
+
+					json_close_object # request
+
+					json_add_object "response"
+					test -n "$ss_tcp_header_response_version" && \
+						json_add_string "version" "$ss_tcp_header_response_version"
+					test -n "$ss_tcp_header_response_status" && \
+						json_add_string "status" "$ss_tcp_header_response_status"
+					test -n "$ss_tcp_header_response_reason" && \
+						json_add_string "reason" "$ss_tcp_header_response_reason"
+
+					if [ -n "$ss_tcp_header_response_headers" ] ; then
+						json_add_object "headers"
+
+						handle_response_header() {
+							local h="$1"
+
+							local name="$(echo "$h" | cut -d'=' -f1)"
+							local value="$(echo "$h" | cut -d'=' -f2)"
+
+							if [ -n "$name" ] && [ -n "$value" ] ; then
+								json_add_array "$name"
+								json_add_string "" "$value"
+								json_close_array
+							fi
+						}
+						config_list_foreach "$section" "ss_tcp_header_response_headers" handle_response_header
+
+						json_close_object
+					fi
+
+					json_close_object # response
+				fi
+				json_close_object
+			fi
+			json_close_object
+			;;
+		"kcp")
+			json_add_object "kcpSettings"
+			test -n "$ss_kcp_mtu" && \
+				json_add_int "mtu" "$ss_kcp_mtu"
+			test -n "$ss_kcp_tti" && \
+				json_add_int "tti" "$ss_kcp_tti"
+			test -n "$ss_kcp_uplink_capacity" && \
+				json_add_int "uplinkCapacity" "$ss_kcp_uplink_capacity"
+			test -n "$ss_kcp_downlink_capacity" && \
+				json_add_int "downlinkCapacity" "$ss_kcp_downlink_capacity"
+			json_add_boolean "congestion" "$ss_kcp_congestion"
+			test -n "$ss_kcp_read_buffer_size" && \
+				json_add_int "readBufferSize" "$ss_kcp_read_buffer_size"
+			test -n "$ss_kcp_write_buffer_size" && \
+				json_add_int "writeBufferSize" "$ss_kcp_write_buffer_size"
+			if [ -n "$ss_kcp_header_type" ] ; then
+				json_add_object "header"
+				json_add_string "type" "$ss_kcp_header_type"
+				json_close_object
+			fi
+			json_close_object
+			;;
+		"ws")
+			json_add_object "wsSettings"
+			test -n "$ss_websocket_path" && \
+				json_add_string "path" "$ss_websocket_path"
+
+			if [ -n "$ss_websocket_headers" ] ; then
+				json_add_object "headers"
+
+				handle_websocket_header() {
+					local h="$1"
+
+					local name="$(echo "$h" | cut -d'=' -f1)"
+					local value="$(echo "$h" | cut -d'=' -f2)"
+
+					if [ -n "$name" ] && [ -n "$value" ] ; then
+						json_add_string "$name" "$value"
+					fi
+				}
+				config_list_foreach "$section" "ss_websocket_headers" handle_websocket_header
+
+				json_close_object
+			fi
+			json_close_object
+			;;
+		"http")
+			json_add_object "httpSettings"
+			if [ -n "$ss_http_host" ] ; then
+				json_add_array "host"
+
+				local h
+				for h in $ss_http_host ; do
+					json_add_string "" "$h"
+				done
+
+				json_close_array
+			fi
+
+			test -n "$ss_http_path" && \
+				json_add_string "path" "$ss_http_path"
+			json_close_object
+			;;
+		"domainsocket")
+			json_add_object "$dsSettings"
+			test -n "$ss_domainsocket_path" && \
+				json_add_string "path" "$ss_domainsocket_path"
+			json_close_object
+			;;
+		"quic")
+			json_add_object "$quicSettings"
+			test -n "$ss_quic_security" && \
+				json_add_string "security" "$ss_quic_security"
+			test -n "$ss_quic_key" && \
+				json_add_string "key" "$ss_quic_key"
+
+			if [ -n "$ss_quic_header_type" ] ; then
+				json_add_object "header"
+				json_add_string "type" "$ss_quic_header_type"
+				json_close_object
+			fi
+			json_close_object
+			;;
+	esac
+
+	json_close_object # streamSettings
+
 	test -n "$tag" && \
 		json_add_string "tag" "$tag"
 
@@ -797,42 +1264,6 @@ add_inbound_setting() {
 		json_close_object
 	fi
 
-	add_redirect_settings() {
-		if [ "x$protocol" = "xdokodemo-door" ] && \
-			[ -n "$port" ] && [ "x$port" = "x$TRANSPARENT_PROXY_PORT" ] ; then
-			local settings_network="tcp"
-
-			test -n "$TRANSPARENT_PROXY_ADDITION" && \
-				settings_network="$settings_network,udp"
-
-			json_add_boolean "followRedirect" "1"
-			json_add_string "network" "$settings_network"
-		fi
-	}
-
-	local settings_json
-	settings_json="$(get_json_content "setting" "$settings")"
-
-	if [ -n "$settings_json" ] ; then
-		json_add_object "settings"
-		eval "$(get_commands_from_json "$settings_json")"
-		add_redirect_settings
-		json_close_object
-	else
-		json_add_object "settings"
-		add_redirect_settings
-		json_close_object
-	fi
-
-	local stream_settings_json
-	stream_settings_json="$(get_json_content "stream_setting" "$stream_settings")"
-
-	if [ -n "$stream_settings_json" ] ; then
-		json_add_object "streamSettings"
-		eval "$(get_commands_from_json "$stream_settings_json")"
-		json_close_object
-	fi
-
 	json_close_object
 }
 
@@ -848,6 +1279,333 @@ add_outbound_setting() {
 
 	json_add_string "sendThrough" "$send_through"
 	json_add_string "protocol" "$protocol"
+
+	case "${protocol:-x}" in
+		"blackhole")
+			json_add_object "settings"
+			if [ -n "$s_blackhole_reponse_type" ] ; then
+				json_add_object "response"
+				json_add_string "type" "$s_blackhole_reponse_type"
+				json_close_object
+			fi
+			json_close_object
+			;;
+		"dns")
+			json_add_object "settings"
+			test -n "$s_dns_network" &&
+				json_add_string "network" "$s_dns_network"
+			test -n "$s_dns_address" &&
+				json_add_string "address" "$s_dns_address"
+			test -n "$s_dns_port" &&
+				json_add_int "port" "$s_dns_port"
+			json_close_object
+			;;
+		"freedom")
+			json_add_object "settings"
+			test -n "$s_freedom_domain_strategy" &&
+				json_add_string "domainStrategy"
+			test -n "$s_freedom_redirect" &&
+				json_add_string "redirect" "$s_freedom_redirect"
+			test -n "$s_freedom_user_level" &&
+				json_add_int "userLevel" "$s_freedom_user_level"
+			json_close_object
+			;;
+		"http")
+			json_add_object "settings"
+			json_add_array "servers"
+			json_add_object ""
+			json_add_string "adress" "$s_http_server_address"
+			test -n "$s_http_server_port" &&
+				json_add_int "port" "$s_http_server_port"
+
+			if [ -n "$s_http_account_user" ] ; then
+				json_add_array "users"
+				json_add_object ""
+				json_add_string "user" "$s_http_account_user"
+				json_add_string "pass" "$s_http_account_pass"
+				json_close_object
+				json_close_array
+			fi
+			json_close_object
+			json_close_array
+			json_close_object
+			;;
+		"mtproto")
+			json_add_object "settings"
+			json_close_object
+			;;
+		"shadowsocks")
+			json_add_object "settings"
+
+			json_add_array "servers"
+			json_add_object ""
+			test -n "$s_shadowsocks_email" &&
+				json_add_string "email" "$s_shadowsocks_email"
+			json_add_string "address" "$s_shadowsocks_address"
+			json_add_int "port" "$s_shadowsocks_port"
+			json_add_string "method" "$s_shadowsocks_method"
+			json_add_string "password" "$s_shadowsocks_password"
+			test -n "$s_shadowsocks_level" &&
+				json_add_int "level" "$s_shadowsocks_level"
+			json_add_boolean "ota" "$s_shadowsocks_ota"
+			json_close_object
+			json_close_array
+
+			json_close_object
+			;;
+		"socks")
+			json_add_object "settings"
+			json_add_array "servers"
+
+			json_add_object ""
+			json_add_string "address"
+			json_add_int "port" "$s_socks_server_port"
+
+			json_add_array "users"
+			json_add_object ""
+			json_add_string "user" "$s_socks_account_user"
+			json_add_string "pass" "$s_socks_account_pass"
+			test -n "$s_socks_user_level" &&
+				json_add_int "level" "$s_socks_user_level"
+			json_close_object
+			json_close_array
+
+			json_close_object
+
+			json_close_array
+			json_close_object
+			;;
+		"vmess")
+			json_add_object "settings"
+
+			json_add_array "vnext"
+			json_add_object ""
+			json_add_string "address" "$s_vmess_address"
+			json_add_int "port" "$s_vmess_port"
+
+			json_add_array "users"
+			json_add_object ""
+			json_add_string "id" "$s_vmess_user_id"
+			json_add_int "alterId" "$s_vmess_user_alter_id"
+			test -n "$s_vmess_user_security" &&
+				json_add_string "security" "$s_vmess_user_security"
+			test -n "$s_vmess_user_level" &&
+				json_add_int "level" "$s_vmess_user_level"
+			json_close_object
+			json_close_array
+
+			json_close_object
+			json_close_array
+
+			json_close_object
+			;;
+	esac
+
+	json_add_object "streamSettings"
+	test -n "$ss_network" && \
+		json_add_string "network" "$ss_network"
+
+	test -n "$ss_security" && \
+		json_add_string "security" "$ss_security"
+
+	if [ "x$ss_security" = "xtls" ] ; then
+		json_add_object "tlsSettings"
+
+		json_add_string "serverName" "$ss_tls_server_name"
+		if [ -n "$ss_tls_alpn" ] ; then
+			json_add_array "alpn"
+			json_add_string "" "$ss_tls_alpn"
+			json_close_array
+		fi
+		json_add_boolean "allowInsecure" "$ss_tls_allow_insecure"
+		json_add_boolean "allowInsecureCiphers" "$ss_tls_allow_insecure_ciphers"
+		json_add_boolean "disableSystemRoot" "$ss_tls_disable_system_root"
+
+		json_add_array "certificates"
+		if [ -n "$ss_tls_cert_fiile" ] ; then
+			json_add_string "certificateFile" "$ss_tls_cert_fiile"
+			json_add_string "keyFile" "$ss_tls_key_file"
+			test -n "$ss_tls_cert_usage" && \
+				json_add_string "usage" "$ss_tls_cert_usage"
+		fi
+		json_close_array
+
+		json_close_object
+	fi
+
+	case "${ss_network:-x}" in
+		"tcp")
+			json_add_object "tcpSettings"
+			if [ -n "$ss_tcp_header_type" ] ; then
+				json_add_object "header"
+				json_add_string "type" "$ss_tcp_header_type"
+
+				if [ "$ss_tcp_header_type" = "http" ] ; then
+					json_add_object "request"
+					test -n "$ss_tcp_header_request_version" && \
+						json_add_string "version" "$ss_tcp_header_request_version"
+					json_add_string "method" "$ss_tcp_header_request_method"
+
+					if [ -n "$ss_tcp_header_request_path" ] ; then
+						json_add_array "path"
+						json_add_string "" "$ss_tcp_header_request_path"
+						json_close_array
+					fi
+
+					if [ -n "$ss_tcp_header_request_headers" ] ; then
+						json_add_object "headers"
+
+						handle_request_header() {
+							local h="$1"
+
+							local name="$(echo "$h" | cut -d'=' -f1)"
+							local value="$(echo "$h" | cut -d'=' -f2)"
+
+							if [ -n "$name" ] && [ -n "$value" ] ; then
+								json_add_array "$name"
+								json_add_string "" "$value"
+								json_close_array
+							fi
+						}
+						config_list_foreach "$section" "ss_tcp_header_request_headers" handle_request_header
+
+						json_close_object
+					fi
+
+					json_close_object # request
+
+					json_add_object "response"
+					test -n "$ss_tcp_header_response_version" && \
+						json_add_string "version" "$ss_tcp_header_response_version"
+					test -n "$ss_tcp_header_response_status" && \
+						json_add_string "status" "$ss_tcp_header_response_status"
+					test -n "$ss_tcp_header_response_reason" && \
+						json_add_string "reason" "$ss_tcp_header_response_reason"
+
+					if [ -n "$ss_tcp_header_response_headers" ] ; then
+						json_add_object "headers"
+
+						handle_response_header() {
+							local h="$1"
+
+							local name="$(echo "$h" | cut -d'=' -f1)"
+							local value="$(echo "$h" | cut -d'=' -f2)"
+
+							if [ -n "$name" ] && [ -n "$value" ] ; then
+								json_add_array "$name"
+								json_add_string "" "$value"
+								json_close_array
+							fi
+						}
+						config_list_foreach "$section" "ss_tcp_header_response_headers" handle_response_header
+
+						json_close_object
+					fi
+
+					json_close_object # response
+				fi
+				json_close_object
+			fi
+			json_close_object
+			;;
+		"kcp")
+			json_add_object "kcpSettings"
+			test -n "$ss_kcp_mtu" && \
+				json_add_int "mtu" "$ss_kcp_mtu"
+			test -n "$ss_kcp_tti" && \
+				json_add_int "tti" "$ss_kcp_tti"
+			test -n "$ss_kcp_uplink_capacity" && \
+				json_add_int "uplinkCapacity" "$ss_kcp_uplink_capacity"
+			test -n "$ss_kcp_downlink_capacity" && \
+				json_add_int "downlinkCapacity" "$ss_kcp_downlink_capacity"
+			json_add_boolean "congestion" "$ss_kcp_congestion"
+			test -n "$ss_kcp_read_buffer_size" && \
+				json_add_int "readBufferSize" "$ss_kcp_read_buffer_size"
+			test -n "$ss_kcp_write_buffer_size" && \
+				json_add_int "writeBufferSize" "$ss_kcp_write_buffer_size"
+			if [ -n "$ss_kcp_header_type" ] ; then
+				json_add_object "header"
+				json_add_string "type" "$ss_kcp_header_type"
+				json_close_object
+			fi
+			json_close_object
+			;;
+		"ws")
+			json_add_object "wsSettings"
+			test -n "$ss_websocket_path" && \
+				json_add_string "path" "$ss_websocket_path"
+
+			if [ -n "$ss_websocket_headers" ] ; then
+				json_add_object "headers"
+
+				handle_websocket_header() {
+					local h="$1"
+
+					local name="$(echo "$h" | cut -d'=' -f1)"
+					local value="$(echo "$h" | cut -d'=' -f2)"
+
+					if [ -n "$name" ] && [ -n "$value" ] ; then
+						json_add_string "$name" "$value"
+					fi
+				}
+				config_list_foreach "$section" "ss_websocket_headers" handle_websocket_header
+
+				json_close_object
+			fi
+			json_close_object
+			;;
+		"http")
+			json_add_object "httpSettings"
+			if [ -n "$ss_http_host" ] ; then
+				json_add_array "host"
+
+				local h
+				for h in $ss_http_host ; do
+					json_add_string "" "$h"
+				done
+
+				json_close_array
+			fi
+
+			test -n "$ss_http_path" && \
+				json_add_string "path" "$ss_http_path"
+			json_close_object
+			;;
+		"domainsocket")
+			json_add_object "$dsSettings"
+			test -n "$ss_domainsocket_path" && \
+				json_add_string "path" "$ss_domainsocket_path"
+			json_close_object
+			;;
+		"quic")
+			json_add_object "$quicSettings"
+			test -n "$ss_quic_security" && \
+				json_add_string "security" "$ss_quic_security"
+			test -n "$ss_quic_key" && \
+				json_add_string "key" "$ss_quic_key"
+
+			if [ -n "$ss_quic_header_type" ] ; then
+				json_add_object "header"
+				json_add_string "type" "$ss_quic_header_type"
+				json_close_object
+			fi
+			json_close_object
+			;;
+	esac
+
+	json_add_object "sockopt"
+	if [ -n "$TRANSPARENT_PROXY_PORT" ] ; then
+		json_add_int "mark" "255"
+	else
+		test -n "$ss_sockopt_mark" && \
+			json_add_int "mark" "$ss_sockopt_mark"
+	fi
+	test -n "$ss_sockopt_tcp_fast_open" && \
+		json_add_boolean "tcpFastOpen" "$ss_sockopt_tcp_fast_open"
+	json_close_object
+
+	json_close_object # streamSettings
+
 	test -n "$tag" && \
 		json_add_string "tag" "$tag"
 
@@ -861,56 +1619,6 @@ add_outbound_setting() {
 		json_add_object "mux"
 		json_add_boolean "enabled" "1"
 		json_add_int "concurrency" "$mux_concurrency"
-		json_close_object
-	fi
-
-	local settings_json
-	settings_json="$(get_json_content "setting" "$settings")"
-
-	if [ -n "$settings_json" ] ; then
-		local settings_commands
-		settings_commands="$(get_commands_from_json "$settings_json")"
-
-		json_add_object "settings"
-		eval "$settings_commands"
-		json_close_object
-
-		local addr
-		for addr in $(echo "$settings_commands" | sed -n "s/^json.*'address'[[:space:]]'\([^']*\)'.*/\1/p") ; do
-			local ipv4
-			for ipv4 in $(resolveip -4 -t 5 "$addr") ; do
-				append_server_ipv4 "$ipv4"
-			done
-
-			local ipv6
-			for ipv6 in $(resolveip -6 -t 5 "$addr") ; do
-				append_server_ipv6 "$ipv6"
-			done
-		done
-	fi
-
-	add_sockopt_so_mark() {
-		json_add_object "sockopt"
-		json_add_int "mark" "255"
-		json_close_object
-	}
-
-	local stream_settings_json
-	stream_settings_json="$(get_json_content "stream_setting" "$stream_settings")"
-
-	if [ -n "$stream_settings_json" ] ; then
-		local stream_settings_commands
-		stream_settings_commands="$(get_commands_from_json "$stream_settings_json")"
-
-		json_add_object "streamSettings"
-		eval "$stream_settings_commands"
-		if ! ( echo "$stream_settings_commands" | grep -q "'sockopt'" ) ; then
-			add_sockopt_so_mark
-		fi
-		json_close_object
-	else
-		json_add_object "streamSettings"
-		add_sockopt_so_mark
 		json_close_object
 	fi
 
@@ -1032,6 +1740,7 @@ start_instance() {
 	fi
 
 	if [ "x$enabled" != "x1" ] ; then
+		_info "Service disabled: $section"
 		return 0
 	fi
 

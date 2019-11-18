@@ -19,9 +19,7 @@ LUCI_PKGARCH:=all
 
 define Package/$(PKG_NAME)/conffiles
 /etc/config/v2ray
-/etc/v2ray/data-settings.json
-/etc/v2ray/data-stream-settings.json
-/etc/v2ray/data-transport.json
+/etc/v2ray/transport.json
 /etc/v2ray/directlist.txt
 /etc/v2ray/proxylist.txt
 endef

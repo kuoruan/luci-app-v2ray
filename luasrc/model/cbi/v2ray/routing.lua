@@ -35,6 +35,7 @@ s1.addremove = false
 o = s1:option(Flag, "enabled", translate("Enabled"))
 
 o = s1:option(ListValue, "domain_strategy", translate("Domain resolution strategy"))
+o:value("")
 o:value("AsIs")
 o:value("IPIfNonMatch")
 o:value("IPOnDemand")

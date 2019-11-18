@@ -4,7 +4,8 @@
 local uci = require "luci.model.uci".cursor()
 local util = require "luci.util"
 local sys = require "luci.sys"
-local v2ray = require "luci.model.v2ray"
+local json = require "luci.jsonc"
+local fs = require "nixio.fs"
 
 local m, s, o
 
@@ -102,41 +103,27 @@ o:depends("config_file", "")
 o = s:option(Flag, "transport_enabled", "%s - %s" % { translate("Transport"), translate("Enabled") })
 o:depends("config_file", "")
 
-o = s:option(TextValue, "_transport", "%s - %s" % { translate("Transport"), translate("Settings") }, translate("<code>transport</code> field in top level configuration, JSON string"))
+o = s:option(TextValue, "_transport", "%s - %s" % { translate("Transport"), translate("Settings") },
+	translate("<code>transport</code> field in top level configuration, JSON string"))
 o:depends("transport_enabled", "1")
 o.wrap = "off"
 o.rows = 5
 o.validate = function (self, value, section)
-	if not v2ray.is_json_string(value) then
-		return nil, translate("invalid JSON")
-	else
-		return value
+	if not value or value == "" then
+		return nil, translate("Transport settings is required.")
+	end
+
+	local json = json.parse(value)
+	if not json then
+		return nil, translate("Invalid JSON content.")
 	end
 end
 o.cfgvalue = function (self, section)
-	local key = self.map:get(section, "transport") or ""
-
-	if key == "" then
-		return ""
-	end
-
-	return v2ray.get_transport(key)
+	return fs.readfile("/etc/v2ray/transport.json")
 end
 o.write = function (self, section, value)
-	local key = self.map:get(section, "transport") or ""
-
-	if key == "" then
-		key = v2ray.random_setting_key()
-	end
-	return v2ray.save_transport(key, value) and self.map:set(section, "transport", key)
-end
-o.remove = function (self, section, value)
-	local key = self.map:get(section, "transport") or ""
-
-	if key == "" then
-		return true
-	end
-	return v2ray.remove_transport(key) and self.map:del(section, "transport")
+	value = value:gsub("\r\n?", "\n")
+	fs.writefile("/etc/v2ray/transport.json", value)
 end
 
 return m
