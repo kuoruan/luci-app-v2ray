@@ -52,10 +52,6 @@ m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Global Settings") 
 		"<a href=\"https://www.v2ray.com\" target=\"_blank\">https://www.v2ray.com</a>")
 })
 m:append(Template("v2ray/status_header"))
-m.apply_on_parse = true
-m.on_after_apply = function ()
-	sys.call("/etc/init.d/v2ray restart 2>/dev/null")
-end
 
 s = m:section(NamedSection, "main", "v2ray")
 s.addremove = false

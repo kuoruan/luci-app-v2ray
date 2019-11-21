@@ -1138,6 +1138,10 @@ start_instance() {
 	procd_close_instance
 }
 
+service_triggers() {
+	procd_add_reload_trigger "$NAME"
+}
+
 start_service() {
 	config_load "$NAME"
 
