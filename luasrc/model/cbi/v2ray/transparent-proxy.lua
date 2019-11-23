@@ -21,6 +21,8 @@ uci:foreach("v2ray", "inbound", function(s)
   end
 end)
 
+local proxy_list_path, direct_list_path = "/etc/v2ray/proxylist.txt", "/etc/v2ray/directlist.txt"
+
 m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Transparent Proxy") })
 m.apply_on_parse = true
 m.on_after_apply = function ()
@@ -72,30 +74,38 @@ o = s:option(TextValue, "_proxy_list", translate("Extra proxy list"),
   translatef("One address per line. Allow types: DOMAIN, IP, CIDR. eg: %s, %s, %s", "www.google.com", "1.1.1.1", "192.168.0.0/16"))
 o.wrap = "off"
 o.rows = 5
+o.datatype = "string"
 o.cfgvalue = function(self, section)
-  return fs.readfile("/etc/v2ray/proxylist.txt")
+  return fs.readfile(proxy_list_path) or ""
 end
 o.write = function(self, section, value)
 	value = value:gsub("\r\n?", "\n")
-	fs.writefile("/etc/v2ray/proxylist.txt", value)
+	fs.writefile(proxy_list_path, value)
+end
+o.remove = function(self, section, value)
+	fs.writefile(proxy_list_path, "")
 end
 
 o = s:option(TextValue, "_direct_list", translate("Extra direct list"),
   translatef("One address per line. Allow types: DOMAIN, IP, CIDR. eg: %s, %s, %s", "www.google.com", "1.1.1.1", "192.168.0.0/16"))
 o.wrap = "off"
 o.rows = 5
+o.datatype = "string"
 o.cfgvalue = function(self, section)
-  return fs.readfile("/etc/v2ray/directlist.txt")
+  return fs.readfile(direct_list_path) or ""
 end
 o.write = function(self, section, value)
 	value = value:gsub("\r\n?", "\n")
-	fs.writefile("/etc/v2ray/directlist.txt", value)
+	fs.writefile(direct_list_path, value)
+end
+o.remove = function(self, section, value)
+	fs.writefile(direct_list_path, "")
 end
 
 o = s:option(Value, "proxy_list_dns", translate("Proxy list DNS"),
   translatef("DNS used for domains in proxy list, format: <code>ip#port</code>. eg: %s", "1.1.1.1#53"))
 
 o = s:option(Value, "direct_list_dns", translate("Direct list DNS"),
-  translatef("DNS used for domains in direct list, format: <code>ip#port</code>. eg: %s", "114.114.114.114#53"))
+	translatef("DNS used for domains in direct list, format: <code>ip#port</code>. eg: %s", "114.114.114.114#53"))
 
 return m
