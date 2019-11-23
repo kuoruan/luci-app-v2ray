@@ -71,7 +71,7 @@ o.template = "v2ray/list_status"
 o.listtype = "gfwlist"
 
 o = s:option(TextValue, "_proxy_list", translate("Extra proxy list"),
-  translatef("One address per line. Allow types: DOMAIN, IP, CIDR. eg: %s, %s, %s", "www.google.com", "1.1.1.1", "192.168.0.0/16"))
+	translatef("One address per line. Allow types: DOMAIN, IP, CIDR. eg: %s, %s, %s", "www.google.com", "1.1.1.1", "192.168.0.0/16"))
 o.wrap = "off"
 o.rows = 5
 o.datatype = "string"
@@ -87,7 +87,7 @@ o.remove = function(self, section, value)
 end
 
 o = s:option(TextValue, "_direct_list", translate("Extra direct list"),
-  translatef("One address per line. Allow types: DOMAIN, IP, CIDR. eg: %s, %s, %s", "www.google.com", "1.1.1.1", "192.168.0.0/16"))
+	translatef("One address per line. Allow types: DOMAIN, IP, CIDR. eg: %s, %s, %s", "www.google.com", "1.1.1.1", "192.168.0.0/16"))
 o.wrap = "off"
 o.rows = 5
 o.datatype = "string"
@@ -103,7 +103,7 @@ o.remove = function(self, section, value)
 end
 
 o = s:option(Value, "proxy_list_dns", translate("Proxy list DNS"),
-  translatef("DNS used for domains in proxy list, format: <code>ip#port</code>. eg: %s", "1.1.1.1#53"))
+	translatef("DNS used for domains in proxy list, format: <code>ip#port</code>. eg: %s", "1.1.1.1#53"))
 
 o = s:option(Value, "direct_list_dns", translate("Direct list DNS"),
 	translatef("DNS used for domains in direct list, format: <code>ip#port</code>. eg: %s", "114.114.114.114#53"))

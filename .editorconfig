@@ -1,0 +1,22 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+
+[*.{lua,html}]
+indent_style = tab
+indent_size = 2
+
+[Makefile]
+indent_style = tab
+indent_size = 2
+
+[{*.json,.travis.yml}]
+indent_style = space
+indent_size = 2
+
+[{v2ray,40_luci-v2ray,firewall.v2ray}]
+indent_style = tab
+indent_size = 2
