@@ -76,8 +76,7 @@ o.datatype = "directory"
 o.placeholder = "/usr/bin"
 
 o = s:option(Value, "config_file", translate("Config file"),
-	translate("Use custom config file. \
-		If you want to setup transparent proxy, add server IP and domains to 'Extra direct list'."))
+	translate("Use custom config file."))
 o.datatype = "file"
 o:value("", translate("None"))
 
