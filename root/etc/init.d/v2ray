@@ -1055,6 +1055,23 @@ start_instance() {
 			return 1
 		fi
 
+		local file_content="$(cat "$config_file")"
+		local config_commands="$(get_commands_from_json "$file_content")"
+
+		local addr
+
+		for addr in $(echo "$config_commands" | sed -n "s/^json.*'address'[[:space:]]'\([^']*\)'.*/\1/p") ; do
+			local ipv4
+			for ipv4 in $(resolveip -4 -t 5 "$addr") ; do
+				append_server_ipv4 "$ipv4"
+			done
+
+			local ipv6
+			for ipv6 in $(resolveip -6 -t 5 "$addr") ; do
+				append_server_ipv6 "$ipv6"
+			done
+		done
+
 		temp_config="$config_file"
 	else
 		test -d "$CONFIG_FOLDER" || mkdir -p "$CONFIG_FOLDER"
