@@ -987,9 +987,9 @@ setup_transparent_proxy() {
 			;;
 		"gfwlist_proxy")
 			local gfwlist="$(get_file_content "gfwlist")"
-			if [ -n "$PROXYLIST_DNS" ] ; then
+			if [ -n "$proxy_list_dns" ] ; then
 				echo "$gfwlist" | \
-					sed "s|.*|server=/&/$PROXYLIST_DNS\nipset=/&/$IPSET_DST_PROXY_V4,$IPSET_DST_PROXY_V6|" \
+					sed "s|.*|server=/&/$proxy_list_dns\nipset=/&/$IPSET_DST_PROXY_V4,$IPSET_DST_PROXY_V6|" \
 					>> "$FILE_V2RAY_DNSMASQ_CACHE"
 			else
 				echo "$gfwlist" | \
