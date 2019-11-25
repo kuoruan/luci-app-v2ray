@@ -1179,6 +1179,11 @@ start_service() {
 }
 
 stop_service() {
+	if [ "x$action" = "xrestart" ] ; then
+		# skip when restarting, start_service will do this
+		return 0
+	fi
+
 	clear_transparent_proxy
 	gracefully_restart_dnsmasq
 
