@@ -13,13 +13,13 @@ local dsp = require "luci.dispatcher"
 	(new XHR()).get('<%=dsp.build_url("admin/services/v2ray/list-status")%>/<%=self.listtype%>', null,
 		function(x, data)
 		{
-			var s = document.getElementById('<%=self.option%>-status');
+			var s;
 
-			if (s)
+			if (x.status === 200 && data && (s = document.getElementById('<%=self.option%>-status')))
 			{
 				var rv = data['<%=self.listtype%>'];
-				s.innerHTML = rv ?
-					String.format('<%:Total: %s, Date: %s%>', '<b style="color: #ff8c00;">' + rv.size + '</b>', rv.lastModify)
+				s.innerHTML = rv
+					? String.format('<%:Total: %s, Date: %s%>', '<b style="color: #ff8c00;">' + rv.size + '</b>', rv.lastModify)
 					: '';
 			}
 		}
