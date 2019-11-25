@@ -436,7 +436,7 @@ init_rules_for_listfile() {
 gracefully_restart_dnsmasq() {
 	local restart="${1:-$DNSMASQ_RESTART_EXPECTED}"
 
-	if [ "x$restart" = "x1" ] ; then
+	if [ "x$restart" = "x1" ] && [ -x "/etc/init.d/dnsmasq" ] ; then
 		_info "Restarting dnsmasq..."
 		/etc/init.d/dnsmasq restart >/dev/null 2>&1
 		DNSMASQ_RESTART_EXPECTED=0
@@ -1004,6 +1004,8 @@ setup_transparent_proxy() {
 	esac
 
 	if [ -n "$(cat "$FILE_V2RAY_DNSMASQ_CACHE" | grep -v "^$" | grep -v "^#")" ] ; then
+		local dir="$(dirname "$FILE_V2RAY_DNSMASQ")"
+		test -d "$dir" || mkdir -p "$dir"
 		cat "$FILE_V2RAY_DNSMASQ_CACHE" >"$FILE_V2RAY_DNSMASQ" 2>/dev/null
 		DNSMASQ_RESTART_EXPECTED=1
 	fi
@@ -1155,14 +1157,8 @@ start_instance() {
 	procd_close_instance
 }
 
-service_triggers() {
-	procd_add_reload_trigger "$NAME"
-}
-
-start_service() {
+init_and_start_v2ray() {
 	config_load "$NAME"
-
-	clear_transparent_proxy
 
 	if ! init_transparent_proxy ; then
 		gracefully_restart_dnsmasq
@@ -1170,9 +1166,12 @@ start_service() {
 	fi
 
 	config_foreach start_instance "v2ray"
-
 	setup_transparent_proxy
+}
 
+start_service() {
+	clear_transparent_proxy
+	init_and_start_v2ray
 	gracefully_restart_dnsmasq
 
 	unset OUTBOUND_SERVERS_V4 \
@@ -1186,4 +1185,8 @@ start_service() {
 stop_service() {
 	clear_transparent_proxy
 	gracefully_restart_dnsmasq
+}
+
+service_triggers() {
+	procd_add_reload_trigger "$NAME"
 }
