@@ -1157,7 +1157,9 @@ start_instance() {
 	procd_close_instance
 }
 
-init_and_start_v2ray() {
+start_service() {
+	clear_transparent_proxy
+
 	config_load "$NAME"
 
 	if ! init_transparent_proxy ; then
@@ -1166,12 +1168,8 @@ init_and_start_v2ray() {
 	fi
 
 	config_foreach start_instance "v2ray"
-	setup_transparent_proxy
-}
 
-start_service() {
-	clear_transparent_proxy
-	init_and_start_v2ray
+	setup_transparent_proxy
 	gracefully_restart_dnsmasq
 
 	unset OUTBOUND_SERVERS_V4 \
@@ -1185,6 +1183,8 @@ start_service() {
 stop_service() {
 	clear_transparent_proxy
 	gracefully_restart_dnsmasq
+
+	test -d "$CONFIG_FOLDER" && rm -rf "$CONFIG_FOLDER"
 }
 
 service_triggers() {
