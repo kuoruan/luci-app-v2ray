@@ -4,7 +4,10 @@
 local http = require "luci.http"
 local uci = require "luci.model.uci".cursor()
 local sys = require "luci.sys"
+local fs = require "nixio.fs"
 local v2ray = require "luci.model.v2ray"
+local i18n = require "luci.i18n"
+local util = require "luci.util"
 
 module("luci.controller.v2ray", package.seeall)
 
@@ -55,6 +58,8 @@ function index()
 
 	entry({"admin", "services", "v2ray", "status"}, call("action_status"))
 
+	entry({"admin", "services", "v2ray", "version"}, call("action_version"))
+
 	entry({"admin", "services", "v2ray", "list-status"},
 		call("list_status")).leaf = true
 
@@ -63,8 +68,8 @@ end
 
 function action_status()
 	local running = false
-	local file = uci:get("v2ray", "main", "v2ray_file")
-	if file and file ~= "" then
+	local file = uci:get("v2ray", "main", "v2ray_file") or ""
+	if file ~= "" then
 		local file_name = file:match(".*/([^/]+)$") or ""
 		if file_name ~= "" then
 			running = sys.call("pidof %s >/dev/null" % file_name) == 0
@@ -75,6 +80,40 @@ function action_status()
 	http.write_json({
 		running = running
 	})
+end
+
+function action_version()
+	local file = uci:get("v2ray", "main", "v2ray_file") or ""
+
+	local info
+
+	if file == "" or not fs.stat(file) then
+		info = {
+			valid = false,
+			message = i18n.translate("Invalid V2Ray file")
+		}
+	else
+		if not fs.access(file, "rwx", "rx", "rx") then
+			fs.chmod(file, 755)
+		end
+
+		local version = util.trim(sys.exec("%s --version 2>/dev/null | head -n1" % file))
+
+		if version ~= "" then
+			info = {
+				valid = true,
+				version = version
+			}
+		else
+			info = {
+				valid = false,
+				message = i18n.translate("Can't get V2Ray version")
+			}
+		end
+	end
+
+	http.prepare_content("application/json")
+	http.write_json(info)
 end
 
 function list_status(type)

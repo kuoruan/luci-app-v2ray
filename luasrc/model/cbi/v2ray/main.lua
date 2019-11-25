@@ -3,7 +3,6 @@
 
 local uci = require "luci.model.uci".cursor()
 local util = require "luci.util"
-local fs = require "nixio.fs"
 local sys = require "luci.sys"
 local v2ray = require "luci.model.v2ray"
 
@@ -27,24 +26,6 @@ uci:foreach("v2ray", "outbound", function(s)
 	end
 end)
 
-local function v2ray_version()
-	local file = uci:get("v2ray", "main", "v2ray_file")
-
-	if not file or file == "" or not fs.stat(file) then
-		return "<em style=\"color: red;\">%s</em>" % translate("Invalid V2Ray file")
-	end
-
-	if not fs.access(file, "rwx", "rx", "rx") then
-		fs.chmod(file, 755)
-	end
-
-	local version = util.trim(sys.exec("%s --version 2>/dev/null | head -n1" % file))
-	if version == "" then
-		return "<em style=\"color: red;\">%s</em>" % translate("Can't get V2Ray version")
-	end
-	return translatef("Version: %s", version)
-end
-
 m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Global Settings") },
 "<p>%s</p><p>%s</p>" % {
 	translate("A platform for building proxies to bypass network restrictions."),
@@ -66,9 +47,10 @@ o.write = function ()
 	sys.call("/etc/init.d/v2ray reload 2>/dev/null")
 end
 
-o = s:option(Value, "v2ray_file", translate("V2Ray file"), v2ray_version())
+o = s:option(Value, "v2ray_file", translate("V2Ray file"), "<em>%s</em>" % translate("Collecting data..."))
 o.datatype = "file"
 o.placeholder = "/usr/bin/v2ray"
+o.rmempty = false
 
 o = s:option(Value, "asset_location", translate("V2Ray asset location"),
 	translate("Directory where geoip.dat and geosite.dat files are, default: same directory as V2Ray file."))

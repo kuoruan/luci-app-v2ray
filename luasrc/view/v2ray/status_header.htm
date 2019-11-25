@@ -25,4 +25,23 @@ local dsp = require "luci.dispatcher"
 				: '<%:Not Running%>';
 		}
 	);
+
+	(new XHR()).get('<%=dsp.build_url("admin/services/v2ray/version")%>', null,
+		function(x, data)
+		{
+			if (x.status !== 200 || !data)
+			{
+				return;
+			}
+
+			var s, d;
+
+			if ((s = document.getElementById('cbi-v2ray-main-v2ray_file')) && (d = s.getElementsByClassName('cbi-value-description')))
+			{
+				d[0].innerHTML = data.valid
+					? String.format('<%:Version: %s%>', data.version)
+					: String.format('<span style="color: red;">%s</span>', data.message);
+			}
+		}
+	);
 //]]></script>
