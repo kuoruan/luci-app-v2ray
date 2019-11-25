@@ -434,9 +434,7 @@ init_rules_for_listfile() {
 }
 
 gracefully_restart_dnsmasq() {
-	local restart="${1:-$DNSMASQ_RESTART_EXPECTED}"
-
-	if [ "x$restart" = "x1" ] && [ -x "/etc/init.d/dnsmasq" ] ; then
+	if [ "x$DNSMASQ_RESTART_EXPECTED" = "x1" ] && [ -x "/etc/init.d/dnsmasq" ] ; then
 		_info "Restarting dnsmasq..."
 		/etc/init.d/dnsmasq restart >/dev/null 2>&1
 		DNSMASQ_RESTART_EXPECTED=0
