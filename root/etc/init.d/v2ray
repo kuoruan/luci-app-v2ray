@@ -355,16 +355,16 @@ create_v2ray_ipset() {
 	)"
 
 	ipset -! restore <<-EOF 2>/dev/null
-		create $IPSET_SRC_IGNORE_V4 hash:ip hashsize 64 family inet
-		create $IPSET_SRC_IGNORE_V6 hash:ip hashsize 64 family inet6
-		create $IPSET_DST_PROXY_V4 hash:net hashsize 64 family inet
-		create $IPSET_DST_PROXY_V6 hash:net hashsize 64 family inet6
-		create $IPSET_DST_DIRECT_V4 hash:net hashsize 64 family inet
-		create $IPSET_DST_DIRECT_V6 hash:net hashsize 64 family inet6
-		$(echo "$reserved_v4" | sed "s/^/add $IPSET_DST_DIRECT_V4 /")
-		$(echo "$reserved_v6" | sed "s/^/add $IPSET_DST_DIRECT_V6 /")
-		$(echo "$outbound_v4" | grep -v "^$" | sed "s/^/add $IPSET_DST_DIRECT_V4 /")
-		$(echo "$outbound_v6" | grep -v "^$" | sed "s/^/add $IPSET_DST_DIRECT_V6 /")
+		create $IPSET_SRC_IGNORE_V4 hash:ip hashsize 64 family inet timeout 0
+		create $IPSET_SRC_IGNORE_V6 hash:ip hashsize 64 family inet6 timeout 0
+		create $IPSET_DST_PROXY_V4 hash:net hashsize 64 family inet timeout 604800
+		create $IPSET_DST_PROXY_V6 hash:net hashsize 64 family inet6 timeout 604800
+		create $IPSET_DST_DIRECT_V4 hash:net hashsize 64 family inet timeout 604800
+		create $IPSET_DST_DIRECT_V6 hash:net hashsize 64 family inet6 timeout 604800
+		$(echo "$reserved_v4" | sed "s/.*/add $IPSET_DST_DIRECT_V4 & timeout 0/")
+		$(echo "$reserved_v6" | sed "s/.*/add $IPSET_DST_DIRECT_V6 & timeout 0/")
+		$(echo "$outbound_v4" | grep -v "^$" | sed "s/.*/add $IPSET_DST_DIRECT_V4 & timeout 0/")
+		$(echo "$outbound_v6" | grep -v "^$" | sed "s/.*/add $IPSET_DST_DIRECT_V6 & timeout 0/")
 	EOF
 }
 
@@ -386,12 +386,12 @@ init_rules_for_listfile() {
 
 	echo "$direct_content" | \
 		grep -oE "[0-9]{1,3}(\.[0-9]{1,3}){3}(/[0-9]{1,2})?" | \
-		sed "s/^/add $IPSET_DST_DIRECT_V4 /" | \
+		sed "s/.*/add $IPSET_DST_DIRECT_V4 & timeout 0/" | \
 		ipset -! restore 2>/dev/null
 
 	echo "$direct_content" | \
 		grep -oE "([0-9a-fA-F]{0,4}:){1,7}([0-9a-fA-F]){0,4}(/[0-9]{1,2})?" | \
-		sed "s/^/add $IPSET_DST_DIRECT_V6 /" | \
+		sed "s/.*/add $IPSET_DST_DIRECT_V6 & timeout 0/" | \
 		ipset -! restore 2>/dev/null
 
 	if [ -n "$direct_list_dns" ] ; then
@@ -412,12 +412,12 @@ init_rules_for_listfile() {
 
 	echo "$proxy_content" | \
 		grep -oE "[0-9]{1,3}(\.[0-9]{1,3}){3}(/[0-9]{1,2})?" | \
-		sed "s/^/add $IPSET_DST_PROXY_V4 /" | \
+		sed "s/.*/add $IPSET_DST_PROXY_V4 & timeout 0/" | \
 		ipset -! restore 2>/dev/null
 
 	echo "$proxy_content" | \
 		grep -oE "([0-9a-fA-F]{0,4}:){1,7}([0-9a-fA-F]){0,4}(/[0-9]{1,2})?" | \
-		sed "s/^/add $IPSET_DST_PROXY_V6 /" | \
+		sed "s/.*/add $IPSET_DST_PROXY_V6 & timeout 0/" | \
 		ipset -! restore 2>/dev/null
 
 	if [ -n "$proxy_list_dns" ] ; then
@@ -971,15 +971,15 @@ setup_transparent_proxy() {
 	case "${proxy_mode:-default}" in
 		"cn_direct")
 			ipset -! restore <<-EOF 2>/dev/null
-				$(get_file_content "chnroute" | sed "s/^/add $IPSET_DST_DIRECT_V4 /")
-				$(get_file_content "chnroute6" | sed "s/^/add $IPSET_DST_DIRECT_V6 /")
+				$(get_file_content "chnroute" | sed "s/.*/add $IPSET_DST_DIRECT_V4 & timeout 0/")
+				$(get_file_content "chnroute6" | sed "s/.*/add $IPSET_DST_DIRECT_V6 & timeout 0/")
 			EOF
 			ext_args=
 			;;
 		"cn_proxy")
 			ipset -! restore <<-EOF 2>/dev/null
-				$(get_file_content "chnroute" | sed "s/^/add $IPSET_DST_PROXY_V4 /")
-				$(get_file_content "chnroute6" | sed "s/^/add $IPSET_DST_PROXY_V6 /")
+				$(get_file_content "chnroute" | sed "s/.*/add $IPSET_DST_PROXY_V4 & timeout 0/")
+				$(get_file_content "chnroute6" | sed "s/.*/add $IPSET_DST_PROXY_V6 & timeout 0/")
 			EOF
 			ext_args="-m set --match-set $IPSET_DST_PROXY_V4 dst"
 			;;
