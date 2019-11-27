@@ -31,7 +31,7 @@ o = s:option(DynamicList, "domain", translate("Domain"))
 o = s:option(DynamicList, "ip", translate("IP"))
 
 o = s:option(DynamicList, "port", translate("Port"))
-o.datatype = 'or(port, portrange)'
+o.datatype = "or(port, portrange)"
 
 o = s:option(MultiValue, "network", translate("Network"))
 o:value("tcp")

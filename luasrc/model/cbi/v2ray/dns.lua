@@ -52,7 +52,7 @@ o.datatype = "host"
 
 o = s2:option(Value, "port", translate("Port"))
 o.datatype = "port"
-o.placeholder = '53'
+o.placeholder = "53"
 
 o = s2:option(DynamicList, "domains", translate("Domains"))
 
