@@ -68,11 +68,14 @@ end
 
 function action_status()
 	local running = false
-	local file = uci:get("v2ray", "main", "v2ray_file") or ""
-	if file ~= "" then
-		local file_name = file:match(".*/([^/]+)$") or ""
-		if file_name ~= "" then
-			running = sys.call("pidof %s >/dev/null" % file_name) == 0
+
+	local pid = util.trim(fs.readfile("/var/run/v2ray.main.pid") or "")
+
+	if pid ~= "" then
+		local file = uci:get("v2ray", "main", "v2ray_file") or ""
+		if file ~= "" then
+			local file_name = fs.basename(file)
+			running = sys.call("pidof %s 2>/dev/null | grep -q %s" % { file_name, pid }) == 0
 		end
 	end
 
