@@ -6,6 +6,34 @@ Luci support for V2Ray
 
 ## Install
 
+### Install via OPKG (recommend)
+
+1. Add new opkg key:
+
+```sh
+wget -O kuoruan-public.key http://openwrt.kuoruan.net/packages/public.key
+opkg-key add kuoruan-public.key
+```
+
+2. Add opkg repository from kuoruan:
+
+```sh
+echo "src/gz kuoruan_universal http://openwrt.kuoruan.net/packages/releases/all" \
+  >> /etc/opkg/customfeeds.conf
+opkg update
+```
+
+3. Install package:
+
+```sh
+opkg install luci-app-v2ray
+opkg install luci-i18n-v2ray-zh-cn
+```
+
+We also support HTTPS protocol.
+
+### Manual install
+
 1. Download ipk files from [release](https://github.com/kuoruan/luci-app-v2ray/releases) page
 
 2. Upload files to your router
