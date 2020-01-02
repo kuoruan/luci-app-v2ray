@@ -25,6 +25,7 @@ OUTBOUND_SERVERS_V6=
 
 TRANSPARENT_PROXY_EXPECTED=0
 TRANSPARENT_PROXY_PORT=
+TRANSPARENT_PROXY_USE_TPROXY=
 TRANSPARENT_PROXY_ADDITION=
 
 DNSMASQ_RESTART_EXPECTED=0
@@ -380,7 +381,7 @@ add_v2ray_rules() {
 		*nat
 		:V2RAY -
 		-A V2RAY -p tcp -j RETURN -m mark --mark 0xff
-		-A V2RAY -p tcp -m set --match-set $IPSET_DST_DIRECT_V4 dst -j RETURN
+		-A V2RAY -p tcp -j RETURN -m set --match-set $IPSET_DST_DIRECT_V4 dst
 		-A V2RAY -p tcp $ext_args -j REDIRECT --to-ports $port
 		-A PREROUTING -p tcp -j V2RAY
 		-A OUTPUT -p tcp -j V2RAY
@@ -400,16 +401,49 @@ add_v2ray_rules() {
 			*mangle
 			:V2RAY -
 			-A V2RAY -p udp -j RETURN -m mark --mark 0xff
+			-A V2RAY -p udp -j RETURN -m set --match-set $IPSET_DST_DIRECT_V4 dst
 			-A V2RAY -p udp $d_port -j TPROXY --on-port $port --tproxy-mark 0x01/0x01
 			-A PREROUTING -p udp -j V2RAY
 
 			:V2RAY_MARK -
 			-A V2RAY_MARK -p udp -j RETURN -m mark --mark 0xff
+			-A V2RAY_MARK -p udp -j RETURN -m set --match-set $IPSET_DST_DIRECT_V4 dst
 			-A V2RAY_MARK -p udp $d_port -j MARK --set-mark 1
 			-A OUTPUT -p udp -j V2RAY_MARK
 			COMMIT
 		EOF
 	fi
+}
+
+add_v2ray_tproxy_rules() {
+	local port="$1"
+	local ext_args="$2"
+	local addition_proxy="$3"
+
+	ip route add local default dev lo table 100 2>/dev/null
+	ip rule add fwmark 1 lookup 100
+
+	local d_port=""
+	if [ "x$addition_proxy" = "xdns" ] ; then
+		d_port="--dport 53"
+	fi
+
+	iptables-restore --noflush <<-EOF 2>/dev/null
+		*mangle
+		:V2RAY -
+		-A V2RAY -j RETURN -m set --match-set $IPSET_DST_DIRECT_V4 dst
+		-A V2RAY -p tcp $ext_args -j TPROXY --on-port $port --tproxy-mark 0x01/0x01
+		$(test -n "$addition_proxy" && echo "-A V2RAY -p udp $d_port -j TPROXY --on-port $port --tproxy-mark 0x01/0x01")
+		-A PREROUTING -j V2RAY
+
+		:V2RAY_MASK -
+		-A V2RAY_MASK -j RETURN -m mark --mark 0xff
+		-A V2RAY_MASK -j RETURN -m set --match-set $IPSET_DST_DIRECT_V4 dst
+		-A V2RAY_MASK -p tcp -j MARK --set-mark 1
+		$(test -n "$addition_proxy" && echo "-A V2RAY_MASK -p udp $d_port -j MARK --set-mark 1")
+		-A OUTPUT -j V2RAY_MASK
+		COMMIT
+	EOF
 }
 
 clear_v2ray_rules() {
@@ -1207,6 +1241,24 @@ add_inbound_setting() {
 			;;
 	esac
 
+	json_add_object "sockopt"
+
+	if [ -n "$port" ] && [ "x$port" = "x$TRANSPARENT_PROXY_PORT" ] ; then
+		if [ "x$TRANSPARENT_PROXY_USE_TPROXY" = "x1" ] ; then
+			json_add_string "tproxy" "tproxy"
+		else
+			json_add_string "tproxy" "redirect"
+		fi
+	else
+		test -n "$ss_sockopt_tcp_fast_open" && \
+			json_add_boolean "tcpFastOpen" "$ss_sockopt_tcp_fast_open"
+		test -n "$ss_sockopt_tproxy" && \
+			json_add_string "tproxy" "$ss_sockopt_tproxy"
+	fi
+
+	json_close_object
+
+
 	json_close_object # streamSettings
 
 	test -n "$tag" && \
@@ -1597,9 +1649,10 @@ add_outbound_setting() {
 
 init_transparent_proxy() {
 	local tp_cfg="main_transparent_proxy"
-	local redirect_port udp_proxy_enabled dns_proxy_enabled
+	local redirect_port use_tproxy udp_proxy_enabled dns_proxy_enabled
 
 	config_get redirect_port "$tp_cfg" "redirect_port"
+	config_get_bool use_tproxy "$tp_cfg" "use_tproxy" "0"
 	config_get_bool udp_proxy_enabled "$tp_cfg" "udp_proxy_enabled" "0"
 	config_get_bool dns_proxy_enabled "$tp_cfg" "dns_proxy_enabled" "0"
 
@@ -1610,6 +1663,7 @@ init_transparent_proxy() {
 	fi
 
 	TRANSPARENT_PROXY_PORT="$redirect_port"
+	TRANSPARENT_PROXY_USE_TPROXY="$use_tproxy"
 
 	if [ "x$udp_proxy_enabled" = "x1" ] ; then
 		TRANSPARENT_PROXY_ADDITION="udp"
@@ -1693,7 +1747,13 @@ setup_transparent_proxy() {
 
 	rm -f "$FILE_V2RAY_DNSMASQ_CACHE"
 
-	add_v2ray_rules "$TRANSPARENT_PROXY_PORT" "$ext_args" "$TRANSPARENT_PROXY_ADDITION"
+	if [ "x$TRANSPARENT_PROXY_USE_TPROXY" = "x1" ] ; then
+		add_v2ray_tproxy_rules "$TRANSPARENT_PROXY_PORT" "$ext_args" \
+			"$TRANSPARENT_PROXY_ADDITION"
+	else
+		add_v2ray_rules "$TRANSPARENT_PROXY_PORT" "$ext_args" \
+			"$TRANSPARENT_PROXY_ADDITION"
+	fi
 }
 
 clear_transparent_proxy() {

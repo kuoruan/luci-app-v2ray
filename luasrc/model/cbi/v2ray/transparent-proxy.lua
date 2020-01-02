@@ -45,6 +45,8 @@ for k, v in pairs(dokodemo_door_list) do
 end
 o.datatype = "port"
 
+o = s:option(Flag, "use_tproxy", translate("Use TProxy"))
+
 o = s:option(Flag, "proxy_privileged_ports", translate("Only privileged ports"),
 	translate("Proxy ports below 1024."))
 

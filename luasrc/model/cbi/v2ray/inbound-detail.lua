@@ -402,7 +402,8 @@ o:value("")
 o:value("0", translate("False"))
 o:value("1", translate("True"))
 
-o = s:option(ListValue, "ss_sockopt_tproxy", "%s - %s" % { translate("Sockopt"), translate("TProxy") })
+o = s:option(ListValue, "ss_sockopt_tproxy", "%s - %s" % { translate("Sockopt"), translate("TProxy") },
+	translate("If transparent proxy enabled on current inbound, this option will be ignored."))
 o:value("")
 o:value("redirect", "Redirect")
 o:value("tproxy", "TProxy")
