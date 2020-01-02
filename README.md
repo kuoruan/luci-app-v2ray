@@ -32,6 +32,14 @@ opkg install luci-i18n-v2ray-zh-cn
 
 We also support HTTPS protocol.
 
+4. Upgrade package:
+
+```sh
+opkg update
+opkg upgrade luci-app-v2ray
+opkg upgrade luci-i18n-v2ray-zh-cn
+```
+
 ### Manual install
 
 1. Download ipk files from [release](https://github.com/kuoruan/luci-app-v2ray/releases) page
