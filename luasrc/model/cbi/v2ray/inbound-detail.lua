@@ -194,7 +194,7 @@ o:depends("protocol", "vmess")
 
 o = s:option(Value, "s_vmess_client_alter_id", "%s - %s" % { "VMess", translate("Client alter ID") })
 o:depends("protocol", "vmess")
-o.datatype = "and('uinteger', max(65535))"
+o.datatype = "and(uinteger, max(65535))"
 
 o = s:option(Value, "s_vmess_client_email", "%s - %s" % { "VMess", translate("Client email") })
 o:depends("protocol", "vmess")
@@ -205,7 +205,7 @@ o.datatype = "uinteger"
 
 o = s:option(Value, "s_vmess_default_alter_id", "%s - %s" % { "VMess", translate("Default alter ID") })
 o:depends("protocol", "vmess")
-o.datatype = "and('uinteger', max(65535))"
+o.datatype = "and(uinteger, max(65535))"
 
 o = s:option(Value, "s_vmess_default_user_level", "%s - %s" % { "VMess", translate("Default user level") })
 o:depends("protocol", "vmess")

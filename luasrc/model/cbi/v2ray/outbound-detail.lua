@@ -175,7 +175,7 @@ o:depends("protocol", "vmess")
 
 o = s:option(Value, "s_vmess_user_alter_id", "%s - %s" % { "VMess", translate("Alter ID") })
 o:depends("protocol", "vmess")
-o.datatype = "and('uinteger', max(65535))"
+o.datatype = "and(uinteger, max(65535))"
 
 o = s:option(ListValue, "s_vmess_user_security", "%s - %s" % { "VMess", translate("Security") })
 o:depends("protocol", "vmess")
