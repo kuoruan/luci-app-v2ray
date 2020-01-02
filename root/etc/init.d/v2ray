@@ -371,17 +371,6 @@ outbound_section_validate() {
 		'mux_concurrency:uinteger:8'
 }
 
-transparent_proxy_section_validate() {
-	uci_validate_section "$NAME" "transparent_proxy" "$1" \
-		'redirect_port:port' \
-		'proxy_privileged_ports:bool:0' \
-		'udp_proxy_enabled:bool:0' \
-		'dns_proxy_enabled:bool:0' \
-		'proxy_mode:or("default", "cn_direct", "cn_proxy", "gfwlist_proxy"):default' \
-		'proxy_list_dns:string' \
-		'direct_list_dns:string'
-}
-
 add_v2ray_rules() {
 	local port="$1"
 	local ext_args="$2"
@@ -1611,8 +1600,8 @@ init_transparent_proxy() {
 	local redirect_port udp_proxy_enabled dns_proxy_enabled
 
 	config_get redirect_port "$tp_cfg" "redirect_port"
-	config_get udp_proxy_enabled "$tp_cfg" "udp_proxy_enabled"
-	config_get dns_proxy_enabled "$tp_cfg" "dns_proxy_enabled"
+	config_get_bool udp_proxy_enabled "$tp_cfg" "udp_proxy_enabled" "0"
+	config_get_bool dns_proxy_enabled "$tp_cfg" "dns_proxy_enabled" "0"
 
 	if [ -n "$redirect_port" ] && \
 		! validate_data "port" "$redirect_port" 2>/dev/null ; then
@@ -1645,11 +1634,12 @@ setup_transparent_proxy() {
 	_info "Setting transparent proxy on port: $TRANSPARENT_PROXY_PORT"
 
 	local tp_cfg="main_transparent_proxy"
-	local proxy_mode direct_list_dns proxy_list_dns
+	local proxy_privileged_ports proxy_mode direct_list_dns proxy_list_dns
 
 	config_get proxy_mode "$tp_cfg" "proxy_mode"
 	config_get direct_list_dns "$tp_cfg" "direct_list_dns"
 	config_get proxy_list_dns "$tp_cfg" "proxy_list_dns"
+	config_get_bool proxy_privileged_ports "$tp_cfg" "proxy_privileged_ports" "0"
 
 	_info "Transparent proxy mode: $proxy_mode"
 
