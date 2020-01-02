@@ -50,6 +50,8 @@ local dsp = require "luci.dispatcher"
 //]]></script>
 
 <span id="<%=self.option%>-status"><em><%:Collecting data...%></em></span>
+<%- if self.updatebtn then %>
 <input type="button" class="cbi-button cbi-button-apply" value="<%:Update%>" onclick="return update<%=self.option%>(this)" />
+<%- end %>
 
 <%+cbi/valuefooter%>

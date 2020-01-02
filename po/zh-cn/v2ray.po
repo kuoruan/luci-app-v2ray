@@ -30,7 +30,7 @@ msgstr "静态 IP 列表，格式：<code>domain|address</code>。例如：%s"
 msgid "A platform for building proxies to bypass network restrictions."
 msgstr "一个用于构建网络代理的平台"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:53
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:60
 msgid "APNIC delegated mirror"
 msgstr "APNIC 分配列表镜像"
 
@@ -168,15 +168,15 @@ msgstr "缓存大小"
 msgid "Buffer size"
 msgstr "缓存大小"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:59
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:66
 msgid "CHNRoute"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:49
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:56
 msgid "CN Direct"
 msgstr "直连 CN"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:50
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:57
 msgid "CN Proxy"
 msgstr "代理 CN"
 
@@ -253,7 +253,7 @@ msgstr ""
 msgid "DNS Servers"
 msgstr "DNS 服务器"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:43
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:50
 msgid "DNS proxy enabled"
 msgstr "启用 DNS 代理"
 
@@ -261,12 +261,12 @@ msgstr "启用 DNS 代理"
 msgid "DNS server"
 msgstr "DNS 服务器"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:109
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:118
 msgid ""
 "DNS used for domains in direct list, format: <code>ip#port</code>. eg: %s"
 msgstr "直连列表中域名使用的 DNS，格式：<code>ip#port</code>。例如：%s"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:106
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:115
 msgid ""
 "DNS used for domains in proxy list, format: <code>ip#port</code>. eg: %s"
 msgstr "代理列表中域名使用的 DNS，格式：<code>ip#port</code>。例如：%s"
@@ -275,7 +275,7 @@ msgstr "代理列表中域名使用的 DNS，格式：<code>ip#port</code>。例
 msgid "Debug"
 msgstr "调试"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:48
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:55
 msgid "Default"
 msgstr "默认"
 
@@ -305,7 +305,7 @@ msgstr "查看详情：%s"
 msgid "Detour to"
 msgstr "转发到"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:108
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:117
 msgid "Direct list DNS"
 msgstr "直连列表 DNS"
 
@@ -336,7 +336,7 @@ msgstr "域名解析策略"
 msgid "Domain strategy"
 msgstr "域名策略"
 
-#: luasrc/model/cbi/v2ray/dns.lua:57
+#: luasrc/model/cbi/v2ray/dns.lua:56
 msgid "Domains"
 msgstr "域名"
 
@@ -374,7 +374,7 @@ msgstr "编辑路由规则"
 msgid "Email"
 msgstr "邮箱地址"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:34
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:41
 msgid "Enable transparent proxy on Dokodemo-door port"
 msgstr "在 Dokodemo-door 端口上启用透明代理"
 
@@ -396,11 +396,11 @@ msgstr "错误"
 msgid "Error log file"
 msgstr "错误日志文件"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:89
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:98
 msgid "Extra direct list"
 msgstr "额外的直连列表"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:73
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:82
 msgid "Extra proxy list"
 msgstr "额外的代理列表"
 
@@ -421,15 +421,15 @@ msgstr "自动转发"
 msgid "For more information, please visit: %s"
 msgstr "获取更多信息，请访问：%s"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:69
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:77
 msgid "GFWList"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:51
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:58
 msgid "GFWList Proxy"
 msgstr "代理 GFWList"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:63
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:71
 msgid "GFWList mirror"
 msgstr "GFWList 镜像"
 
@@ -629,7 +629,7 @@ msgstr "无认证"
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:316
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:347
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:358
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:35
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:42
 msgid "None"
 msgstr "无"
 
@@ -649,8 +649,8 @@ msgstr "关闭"
 msgid "One Time Auth (OTA)"
 msgstr "一次性认证（OTA）"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:74
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:90
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:83
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:99
 msgid "One address per line. Allow types: DOMAIN, IP, CIDR. eg: %s, %s, %s"
 msgstr "每行一个地址，支持的类型：域名、IP、CIDR。例如：%s、%s、%s"
 
@@ -693,6 +693,10 @@ msgstr "密码"
 msgid "Path"
 msgstr "路径"
 
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:30
+msgid "Please install %s or %s to enable list update."
+msgstr "请安装 %s 或 %s 来启用列表更新功能。"
+
 #: luasrc/controller/v2ray.lua:42 luasrc/model/cbi/v2ray/policy.lua:20
 msgid "Policy"
 msgstr "策略"
@@ -701,7 +705,7 @@ msgstr "策略"
 msgid "Policy Level"
 msgstr "策略等级"
 
-#: luasrc/model/cbi/v2ray/dns.lua:53
+#: luasrc/model/cbi/v2ray/dns.lua:52
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:46
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:64
 #: luasrc/model/cbi/v2ray/inbound-list.lua:35
@@ -728,11 +732,11 @@ msgstr ""
 msgid "Protocol"
 msgstr "协议"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:105
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:114
 msgid "Proxy list DNS"
 msgstr "代理列表 DNS"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:47
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:54
 msgid "Proxy mode"
 msgstr "代理模式"
 
@@ -749,7 +753,7 @@ msgstr "读取缓冲区大小"
 msgid "Redirect"
 msgstr "发送到指定地址"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:34
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:41
 msgid "Redirect port"
 msgstr "转发端口"
 
@@ -966,7 +970,7 @@ msgid "Transmission time interval (TTI)"
 msgstr "传输时间间隔（TTI）"
 
 #: luasrc/controller/v2ray.lua:48
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:26
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:33
 msgid "Transparent Proxy"
 msgstr "透明代理"
 
@@ -992,11 +996,11 @@ msgstr "类型"
 msgid "UDP"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:41
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:48
 msgid "UDP proxy enabled"
 msgstr "启用 UDP 代理"
 
-#: luasrc/view/v2ray/list_status.htm:38 luasrc/view/v2ray/list_status.htm:53
+#: luasrc/view/v2ray/list_status.htm:38 luasrc/view/v2ray/list_status.htm:54
 msgid "Update"
 msgstr "更新"
 
@@ -1057,7 +1061,7 @@ msgstr "用户密钥"
 #: luasrc/model/cbi/v2ray/policy.lua:20 luasrc/model/cbi/v2ray/reverse.lua:6
 #: luasrc/model/cbi/v2ray/routing-rule-detail.lua:10
 #: luasrc/model/cbi/v2ray/routing.lua:28
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:26
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:33
 msgid "V2Ray"
 msgstr ""
 

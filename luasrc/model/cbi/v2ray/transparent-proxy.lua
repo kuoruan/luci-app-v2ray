@@ -23,6 +23,13 @@ end)
 
 local proxy_list_path, direct_list_path = "/etc/v2ray/proxylist.txt", "/etc/v2ray/directlist.txt"
 
+local has_ssl = true, ssl_note
+
+if not fs.stat("/lib/libustream-ssl.so") then
+	has_ssl = false
+	ssl_note = translatef("Please install %s or %s to enable list update.", "libustream-openssl", "libustream-mbedtls")
+end
+
 m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Transparent Proxy") })
 m.apply_on_parse = true
 m.on_after_apply = function ()
@@ -56,9 +63,10 @@ o:value("arin", "ARIN")
 o:value("ripe", "RIPE")
 o:value("iana", "IANA")
 
-o = s:option(DummyValue, "_chnroutelist", translate("CHNRoute"))
+o = s:option(DummyValue, "_chnroutelist", translate("CHNRoute"), ssl_note)
 o.template = "v2ray/list_status"
 o.listtype = "chnroute"
+o.updatebtn = has_ssl
 
 o = s:option(ListValue, "gfwlist_mirror", translate("GFWList mirror"))
 o:value("github", "GitHub")
@@ -66,9 +74,10 @@ o:value("gitlab", "GitLab")
 o:value("bitbucket", "Bitbucket")
 o:value("pagure", "Pagure")
 
-o = s:option(DummyValue, "_gfwlist", translate("GFWList"))
+o = s:option(DummyValue, "_gfwlist", translate("GFWList"), ssl_note)
 o.template = "v2ray/list_status"
 o.listtype = "gfwlist"
+o.updatebtn = has_ssl
 
 o = s:option(TextValue, "_proxy_list", translate("Extra proxy list"),
 	translatef("One address per line. Allow types: DOMAIN, IP, CIDR. eg: %s, %s, %s", "www.google.com", "1.1.1.1", "192.168.0.0/16"))
