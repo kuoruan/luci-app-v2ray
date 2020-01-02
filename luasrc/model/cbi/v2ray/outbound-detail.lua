@@ -69,7 +69,6 @@ o:value("udp", "UDP")
 
 o = s:option(Value, "s_dns_address", "%s - %s" % { "DNS", translate("Address") } )
 o:depends("protocol", "dns")
-o.datatype = "host"
 
 o = s:option(Value, "s_dns_port", "%s - %s" % { "DNS", translate("Port") } )
 o:depends("protocol", "dns")

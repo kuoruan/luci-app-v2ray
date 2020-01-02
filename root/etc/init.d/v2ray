@@ -148,7 +148,7 @@ dns_section_validate() {
 
 dns_server_section_validate() {
 	uci_validate_section "$NAME" "dns_server" "$1" \
-		'address:ipaddr' \
+		'address:string' \
 		'port:port' \
 		'domains:list(string)'
 }
@@ -301,7 +301,7 @@ outbound_section_validate() {
 		'tag:string' \
 		's_blackhole_reponse_type:or("none", "http")' \
 		's_dns_network:or("tcp", "udp")' \
-		's_dns_address:host' \
+		's_dns_address:string' \
 		's_dns_port:port' \
 		's_freedom_domain_strategy:or("AsIs", "UseIP", "UseIPv4", "UseIPv6")' \
 		's_freedom_redirect:string' \
