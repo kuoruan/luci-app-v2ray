@@ -8,9 +8,9 @@ msgstr "配置文件中的 <code>transport</code> 项，JSON 字符串"
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:294
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:310
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:362
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:263
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:276
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:328
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:262
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:275
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:327
 msgid "A list of HTTP headers, format: <code>header=value</code>. eg: %s"
 msgstr "HTTP Header 列表，格式：<code>header=value</code>。例如：%s"
 
@@ -30,7 +30,7 @@ msgstr "静态 IP 列表，格式：<code>domain|address</code>。例如：%s"
 msgid "A platform for building proxies to bypass network restrictions."
 msgstr "一个用于构建网络代理的平台"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:60
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:63
 msgid "APNIC delegated mirror"
 msgstr "APNIC 分配列表镜像"
 
@@ -71,8 +71,8 @@ msgstr "在这里添加路由规则"
 #: luasrc/model/cbi/v2ray/dns.lua:50
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:59
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:70
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:114
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:166
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:113
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:165
 msgid "Address"
 msgstr "地址"
 
@@ -104,12 +104,12 @@ msgid "Allocate"
 msgstr "端口分配"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:245
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:216
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:215
 msgid "Allow insecure"
 msgstr "允许不安全连接"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:248
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:219
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:218
 msgid "Allow insecure ciphers"
 msgstr "允许不安全的加密方式"
 
@@ -117,7 +117,7 @@ msgstr "允许不安全的加密方式"
 msgid "Allow transparent"
 msgstr "转发所有 HTTP 请求"
 
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:177
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:176
 msgid "Alter ID"
 msgstr ""
 
@@ -144,7 +144,7 @@ msgstr "认证方式"
 msgid "Author: %s"
 msgstr "作者：%s"
 
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:184
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:183
 msgid "Auto"
 msgstr "自动"
 
@@ -168,15 +168,15 @@ msgstr "缓存大小"
 msgid "Buffer size"
 msgstr "缓存大小"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:66
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:69
 msgid "CHNRoute"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:56
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:59
 msgid "CN Direct"
 msgstr "直连 CN"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:57
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:60
 msgid "CN Proxy"
 msgstr "代理 CN"
 
@@ -185,12 +185,12 @@ msgid "Can't get V2Ray version"
 msgstr "无法获取 V2Ray 版本信息"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:261
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:232
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:231
 msgid "Certificate file"
 msgstr "证书文件路径"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:254
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:225
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:224
 msgid "Certificate usage"
 msgstr "证书用途"
 
@@ -220,7 +220,7 @@ msgid "Collecting data..."
 msgstr "正在收集数据..."
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:428
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:382
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:381
 msgid "Concurrency"
 msgstr "随机端口数量"
 
@@ -229,7 +229,7 @@ msgid "Config file"
 msgstr "配置文件"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:334
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:300
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:299
 msgid "Congestion enabled"
 msgstr "启用拥塞控制"
 
@@ -253,7 +253,7 @@ msgstr ""
 msgid "DNS Servers"
 msgstr "DNS 服务器"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:50
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:53
 msgid "DNS proxy enabled"
 msgstr "启用 DNS 代理"
 
@@ -261,12 +261,12 @@ msgstr "启用 DNS 代理"
 msgid "DNS server"
 msgstr "DNS 服务器"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:118
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:121
 msgid ""
 "DNS used for domains in direct list, format: <code>ip#port</code>. eg: %s"
 msgstr "直连列表中域名使用的 DNS，格式：<code>ip#port</code>。例如：%s"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:115
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:118
 msgid ""
 "DNS used for domains in proxy list, format: <code>ip#port</code>. eg: %s"
 msgstr "代理列表中域名使用的 DNS，格式：<code>ip#port</code>。例如：%s"
@@ -275,7 +275,7 @@ msgstr "代理列表中域名使用的 DNS，格式：<code>ip#port</code>。例
 msgid "Debug"
 msgstr "调试"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:55
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:58
 msgid "Default"
 msgstr "默认"
 
@@ -305,7 +305,7 @@ msgstr "查看详情：%s"
 msgid "Detour to"
 msgstr "转发到"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:117
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:120
 msgid "Direct list DNS"
 msgstr "直连列表 DNS"
 
@@ -320,7 +320,7 @@ msgid "Disable insecure encryption"
 msgstr "禁止不安全的加密方式"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:251
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:222
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:221
 msgid "Disable system root"
 msgstr "禁用系统自带的 CA 证书"
 
@@ -332,7 +332,7 @@ msgstr "域名"
 msgid "Domain resolution strategy"
 msgstr "域名解析策略"
 
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:79
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:78
 msgid "Domain strategy"
 msgstr "域名策略"
 
@@ -345,7 +345,7 @@ msgid "Donate: %s"
 msgstr "捐助：%s"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:329
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:295
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:294
 msgid "Downlink capacity"
 msgstr "下行链路容量"
 
@@ -370,7 +370,7 @@ msgid "Edit Routing Rule"
 msgstr "编辑路由规则"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:127
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:111
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:110
 msgid "Email"
 msgstr "邮箱地址"
 
@@ -382,7 +382,7 @@ msgstr "在 Dokodemo-door 端口上启用透明代理"
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:414
 #: luasrc/model/cbi/v2ray/main.lua:42 luasrc/model/cbi/v2ray/main.lua:100
 #: luasrc/model/cbi/v2ray/main.lua:103
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:380
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:379
 #: luasrc/model/cbi/v2ray/policy.lua:27 luasrc/model/cbi/v2ray/reverse.lua:13
 #: luasrc/model/cbi/v2ray/routing.lua:35
 msgid "Enabled"
@@ -396,11 +396,11 @@ msgstr "错误"
 msgid "Error log file"
 msgstr "错误日志文件"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:98
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:101
 msgid "Extra direct list"
 msgstr "额外的直连列表"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:82
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:85
 msgid "Extra proxy list"
 msgstr "额外的代理列表"
 
@@ -409,7 +409,7 @@ msgid "Failed to open file."
 msgstr "无法打开文件"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:402
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:372
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:371
 msgid "False"
 msgstr "否"
 
@@ -421,15 +421,15 @@ msgstr "自动转发"
 msgid "For more information, please visit: %s"
 msgstr "获取更多信息，请访问：%s"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:77
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:80
 msgid "GFWList"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:58
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:61
 msgid "GFWList Proxy"
 msgstr "代理 GFWList"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:71
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:74
 msgid "GFWList mirror"
 msgstr "GFWList 镜像"
 
@@ -442,27 +442,27 @@ msgid "Global Settings"
 msgstr "全局设置"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:278
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:248
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:247
 msgid "HTTP request method"
 msgstr "HTTP 请求方式"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:274
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:245
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:244
 msgid "HTTP request version"
 msgstr "HTTP 请求版本"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:305
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:272
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:271
 msgid "HTTP response reason"
 msgstr "HTTP 响应说明"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:301
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:269
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:268
 msgid "HTTP response status"
 msgstr "HTTP 响应状态"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:297
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:266
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:265
 msgid "HTTP response version"
 msgstr "HTTP 响应版本"
 
@@ -474,19 +474,19 @@ msgstr "握手时间限制"
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:268
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:347
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:389
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:239
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:313
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:355
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:238
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:312
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:354
 msgid "Header type"
 msgstr "头部伪装类型"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:361
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:327
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:326
 msgid "Headers"
 msgstr "HTTP 头"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:366
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:332
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:331
 msgid "Host"
 msgstr "域名"
 
@@ -505,7 +505,7 @@ msgid ""
 "If transparent proxy enabled on current inbound, this option will be ignored."
 msgstr "如果在当前入站连接上启用透明代理，此选项会被忽略。"
 
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:367
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:366
 msgid ""
 "If transparent proxy is enabled, this option is ignored and will be set to "
 "255."
@@ -540,12 +540,12 @@ msgid "Invalid V2Ray file"
 msgstr "V2Ray 文件有误"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:385
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:351
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:350
 msgid "Key"
 msgstr "密钥"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:264
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:235
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:234
 msgid "Key file"
 msgstr "密钥文件路径"
 
@@ -583,22 +583,22 @@ msgstr "日志等级"
 msgid "LuCI support for V2Ray."
 msgstr "V2Ray 的 LuCI 配置界面"
 
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:366
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:365
 msgid "Mark"
 msgstr "标记"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:314
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:280
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:279
 msgid "Maximum transmission unit (MTU)"
 msgstr "最大传输单元（MTU）"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:130
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:122
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:121
 msgid "Method"
 msgstr "加密方式"
 
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:380
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:382
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:379
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:381
 msgid "Mux"
 msgstr "多路复用"
 
@@ -606,7 +606,7 @@ msgstr "多路复用"
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:153
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:222
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:64
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:194
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:193
 #: luasrc/model/cbi/v2ray/routing-rule-detail.lua:36
 #: luasrc/model/cbi/v2ray/routing.lua:92
 msgid "Network"
@@ -623,12 +623,12 @@ msgstr "无认证"
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:392
 #: luasrc/model/cbi/v2ray/main.lua:64 luasrc/model/cbi/v2ray/main.lua:77
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:60
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:187
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:205
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:242
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:316
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:347
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:358
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:186
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:204
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:241
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:315
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:346
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:357
 #: luasrc/model/cbi/v2ray/transparent-proxy.lua:42
 msgid "None"
 msgstr "无"
@@ -637,7 +637,7 @@ msgstr "无"
 msgid "Not Running"
 msgstr "服务未运行"
 
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:142
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:141
 msgid "OTA"
 msgstr ""
 
@@ -649,10 +649,14 @@ msgstr "关闭"
 msgid "One Time Auth (OTA)"
 msgstr "一次性认证（OTA）"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:83
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:99
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:86
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:102
 msgid "One address per line. Allow types: DOMAIN, IP, CIDR. eg: %s, %s, %s"
 msgstr "每行一个地址，支持的类型：域名、IP、CIDR。例如：%s、%s、%s"
+
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:48
+msgid "Only privileged ports"
+msgstr "仅特权端口"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:215
 msgid ""
@@ -678,18 +682,18 @@ msgstr "出站连接标识"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:142
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:164
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:106
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:134
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:157
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:105
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:133
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:156
 msgid "Password"
 msgstr "密码"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:358
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:369
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:374
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:324
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:335
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:340
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:323
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:334
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:339
 msgid "Path"
 msgstr "路径"
 
@@ -709,9 +713,9 @@ msgstr "策略等级"
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:46
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:64
 #: luasrc/model/cbi/v2ray/inbound-list.lua:35
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:74
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:118
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:170
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:73
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:117
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:169
 #: luasrc/model/cbi/v2ray/routing-rule-detail.lua:33
 msgid "Port"
 msgstr "端口"
@@ -732,24 +736,28 @@ msgstr ""
 msgid "Protocol"
 msgstr "协议"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:114
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:117
 msgid "Proxy list DNS"
 msgstr "代理列表 DNS"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:54
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:57
 msgid "Proxy mode"
 msgstr "代理模式"
 
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:378
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:49
+msgid "Proxy ports under 1024."
+msgstr "代理小于 1024 的端口。"
+
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:377
 msgid "Proxy settings"
 msgstr "出站代理配置"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:337
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:303
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:302
 msgid "Read buffer size"
 msgstr "读取缓冲区大小"
 
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:87
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:86
 msgid "Redirect"
 msgstr "发送到指定地址"
 
@@ -770,17 +778,17 @@ msgid "Report Bugs: %s"
 msgstr "报告错误：%s"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:293
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:262
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:261
 msgid "Request headers"
 msgstr "请求头"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:290
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:259
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:258
 msgid "Request path"
 msgstr "请求路径"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:309
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:275
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:274
 msgid "Response headers"
 msgstr "响应头"
 
@@ -814,9 +822,9 @@ msgstr "服务正在运行"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:231
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:378
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:181
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:203
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:344
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:180
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:202
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:343
 msgid "Security"
 msgstr "传输层加密"
 
@@ -848,18 +856,18 @@ msgstr "发送 IP 地址"
 msgid "Send through"
 msgstr "发送 IP 地址"
 
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:95
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:146
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:94
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:145
 msgid "Server address"
 msgstr "服务器地址"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:237
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:209
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:208
 msgid "Server name"
 msgstr "服务器端证书域名"
 
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:99
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:150
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:98
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:149
 msgid "Server port"
 msgstr "服务器端口"
 
@@ -874,8 +882,8 @@ msgstr "流量探测"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:400
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:405
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:366
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:370
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:365
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:369
 msgid "Sockopt"
 msgstr "连接选项"
 
@@ -918,8 +926,8 @@ msgstr "数据流网络"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:222
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:231
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:194
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:203
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:193
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:202
 msgid "Stream settings"
 msgstr "底层传输配置"
 
@@ -928,7 +936,7 @@ msgid "System"
 msgstr "系统"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:400
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:370
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:369
 msgid "TCP fast open"
 msgstr "TCP 快速打开"
 
@@ -939,8 +947,8 @@ msgstr ""
 #: luasrc/model/cbi/v2ray/dns.lua:29
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:412
 #: luasrc/model/cbi/v2ray/inbound-list.lua:50
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:376
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:378
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:375
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:377
 #: luasrc/model/cbi/v2ray/outbound-list.lua:45
 #: luasrc/model/cbi/v2ray/routing.lua:101
 msgid "Tag"
@@ -965,7 +973,7 @@ msgid "Total: %s, Date: %s"
 msgstr "总共：%s，日期：%s"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:319
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:285
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:284
 msgid "Transmission time interval (TTI)"
 msgstr "传输时间间隔（TTI）"
 
@@ -983,7 +991,7 @@ msgid "Transport settings is required."
 msgstr "底层传输配置是必填项。"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:403
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:373
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:372
 msgid "True"
 msgstr "是"
 
@@ -996,7 +1004,7 @@ msgstr "类型"
 msgid "UDP"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:48
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:51
 msgid "UDP proxy enabled"
 msgstr "启用 UDP 代理"
 
@@ -1009,7 +1017,7 @@ msgid "Updating..."
 msgstr "更新中..."
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:324
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:290
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:289
 msgid "Uplink capacity"
 msgstr "上行链路容量"
 
@@ -1021,13 +1029,13 @@ msgstr "下行连接关闭等待时间"
 msgid "Use custom config file."
 msgstr "使用自定义配置文件。"
 
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:103
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:154
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:102
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:153
 #: luasrc/model/cbi/v2ray/routing-rule-detail.lua:42
 msgid "User"
 msgstr "用户"
 
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:174
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:173
 msgid "User ID"
 msgstr "用户 ID"
 
@@ -1040,10 +1048,10 @@ msgstr "用户邮箱地址"
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:121
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:146
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:186
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:90
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:138
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:161
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:189
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:89
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:137
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:160
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:188
 msgid "User level"
 msgstr "用户等级"
 
@@ -1083,8 +1091,8 @@ msgstr "警告"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:353
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:395
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:319
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:361
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:318
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:360
 msgid "Wechat Video"
 msgstr "微信视频通话"
 
@@ -1094,6 +1102,6 @@ msgid ""
 msgstr "当 UDP 启用时，V2Ray 需要知道当前服务器的 IP 地址。"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:342
-#: luasrc/model/cbi/v2ray/outbound-detail.lua:308
+#: luasrc/model/cbi/v2ray/outbound-detail.lua:307
 msgid "Write buffer size"
 msgstr "读取缓冲区大小"

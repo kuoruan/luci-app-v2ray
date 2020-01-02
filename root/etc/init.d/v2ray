@@ -374,6 +374,7 @@ outbound_section_validate() {
 transparent_proxy_section_validate() {
 	uci_validate_section "$NAME" "transparent_proxy" "$1" \
 		'redirect_port:port' \
+		'proxy_privileged_ports:bool:0' \
 		'udp_proxy_enabled:bool:0' \
 		'dns_proxy_enabled:bool:0' \
 		'proxy_mode:or("default", "cn_direct", "cn_proxy", "gfwlist_proxy"):default' \
@@ -1688,6 +1689,10 @@ setup_transparent_proxy() {
 			ext_args=
 			;;
 	esac
+
+	if [ "x$proxy_privileged_ports" = "x1" ] ; then
+		ext_args="--dport 0:1023 $ext_args"
+	fi
 
 	if [ -n "$(cat "$FILE_V2RAY_DNSMASQ_CACHE" | grep -v "^$" | grep -v "^#")" ] ; then
 		local dir="$(dirname "$FILE_V2RAY_DNSMASQ")"
