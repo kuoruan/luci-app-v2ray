@@ -745,7 +745,7 @@ msgid "Proxy mode"
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/transparent-proxy.lua:49
-msgid "Proxy ports under 1024."
+msgid "Proxy ports below 1024."
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:377

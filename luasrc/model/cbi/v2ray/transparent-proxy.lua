@@ -46,7 +46,7 @@ end
 o.datatype = "port"
 
 o = s:option(Flag, "proxy_privileged_ports", translate("Only privileged ports"),
-	translate("Proxy ports under 1024."))
+	translate("Proxy ports below 1024."))
 
 o = s:option(Flag, "udp_proxy_enabled", translate("UDP proxy enabled"))
 
