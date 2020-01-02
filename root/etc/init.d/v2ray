@@ -902,7 +902,7 @@ add_inbound_setting() {
 			else
 				test -n "$s_dokodemo_door_address" && \
 					json_add_string "address" "$s_dokodemo_door_address"
-				test -n "$port" && \
+				test -n "$s_dokodemo_door_port" && \
 					json_add_int "port" "$s_dokodemo_door_port"
 				test -n "$s_dokodemo_door_network" && \
 					json_add_string "network" "$(echo "$s_dokodemo_door_network" | tr -s ' ' ',')"
