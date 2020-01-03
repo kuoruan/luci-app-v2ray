@@ -30,19 +30,6 @@ local gfwlist_file = "/etc/v2ray/gfwlist.txt"
 local chnroute_file_ipv4 = "/etc/v2ray/chnroute.txt"
 local chnroute_file_ipv6 = "/etc/v2ray/chnroute6.txt"
 
-function get_url_content(url)
-	local f = sys.httpget(url, true)
-
-	if f then
-		local file = f:read("*all")
-		f:close()
-
-		return file
-	end
-
-	return nil
-end
-
 function generate_gfwlist()
 	local gfwlist_mirror = uci:get("v2ray", "main_transparent_proxy", "gfwlist_mirror") or "github"
 
@@ -52,16 +39,26 @@ function generate_gfwlist()
 		gfwlist_url = gfwlist_urls['github']
 	end
 
-	local content = get_url_content(gfwlist_url)
+	local lines = {}
 
-	if not content or content == "" then
+	local f = sys.httpget(url, true)
+	if not f then
+		return false
+	end
+
+	for line in f:lines() do
+		lines[#lines + 1] = line
+	end
+
+	f:close()
+
+	if not next(lines) then
 		return false
 	end
 
 	local domains = {}
 
-	local content = string.gsub(content, "[\r\n%s]+", "")
-	local decoded = nixio.bin.b64decode(content)
+	local decoded = nixio.bin.b64decode(table.contact(lines, ""))
 
 	for line in util.imatch(decoded) do
 		if not string.match(line, "^$") and
@@ -119,9 +116,8 @@ function generate_routelist()
 		apnic_delegated_url = apnic_delegated_urls['apnic']
 	end
 
-	local content = get_url_content(apnic_delegated_url)
-
-	if not content or content == "" then
+	local f = sys.httpget(apnic_delegated_url, true)
+	if not f then
 		return false, false
 	end
 
@@ -137,7 +133,7 @@ function generate_routelist()
 		return false, false
 	end
 
-	for line in util.imatch(content) do
+	for line in f:lines() do
 		local start, _, type, ip, value = string.find(line, "CN|(ipv%d)|([%d%.:]+)|(%d+)")
 
 		if start then
@@ -149,6 +145,8 @@ function generate_routelist()
 			end
 		end
 	end
+
+	f:close()
 
 	out_temp_ipv4:flush()
 	out_temp_ipv4:close()
