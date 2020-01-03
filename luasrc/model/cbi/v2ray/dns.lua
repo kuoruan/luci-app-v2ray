@@ -29,7 +29,7 @@ o.rmempty = false
 o = s1:option(Value, "tag", translate("Tag"))
 
 o = s1:option(Value, "client_ip", translate("Client IP"),
-	"<a href=\"https://www.icanhazip.com\" target=\"_blank\">%s</a>" % translate("Get my public IP address"))
+	"<a href=\"https://icanhazip.com\" target=\"_blank\">%s</a>" % translate("Get my public IP address"))
 o.datatype = "ipaddr"
 
 o = s1:option(DynamicList, "hosts", translate("Hosts"),
