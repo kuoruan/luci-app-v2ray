@@ -84,7 +84,7 @@ msgstr "将流量转发到此地址。"
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:37
 #: luasrc/model/cbi/v2ray/inbound-list.lua:25
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:37
-#: luasrc/model/cbi/v2ray/outbound-list.lua:25
+#: luasrc/model/cbi/v2ray/outbound-list.lua:26
 #: luasrc/model/cbi/v2ray/routing-rule-detail.lua:23
 #: luasrc/model/cbi/v2ray/routing.lua:68
 msgid "Alias"
@@ -116,6 +116,10 @@ msgstr "允许不安全的加密方式"
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:99
 msgid "Allow transparent"
 msgstr "转发所有 HTTP 请求"
+
+#: luasrc/view/v2ray/import_outbound.htm:13
+msgid "Allowed link format: <code>%s</code>"
+msgstr "支持的链接格式：<code>%s</code>"
 
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:176
 msgid "Alter ID"
@@ -180,7 +184,7 @@ msgstr "直连 CN"
 msgid "CN Proxy"
 msgstr "代理 CN"
 
-#: luasrc/controller/v2ray.lua:113
+#: luasrc/controller/v2ray.lua:115
 msgid "Can't get V2Ray version"
 msgstr "无法获取 V2Ray 版本信息"
 
@@ -214,7 +218,7 @@ msgstr "用户 Alter ID"
 msgid "Client email"
 msgstr "用户邮箱地址"
 
-#: luasrc/model/cbi/v2ray/main.lua:51 luasrc/view/v2ray/list_status.htm:52
+#: luasrc/model/cbi/v2ray/main.lua:51 luasrc/view/v2ray/list_status.htm:54
 #: luasrc/view/v2ray/status_header.htm:11
 msgid "Collecting data..."
 msgstr "正在收集数据..."
@@ -400,9 +404,17 @@ msgstr "额外的直连列表"
 msgid "Extra proxy list"
 msgstr "额外的代理列表"
 
+#: luasrc/controller/v2ray.lua:187
+msgid "Failed to create new section"
+msgstr "创建新配置项失败"
+
 #: luasrc/model/cbi/v2ray/about.lua:14
 msgid "Failed to open file."
 msgstr "无法打开文件"
+
+#: luasrc/controller/v2ray.lua:256
+msgid "Failed to save section"
+msgstr "保存配置项失败"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:402
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:371
@@ -508,6 +520,19 @@ msgid ""
 "255."
 msgstr "如果启用了透明代理，此选项会被忽略，并自动设置为255。"
 
+#: luasrc/view/v2ray/import_outbound.htm:12
+#: luasrc/view/v2ray/import_outbound.htm:37
+msgid "Import"
+msgstr "导入"
+
+#: luasrc/view/v2ray/import_outbound.htm:48
+msgid "Import failed"
+msgstr "导入失败"
+
+#: luasrc/view/v2ray/import_outbound.htm:30
+msgid "Importing..."
+msgstr "导入中……"
+
 #: luasrc/controller/v2ray.lua:27 luasrc/model/cbi/v2ray/inbound-list.lua:8
 msgid "Inbound"
 msgstr "入站连接"
@@ -532,9 +557,13 @@ msgstr "信息"
 msgid "Invalid JSON content."
 msgstr "JSON 内容验证失败。"
 
-#: luasrc/controller/v2ray.lua:96
+#: luasrc/controller/v2ray.lua:98
 msgid "Invalid V2Ray file"
 msgstr "V2Ray 文件有误"
+
+#: luasrc/controller/v2ray.lua:166
+msgid "Invalid link"
+msgstr "无效链接"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:385
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:350
@@ -559,11 +588,15 @@ msgstr "等级"
 msgid "Levels"
 msgstr "等级"
 
-#: luasrc/view/v2ray/list_status.htm:44
+#: luasrc/view/v2ray/import_outbound.htm:43
+msgid "Link imported"
+msgstr "链接已导入"
+
+#: luasrc/view/v2ray/list_status.htm:46
 msgid "List update failed, please try again later."
 msgstr "列表更新失败，请稍后重试。"
 
-#: luasrc/view/v2ray/list_status.htm:42
+#: luasrc/view/v2ray/list_status.htm:44
 msgid "List updated, reload page to see detail."
 msgstr "列表已更新，刷新页面查看详情。"
 
@@ -732,7 +765,7 @@ msgstr ""
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:50
 #: luasrc/model/cbi/v2ray/inbound-list.lua:40
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:46
-#: luasrc/model/cbi/v2ray/outbound-list.lua:35
+#: luasrc/model/cbi/v2ray/outbound-list.lua:36
 #: luasrc/model/cbi/v2ray/routing-rule-detail.lua:46
 msgid "Protocol"
 msgstr "协议"
@@ -861,7 +894,7 @@ msgstr "选择使用的路由规则"
 msgid "Selector"
 msgstr "标识匹配前缀"
 
-#: luasrc/model/cbi/v2ray/outbound-list.lua:30
+#: luasrc/model/cbi/v2ray/outbound-list.lua:31
 msgid "Send Through"
 msgstr "发送 IP 地址"
 
@@ -937,7 +970,7 @@ msgid "Strategy"
 msgstr "端口分配策略"
 
 #: luasrc/model/cbi/v2ray/inbound-list.lua:45
-#: luasrc/model/cbi/v2ray/outbound-list.lua:40
+#: luasrc/model/cbi/v2ray/outbound-list.lua:41
 msgid "Stream Network"
 msgstr "数据流网络"
 
@@ -966,7 +999,7 @@ msgstr ""
 #: luasrc/model/cbi/v2ray/inbound-list.lua:50
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:375
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:377
-#: luasrc/model/cbi/v2ray/outbound-list.lua:45
+#: luasrc/model/cbi/v2ray/outbound-list.lua:46
 #: luasrc/model/cbi/v2ray/routing.lua:101
 msgid "Tag"
 msgstr "标识"
@@ -1021,7 +1054,15 @@ msgstr "类型"
 msgid "UDP"
 msgstr ""
 
-#: luasrc/view/v2ray/list_status.htm:38 luasrc/view/v2ray/list_status.htm:54
+#: luasrc/view/v2ray/import_outbound.htm:25
+msgid "Unsupported Link"
+msgstr "不支持的链接"
+
+#: luasrc/controller/v2ray.lua:176
+msgid "Unsupported link version"
+msgstr "不支持的链接版本"
+
+#: luasrc/view/v2ray/list_status.htm:38 luasrc/view/v2ray/list_status.htm:56
 msgid "Update"
 msgstr "更新"
 
@@ -1101,6 +1142,10 @@ msgstr "V2Ray 文件"
 #: luasrc/view/v2ray/status_header.htm:42
 msgid "Version: %s"
 msgstr "版本：%s"
+
+#: luasrc/view/v2ray/import_outbound.htm:19
+msgid "Vmess link:"
+msgstr "Vmess 链接："
 
 #: luasrc/model/cbi/v2ray/main.lua:75
 msgid "Warning"

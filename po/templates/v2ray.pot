@@ -84,7 +84,7 @@ msgstr ""
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:37
 #: luasrc/model/cbi/v2ray/inbound-list.lua:25
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:37
-#: luasrc/model/cbi/v2ray/outbound-list.lua:25
+#: luasrc/model/cbi/v2ray/outbound-list.lua:26
 #: luasrc/model/cbi/v2ray/routing-rule-detail.lua:23
 #: luasrc/model/cbi/v2ray/routing.lua:68
 msgid "Alias"
@@ -115,6 +115,10 @@ msgstr ""
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:99
 msgid "Allow transparent"
+msgstr ""
+
+#: luasrc/view/v2ray/import_outbound.htm:13
+msgid "Allowed link format: <code>%s</code>"
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:176
@@ -180,7 +184,7 @@ msgstr ""
 msgid "CN Proxy"
 msgstr ""
 
-#: luasrc/controller/v2ray.lua:113
+#: luasrc/controller/v2ray.lua:115
 msgid "Can't get V2Ray version"
 msgstr ""
 
@@ -214,7 +218,7 @@ msgstr ""
 msgid "Client email"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:51 luasrc/view/v2ray/list_status.htm:52
+#: luasrc/model/cbi/v2ray/main.lua:51 luasrc/view/v2ray/list_status.htm:54
 #: luasrc/view/v2ray/status_header.htm:11
 msgid "Collecting data..."
 msgstr ""
@@ -400,8 +404,16 @@ msgstr ""
 msgid "Extra proxy list"
 msgstr ""
 
+#: luasrc/controller/v2ray.lua:187
+msgid "Failed to create new section"
+msgstr ""
+
 #: luasrc/model/cbi/v2ray/about.lua:14
 msgid "Failed to open file."
+msgstr ""
+
+#: luasrc/controller/v2ray.lua:256
+msgid "Failed to save section"
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:402
@@ -508,6 +520,19 @@ msgid ""
 "255."
 msgstr ""
 
+#: luasrc/view/v2ray/import_outbound.htm:12
+#: luasrc/view/v2ray/import_outbound.htm:37
+msgid "Import"
+msgstr ""
+
+#: luasrc/view/v2ray/import_outbound.htm:48
+msgid "Import failed"
+msgstr ""
+
+#: luasrc/view/v2ray/import_outbound.htm:30
+msgid "Importing..."
+msgstr ""
+
 #: luasrc/controller/v2ray.lua:27 luasrc/model/cbi/v2ray/inbound-list.lua:8
 msgid "Inbound"
 msgstr ""
@@ -532,8 +557,12 @@ msgstr ""
 msgid "Invalid JSON content."
 msgstr ""
 
-#: luasrc/controller/v2ray.lua:96
+#: luasrc/controller/v2ray.lua:98
 msgid "Invalid V2Ray file"
+msgstr ""
+
+#: luasrc/controller/v2ray.lua:166
+msgid "Invalid link"
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:385
@@ -559,11 +588,15 @@ msgstr ""
 msgid "Levels"
 msgstr ""
 
-#: luasrc/view/v2ray/list_status.htm:44
+#: luasrc/view/v2ray/import_outbound.htm:43
+msgid "Link imported"
+msgstr ""
+
+#: luasrc/view/v2ray/list_status.htm:46
 msgid "List update failed, please try again later."
 msgstr ""
 
-#: luasrc/view/v2ray/list_status.htm:42
+#: luasrc/view/v2ray/list_status.htm:44
 msgid "List updated, reload page to see detail."
 msgstr ""
 
@@ -732,7 +765,7 @@ msgstr ""
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:50
 #: luasrc/model/cbi/v2ray/inbound-list.lua:40
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:46
-#: luasrc/model/cbi/v2ray/outbound-list.lua:35
+#: luasrc/model/cbi/v2ray/outbound-list.lua:36
 #: luasrc/model/cbi/v2ray/routing-rule-detail.lua:46
 msgid "Protocol"
 msgstr ""
@@ -861,7 +894,7 @@ msgstr ""
 msgid "Selector"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/outbound-list.lua:30
+#: luasrc/model/cbi/v2ray/outbound-list.lua:31
 msgid "Send Through"
 msgstr ""
 
@@ -937,7 +970,7 @@ msgid "Strategy"
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/inbound-list.lua:45
-#: luasrc/model/cbi/v2ray/outbound-list.lua:40
+#: luasrc/model/cbi/v2ray/outbound-list.lua:41
 msgid "Stream Network"
 msgstr ""
 
@@ -966,7 +999,7 @@ msgstr ""
 #: luasrc/model/cbi/v2ray/inbound-list.lua:50
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:375
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:377
-#: luasrc/model/cbi/v2ray/outbound-list.lua:45
+#: luasrc/model/cbi/v2ray/outbound-list.lua:46
 #: luasrc/model/cbi/v2ray/routing.lua:101
 msgid "Tag"
 msgstr ""
@@ -1021,7 +1054,15 @@ msgstr ""
 msgid "UDP"
 msgstr ""
 
-#: luasrc/view/v2ray/list_status.htm:38 luasrc/view/v2ray/list_status.htm:54
+#: luasrc/view/v2ray/import_outbound.htm:25
+msgid "Unsupported Link"
+msgstr ""
+
+#: luasrc/controller/v2ray.lua:176
+msgid "Unsupported link version"
+msgstr ""
+
+#: luasrc/view/v2ray/list_status.htm:38 luasrc/view/v2ray/list_status.htm:56
 msgid "Update"
 msgstr ""
 
@@ -1100,6 +1141,10 @@ msgstr ""
 
 #: luasrc/view/v2ray/status_header.htm:42
 msgid "Version: %s"
+msgstr ""
+
+#: luasrc/view/v2ray/import_outbound.htm:19
+msgid "Vmess link:"
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/main.lua:75
