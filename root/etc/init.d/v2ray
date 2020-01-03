@@ -92,35 +92,51 @@ get_file_content() {
 }
 
 append_server_ipv4() {
-	local address="$1"
+	local addr="$1"
 
-	test -n "$address" || return
+	test -n "$addr" || return
 
 	if [ -z "$OUTBOUND_SERVERS_V4" ] ; then
-		OUTBOUND_SERVERS_V4="$address"
+		OUTBOUND_SERVERS_V4="$addr"
 	else
 		OUTBOUND_SERVERS_V4="$(cat >&1 <<-EOF
 			$OUTBOUND_SERVERS_V4
-			$address
+			$addr
 		EOF
 		)"
 	fi
 }
 
 append_server_ipv6() {
-	local address="$1"
+	local addr="$1"
 
-	test -n "$address" || return
+	test -n "$addr" || return
 
 	if [ -z "$OUTBOUND_SERVERS_V6" ] ; then
-		OUTBOUND_SERVERS_V6="$address"
+		OUTBOUND_SERVERS_V6="$addr"
 	else
 		OUTBOUND_SERVERS_V6="$(cat >&1 <<-EOF
 			$OUTBOUND_SERVERS_V6
-			$address
+			$addr
 		EOF
 		)"
 	fi
+}
+
+append_server_address() {
+	local addr="$1"
+
+	test -n "$addr" || return
+
+	local ipv4
+	for ipv4 in $(resolveip -4 -t 5 "$addr") ; do
+		append_server_ipv4 "$ipv4"
+	done
+
+	local ipv6
+	for ipv6 in $(resolveip -6 -t 5 "$addr") ; do
+		append_server_ipv6 "$ipv6"
+	done
 }
 
 v2ray_section_validate() {
@@ -618,7 +634,7 @@ add_dns_settings() {
 			fi
 		done
 
-		json_close_object
+		json_close_object # hosts
 	fi
 
 	if [ -n "$servers" ] ; then
@@ -650,7 +666,7 @@ add_dns_settings() {
 							json_add_string "" "$d"
 						done
 
-						json_close_array
+						json_close_array # domains
 					fi
 
 					json_close_object
@@ -658,10 +674,10 @@ add_dns_settings() {
 			fi
 		done
 
-		json_close_array
+		json_close_array # servers
 	fi
 
-	json_close_object
+	json_close_object # dns
 }
 
 add_routing_settings() {
@@ -694,20 +710,24 @@ add_routing_settings() {
 
 				if [ -n "$domain" ] ; then
 					json_add_array "domain"
+
 					local d
 					for d in $domain ; do
 						json_add_string "" "$d"
 					done
-					json_close_array
+
+					json_close_array # domain
 				fi
 
 				if [ -n "$ip" ] ; then
 					json_add_array "ip"
+
 					local i
 					for i in $ip ; do
 						json_add_string "" "$i"
 					done
-					json_close_array
+
+					json_close_array # ip
 				fi
 
 				if [ -n "$port" ] ; then
@@ -720,29 +740,35 @@ add_routing_settings() {
 
 				if [ -n "$source" ] ; then
 					json_add_array "source"
+
 					local s
 					for s in $source ; do
 						json_add_string "" "$s"
 					done
-					json_close_array
+
+					json_close_array # source
 				fi
 
 				if [ -n "$user" ] ; then
 					json_add_array "user"
+
 					local u
 					for u in $user ; do
 						json_add_string "" "$u"
 					done
-					json_close_array
+
+					json_close_array # user
 				fi
 
 				if [ -n "$inbound_tag" ] ; then
 					json_add_array "inboundTag"
+
 					local it
 					for it in $inbound_tag ; do
 						json_add_string "" "$it"
 					done
-					json_close_array
+
+					json_close_array # inboundTag
 				fi
 
 				if [ -n "$protocol" ] ; then
@@ -751,7 +777,7 @@ add_routing_settings() {
 					for p in $protocol ; do
 						json_add_string "" "$p"
 					done
-					json_close_array
+					json_close_array # protocol
 				fi
 
 				test -n "$attrs" && \
@@ -765,26 +791,31 @@ add_routing_settings() {
 			fi
 		done
 
-		json_close_array
+		json_close_array # rules
 	fi
 
 	if [ -n "$balancers" ] ; then
 		json_add_array "balancers"
+
 		local bs
 		for bs in $balancers ; do
 			if routing_balancer_section_validate "$bs" ; then
 				json_add_object ""
 				json_add_string "tag" "$tag"
+
 				json_add_array "selector"
+
 				local s
 				for s in $selector ; do
 					json_add_string "" "$s"
 				done
-				json_close_array
+
+				json_close_array # selector
 				json_close_object
 			fi
 		done
-		json_close_array
+
+		json_close_array # balancers
 	fi
 
 	json_close_object
@@ -807,6 +838,7 @@ add_policy_settings() {
 
 	if [ -n "$levels" ] ; then
 		json_add_object "levels"
+
 		local l_s
 		for l_s in $levels ; do
 			if policy_level_section_validate "$l_s" ; then
@@ -822,15 +854,16 @@ add_policy_settings() {
 				json_close_object
 			fi
 		done
-		json_close_object
+
+		json_close_object # levels
 	fi
 
 	json_add_object "system"
 	json_add_boolean "statsInboundUplink" "$system_stats_inbound_uplink"
 	json_add_boolean "statsInboundDownlink" "$system_stats_inbound_downlink"
-	json_close_object
+	json_close_object # system
 
-	json_close_object
+	json_close_object # policy
 }
 
 add_reverse_settings() {
@@ -850,6 +883,7 @@ add_reverse_settings() {
 
 	if [ -n "$bridges" ] ; then
 		json_add_array "bridges"
+
 		local b
 		for b in $bridges ; do
 			local tag="$(echo "$b" | cut -d'|' -f1)"
@@ -861,11 +895,13 @@ add_reverse_settings() {
 				json_close_object
 			fi
 		done
-		json_close_array
+
+		json_close_array # bridges
 	fi
 
 	if [ -n "$portals" ] ; then
 		json_add_array "portals"
+
 		local p
 		for p in $portals ; do
 			local tag="$(echo "$p" | cut -d'|' -f1)"
@@ -877,10 +913,11 @@ add_reverse_settings() {
 				json_close_object
 			fi
 		done
-		json_close_array
+
+		json_close_array # portals
 	fi
 
-	json_close_object
+	json_close_object # reverse
 }
 
 add_transport_settings() {
@@ -894,7 +931,7 @@ add_transport_settings() {
 
 	json_add_object "transport"
 	eval "$(get_commands_from_json "$json")"
-	json_close_object
+	json_close_object # transport
 }
 
 add_inbound_setting() {
@@ -943,18 +980,20 @@ add_inbound_setting() {
 			test -n "$s_dokodemo_door_user_level" && \
 				json_add_int "userLevel" "$s_dokodemo_door_user_level"
 
-			json_close_object
+			json_close_object # settings
 			;;
 		"http")
 			json_add_object "settings"
 
 			if [ -n "$s_http_account_user" ] ; then
 				json_add_array "accounts"
-				json_add_object
+
+				json_add_object ""
 				json_add_string "user" "$s_http_account_user"
 				json_add_string "pass" "$s_http_account_pass"
 				json_close_object
-				json_close_array
+
+				json_close_array # accounts
 			fi
 
 			json_add_boolean "allowTransparent" "$s_http_allow_transparent"
@@ -964,7 +1003,7 @@ add_inbound_setting() {
 			test -n "$s_http_user_level" && \
 				json_add_int "userLevel" "$s_http_user_level"
 
-			json_close_object
+			json_close_object # settings
 			;;
 		"mtproto")
 			json_add_object "settings"
@@ -972,49 +1011,57 @@ add_inbound_setting() {
 			if [ -n "$s_mtproto_user_email" ] ; then
 				json_add_array "users"
 				json_add_object ""
+
 				json_add_string "email" "$s_mtproto_user_email"
 				json_add_string "secret" "$s_mtproto_user_secret"
+
 				test -n "$s_mtproto_user_level" && \
 					json_add_int "level" "$s_mtproto_user_level"
+
 				json_close_object
-				json_close_array
+				json_close_array # users
 			fi
 
-			json_close_object
+			json_close_object # settings
 			;;
 		"shadowsocks")
 			json_add_object "settings"
 
 			json_add_string "method" "$s_shadowsocks_method"
 			json_add_string "password" "$s_shadowsocks_password"
+
 			test -n "$s_shadowsocks_email" && \
 				json_add_string "email" "$s_shadowsocks_email"
 			test -n "$s_shadowsocks_level" && \
 				json_add_int "level" "$s_shadowsocks_level"
+
 			json_add_boolean "ota" "$s_shadowsocks_ota"
 			json_add_string "network" "$(echo "$s_shadowsocks_network" | tr -s ' ' ',')"
 
-			json_close_object
+			json_close_object # settings
 			;;
 		"socks")
 			json_add_object "settings"
 
 			json_add_string "auth" "$s_socks_auth"
+
 			if [ -n "$s_socks_account_user" ] ; then
 				json_add_array "accounts"
 				json_add_object ""
 				json_add_string "user" "$s_socks_account_user"
 				json_add_string "pass" "$s_socks_account_pass"
 				json_close_object
-				json_close_array
+				json_close_array # accounts
 			fi
+
 			json_add_boolean "udp" "$s_socks_udp"
+
 			test -n "$s_socks_ip" && \
 				json_add_string "ip" "$s_socks_ip"
 			test -n "$s_socks_user_level" && \
 				json_add_int "userLevel" "$s_socks_user_level"
 
-			json_close_object
+			json_close_object # settings
 			;;
 		"vmess")
 			json_add_object "settings"
@@ -1022,37 +1069,43 @@ add_inbound_setting() {
 			if [ -n "$s_vmess_client_id" ] ; then
 				json_add_array "clients"
 				json_add_object ""
+
 				json_add_string "id" "$s_vmess_client_id"
+
 				test -n "$s_vmess_client_alter_id" && \
 					json_add_string "alterId" "$s_vmess_client_alter_id"
 				test -n "$s_vmess_client_email" && \
 					json_add_string "email" "$s_vmess_client_email"
 				test -n "$s_vmess_client_user_level" && \
 					json_add_int "level" "$s_vmess_client_user_level"
+
 				json_close_object
-				json_close_array
+				json_close_array # clients
 			fi
 
 			json_add_object "default"
+
 			test -n "$s_vmess_default_alter_id" && \
 				json_add_int "alterId" "$s_vmess_default_alter_id"
 			test -n "$s_vmess_default_user_level" && \
 				json_add_int "level" "$s_vmess_default_user_level"
-			json_close_object
+
+			json_close_object # default
 
 			if [ -n "$s_vmess_detour_to" ] ; then
 				json_add_object "detour"
 				json_add_string "to" "$s_vmess_detour_to"
-				json_close_object
+				json_close_object # detour
 			fi
 
 			json_add_boolean "disableInsecureEncryption" "$s_vmess_disable_insecure_encryption"
 
-			json_close_object
+			json_close_object # settings
 			;;
 	esac
 
 	json_add_object "streamSettings"
+
 	test -n "$ss_network" && \
 		json_add_string "network" "$ss_network"
 
@@ -1068,7 +1121,7 @@ add_inbound_setting() {
 		if [ -n "$ss_tls_alpn" ] ; then
 			json_add_array "alpn"
 			json_add_string "" "$ss_tls_alpn"
-			json_close_array
+			json_close_array # alpn
 		fi
 
 		json_add_boolean "allowInsecure" "$ss_tls_allow_insecure"
@@ -1077,7 +1130,7 @@ add_inbound_setting() {
 
 		json_add_array "certificates"
 		if [ -n "$ss_tls_cert_fiile" ] ; then
-			json_add_object
+			json_add_object ""
 
 			json_add_string "certificateFile" "$ss_tls_cert_fiile"
 			json_add_string "keyFile" "$ss_tls_key_file"
@@ -1094,6 +1147,7 @@ add_inbound_setting() {
 	case "${ss_network:-x}" in
 		"tcp")
 			json_add_object "tcpSettings"
+
 			if [ -n "$ss_tcp_header_type" ] ; then
 				json_add_object "header"
 				json_add_string "type" "$ss_tcp_header_type"
@@ -1107,7 +1161,7 @@ add_inbound_setting() {
 					if [ -n "$ss_tcp_header_request_path" ] ; then
 						json_add_array "path"
 						json_add_string "" "$ss_tcp_header_request_path"
-						json_close_array
+						json_close_array # path
 					fi
 
 					if [ -n "$ss_tcp_header_request_headers" ] ; then
@@ -1127,12 +1181,13 @@ add_inbound_setting() {
 						}
 						config_list_foreach "$section" "ss_tcp_header_request_headers" handle_request_header
 
-						json_close_object
+						json_close_object # headers
 					fi
 
 					json_close_object # request
 
 					json_add_object "response"
+
 					test -n "$ss_tcp_header_response_version" && \
 						json_add_string "version" "$ss_tcp_header_response_version"
 					test -n "$ss_tcp_header_response_status" && \
@@ -1157,17 +1212,19 @@ add_inbound_setting() {
 						}
 						config_list_foreach "$section" "ss_tcp_header_response_headers" handle_response_header
 
-						json_close_object
+						json_close_object # headers
 					fi
 
 					json_close_object # response
 				fi
-				json_close_object
+				json_close_object # header
 			fi
-			json_close_object
+
+			json_close_object # tcpSettings
 			;;
 		"kcp")
 			json_add_object "kcpSettings"
+
 			test -n "$ss_kcp_mtu" && \
 				json_add_int "mtu" "$ss_kcp_mtu"
 			test -n "$ss_kcp_tti" && \
@@ -1181,15 +1238,18 @@ add_inbound_setting() {
 				json_add_int "readBufferSize" "$ss_kcp_read_buffer_size"
 			test -n "$ss_kcp_write_buffer_size" && \
 				json_add_int "writeBufferSize" "$ss_kcp_write_buffer_size"
+
 			if [ -n "$ss_kcp_header_type" ] ; then
 				json_add_object "header"
 				json_add_string "type" "$ss_kcp_header_type"
-				json_close_object
+				json_close_object # header
 			fi
-			json_close_object
+
+			json_close_object # kcpSettings
 			;;
 		"ws")
 			json_add_object "wsSettings"
+
 			test -n "$ss_websocket_path" && \
 				json_add_string "path" "$ss_websocket_path"
 
@@ -1208,12 +1268,14 @@ add_inbound_setting() {
 				}
 				config_list_foreach "$section" "ss_websocket_headers" handle_websocket_header
 
-				json_close_object
+				json_close_object # headers
 			fi
-			json_close_object
+
+			json_close_object # wsSettings
 			;;
 		"http")
 			json_add_object "httpSettings"
+
 			if [ -n "$ss_http_host" ] ; then
 				json_add_array "host"
 
@@ -1222,21 +1284,25 @@ add_inbound_setting() {
 					json_add_string "" "$h"
 				done
 
-				json_close_array
+				json_close_array # host
 			fi
 
 			test -n "$ss_http_path" && \
 				json_add_string "path" "$ss_http_path"
-			json_close_object
+
+			json_close_object # httpSettings
 			;;
 		"domainsocket")
-			json_add_object "$dsSettings"
+			json_add_object "dsSettings"
+
 			test -n "$ss_domainsocket_path" && \
 				json_add_string "path" "$ss_domainsocket_path"
-			json_close_object
+
+			json_close_object # dsSettings
 			;;
 		"quic")
-			json_add_object "$quicSettings"
+			json_add_object "quicSettings"
+
 			test -n "$ss_quic_security" && \
 				json_add_string "security" "$ss_quic_security"
 			test -n "$ss_quic_key" && \
@@ -1245,9 +1311,10 @@ add_inbound_setting() {
 			if [ -n "$ss_quic_header_type" ] ; then
 				json_add_object "header"
 				json_add_string "type" "$ss_quic_header_type"
-				json_close_object
+				json_close_object # header
 			fi
-			json_close_object
+
+			json_close_object # quicSettings
 			;;
 	esac
 
@@ -1266,8 +1333,7 @@ add_inbound_setting() {
 			json_add_string "tproxy" "$ss_sockopt_tproxy"
 	fi
 
-	json_close_object
-
+	json_close_object # sockopt
 
 	json_close_object # streamSettings
 
@@ -1275,16 +1341,19 @@ add_inbound_setting() {
 		json_add_string "tag" "$tag"
 
 	json_add_object "sniffing"
+
 	json_add_boolean "enabled" "$sniffing_enabled"
+
 	if [ -n "$sniffing_dest_override" ] ; then
 		json_add_array "destOverride"
 		local d
 		for d in $sniffing_dest_override ; do
 			json_add_string "" "$d"
 		done
-		json_close_array
+		json_close_array # destOverride
 	fi
-	json_close_object
+
+	json_close_object # sniffing
 
 	if [ -n "$allocate_strategy" ] ; then
 		json_add_object "allocate"
@@ -1293,7 +1362,7 @@ add_inbound_setting() {
 			json_add_int "refresh" "$allocate_refresh"
 		test -n "$allocate_concurrency" &&	\
 			json_add_int "concurrency" "$allocate_concurrency"
-		json_close_object
+		json_close_object # allocate
 	fi
 
 	json_close_object
@@ -1315,52 +1384,69 @@ add_outbound_setting() {
 	case "${protocol:-x}" in
 		"blackhole")
 			json_add_object "settings"
+
 			if [ -n "$s_blackhole_reponse_type" ] ; then
 				json_add_object "response"
 				json_add_string "type" "$s_blackhole_reponse_type"
-				json_close_object
+				json_close_object # response
 			fi
-			json_close_object
+
+			json_close_object # settings
 			;;
 		"dns")
 			json_add_object "settings"
-			test -n "$s_dns_network" &&
+
+			test -n "$s_dns_network" && \
 				json_add_string "network" "$s_dns_network"
-			test -n "$s_dns_address" &&
+
+			if [ -n "$s_dns_address" ] ; then
 				json_add_string "address" "$s_dns_address"
-			test -n "$s_dns_port" &&
+				append_server_address "$s_dns_address"
+			fi
+
+			test -n "$s_dns_port" && \
 				json_add_int "port" "$s_dns_port"
-			json_close_object
+
+			json_close_object # settings
 			;;
 		"freedom")
 			json_add_object "settings"
-			test -n "$s_freedom_domain_strategy" &&
+
+			test -n "$s_freedom_domain_strategy" && \
 				json_add_string "domainStrategy"
-			test -n "$s_freedom_redirect" &&
+			test -n "$s_freedom_redirect" && \
 				json_add_string "redirect" "$s_freedom_redirect"
-			test -n "$s_freedom_user_level" &&
+			test -n "$s_freedom_user_level" && \
 				json_add_int "userLevel" "$s_freedom_user_level"
-			json_close_object
+
+			json_close_object # settings
 			;;
 		"http")
 			json_add_object "settings"
 			json_add_array "servers"
+
 			json_add_object ""
+
 			json_add_string "adress" "$s_http_server_address"
-			test -n "$s_http_server_port" &&
+			append_server_address "$s_http_server_address"
+
+			test -n "$s_http_server_port" && \
 				json_add_int "port" "$s_http_server_port"
 
 			if [ -n "$s_http_account_user" ] ; then
 				json_add_array "users"
 				json_add_object ""
+
 				json_add_string "user" "$s_http_account_user"
 				json_add_string "pass" "$s_http_account_pass"
+
 				json_close_object
-				json_close_array
+				json_close_array # users
 			fi
 			json_close_object
-			json_close_array
-			json_close_object
+
+			json_close_array # servers
+			json_close_object # settings
 			;;
 		"mtproto")
 			json_add_object "settings"
@@ -1368,68 +1454,77 @@ add_outbound_setting() {
 			;;
 		"shadowsocks")
 			json_add_object "settings"
-
 			json_add_array "servers"
+
 			json_add_object ""
-			test -n "$s_shadowsocks_email" &&
+			test -n "$s_shadowsocks_email" && \
 				json_add_string "email" "$s_shadowsocks_email"
 			json_add_string "address" "$s_shadowsocks_address"
+			append_server_address "$s_shadowsocks_address"
+
 			json_add_int "port" "$s_shadowsocks_port"
 			json_add_string "method" "$s_shadowsocks_method"
 			json_add_string "password" "$s_shadowsocks_password"
-			test -n "$s_shadowsocks_level" &&
+
+			test -n "$s_shadowsocks_level" && \
 				json_add_int "level" "$s_shadowsocks_level"
 			json_add_boolean "ota" "$s_shadowsocks_ota"
 			json_close_object
-			json_close_array
 
-			json_close_object
+			json_close_array # servers
+			json_close_object # settings
 			;;
 		"socks")
 			json_add_object "settings"
 			json_add_array "servers"
 
 			json_add_object ""
-			json_add_string "address"
+
+			json_add_string "address" "$s_socks_server_address"
+			append_server_address "$s_socks_server_address"
+
 			json_add_int "port" "$s_socks_server_port"
 
 			json_add_array "users"
 			json_add_object ""
 			json_add_string "user" "$s_socks_account_user"
 			json_add_string "pass" "$s_socks_account_pass"
-			test -n "$s_socks_user_level" &&
+			test -n "$s_socks_user_level" && \
 				json_add_int "level" "$s_socks_user_level"
 			json_close_object
-			json_close_array
+			json_close_array # users
 
 			json_close_object
 
-			json_close_array
-			json_close_object
+			json_close_array # servers
+			json_close_object # settings
 			;;
 		"vmess")
 			json_add_object "settings"
 
 			json_add_array "vnext"
 			json_add_object ""
+
 			json_add_string "address" "$s_vmess_address"
+			append_server_address "$s_vmess_address"
+
 			json_add_int "port" "$s_vmess_port"
 
 			json_add_array "users"
 			json_add_object ""
 			json_add_string "id" "$s_vmess_user_id"
 			json_add_int "alterId" "$s_vmess_user_alter_id"
-			test -n "$s_vmess_user_security" &&
+			test -n "$s_vmess_user_security" && \
 				json_add_string "security" "$s_vmess_user_security"
-			test -n "$s_vmess_user_level" &&
+			test -n "$s_vmess_user_level" && \
 				json_add_int "level" "$s_vmess_user_level"
 			json_close_object
-			json_close_array
+			json_close_array # users
 
 			json_close_object
-			json_close_array
 
-			json_close_object
+			json_close_array # vnext
+			json_close_object # settings
 			;;
 	esac
 
@@ -1458,7 +1553,7 @@ add_outbound_setting() {
 
 		json_add_array "certificates"
 		if [ -n "$ss_tls_cert_fiile" ] ; then
-			json_add_object
+			json_add_object ""
 			json_add_string "certificateFile" "$ss_tls_cert_fiile"
 			json_add_string "keyFile" "$ss_tls_key_file"
 			test -n "$ss_tls_cert_usage" && \
@@ -1473,6 +1568,7 @@ add_outbound_setting() {
 	case "${ss_network:-x}" in
 		"tcp")
 			json_add_object "tcpSettings"
+
 			if [ -n "$ss_tcp_header_type" ] ; then
 				json_add_object "header"
 				json_add_string "type" "$ss_tcp_header_type"
@@ -1506,7 +1602,7 @@ add_outbound_setting() {
 						}
 						config_list_foreach "$section" "ss_tcp_header_request_headers" handle_request_header
 
-						json_close_object
+						json_close_object # headers
 					fi
 
 					json_close_object # request
@@ -1536,17 +1632,20 @@ add_outbound_setting() {
 						}
 						config_list_foreach "$section" "ss_tcp_header_response_headers" handle_response_header
 
-						json_close_object
+						json_close_object # headers
 					fi
 
 					json_close_object # response
 				fi
-				json_close_object
+
+				json_close_object # header
 			fi
-			json_close_object
+
+			json_close_object # tcpSettings
 			;;
 		"kcp")
 			json_add_object "kcpSettings"
+
 			test -n "$ss_kcp_mtu" && \
 				json_add_int "mtu" "$ss_kcp_mtu"
 			test -n "$ss_kcp_tti" && \
@@ -1555,20 +1654,25 @@ add_outbound_setting() {
 				json_add_int "uplinkCapacity" "$ss_kcp_uplink_capacity"
 			test -n "$ss_kcp_downlink_capacity" && \
 				json_add_int "downlinkCapacity" "$ss_kcp_downlink_capacity"
+
 			json_add_boolean "congestion" "$ss_kcp_congestion"
+
 			test -n "$ss_kcp_read_buffer_size" && \
 				json_add_int "readBufferSize" "$ss_kcp_read_buffer_size"
 			test -n "$ss_kcp_write_buffer_size" && \
 				json_add_int "writeBufferSize" "$ss_kcp_write_buffer_size"
+
 			if [ -n "$ss_kcp_header_type" ] ; then
 				json_add_object "header"
 				json_add_string "type" "$ss_kcp_header_type"
 				json_close_object
 			fi
-			json_close_object
+
+			json_close_object # kcpSettings
 			;;
 		"ws")
 			json_add_object "wsSettings"
+
 			test -n "$ss_websocket_path" && \
 				json_add_string "path" "$ss_websocket_path"
 
@@ -1587,12 +1691,14 @@ add_outbound_setting() {
 				}
 				config_list_foreach "$section" "ss_websocket_headers" handle_websocket_header
 
-				json_close_object
+				json_close_object # headers
 			fi
-			json_close_object
+
+			json_close_object # wsSettings
 			;;
 		"http")
 			json_add_object "httpSettings"
+
 			if [ -n "$ss_http_host" ] ; then
 				json_add_array "host"
 
@@ -1601,21 +1707,25 @@ add_outbound_setting() {
 					json_add_string "" "$h"
 				done
 
-				json_close_array
+				json_close_array # host
 			fi
 
 			test -n "$ss_http_path" && \
 				json_add_string "path" "$ss_http_path"
-			json_close_object
+
+			json_close_object # httpSettings
 			;;
 		"domainsocket")
-			json_add_object "$dsSettings"
+			json_add_object "dsSettings"
+
 			test -n "$ss_domainsocket_path" && \
 				json_add_string "path" "$ss_domainsocket_path"
-			json_close_object
+
+			json_close_object # dsSettings
 			;;
 		"quic")
-			json_add_object "$quicSettings"
+			json_add_object "quicSettings"
+
 			test -n "$ss_quic_security" && \
 				json_add_string "security" "$ss_quic_security"
 			test -n "$ss_quic_key" && \
@@ -1624,22 +1734,26 @@ add_outbound_setting() {
 			if [ -n "$ss_quic_header_type" ] ; then
 				json_add_object "header"
 				json_add_string "type" "$ss_quic_header_type"
-				json_close_object
+				json_close_object # header
 			fi
-			json_close_object
+
+			json_close_object # quicSettings
 			;;
 	esac
 
 	json_add_object "sockopt"
+
 	if [ -n "$TRANSPARENT_PROXY_PORT" ] ; then
 		json_add_int "mark" "255"
 	else
 		test -n "$ss_sockopt_mark" && \
 			json_add_int "mark" "$ss_sockopt_mark"
 	fi
+
 	test -n "$ss_sockopt_tcp_fast_open" && \
 		json_add_boolean "tcpFastOpen" "$ss_sockopt_tcp_fast_open"
-	json_close_object
+
+	json_close_object # sockopt
 
 	json_close_object # streamSettings
 
@@ -1649,14 +1763,14 @@ add_outbound_setting() {
 	if [ -n "$proxy_settings_tag" ] ; then
 		json_add_object "proxySettings"
 		json_add_string "tag" "$proxy_settings_tag"
-		json_close_object
+		json_close_object # proxySettings
 	fi
 
 	if [ "x$mux_enabled" = "x1" ] ; then
 		json_add_object "mux"
 		json_add_boolean "enabled" "1"
 		json_add_int "concurrency" "$mux_concurrency"
-		json_close_object
+		json_close_object # mux
 	fi
 
 	json_close_object
@@ -1763,6 +1877,7 @@ setup_transparent_proxy() {
 	rm -f "$FILE_V2RAY_DNSMASQ_CACHE"
 
 	if [ "x$TRANSPARENT_PROXY_USE_TPROXY" = "x1" ] ; then
+		_info "Use TProxy to setup iptables"
 		add_v2ray_tproxy_rules "$TRANSPARENT_PROXY_PORT" "$ext_args" \
 			"$TRANSPARENT_PROXY_ADDITION"
 	else
@@ -1820,15 +1935,7 @@ start_instance() {
 		local addr
 
 		for addr in $(echo "$config_commands" | sed -n "s/^json.*'address'[[:space:]]'\([^']*\)'.*/\1/p") ; do
-			local ipv4
-			for ipv4 in $(resolveip -4 -t 5 "$addr") ; do
-				append_server_ipv4 "$ipv4"
-			done
-
-			local ipv6
-			for ipv6 in $(resolveip -6 -t 5 "$addr") ; do
-				append_server_ipv6 "$ipv6"
-			done
+			append_server_address "$addr"
 		done
 
 		temp_config="$config_file"
@@ -1842,6 +1949,7 @@ start_instance() {
 		json_init
 
 		json_add_object "log"
+
 		test -n "$access_log" && \
 			json_add_string "access" "$access_log"
 
@@ -1849,11 +1957,12 @@ start_instance() {
 			json_add_string "loglevel" "$loglevel"
 			json_add_string "error" "$error_log"
 		fi
-		json_close_object
+
+		json_close_object # log
 
 		if [ "x$stats_enabled" = "x1" ] ; then
 			json_add_object "stats"
-			json_close_object
+			json_close_object # stats
 		fi
 
 		add_dns_settings "$section"
@@ -1867,23 +1976,28 @@ start_instance() {
 
 		if [ -n "$inbounds" ] ; then
 			json_add_array "inbounds"
+
 			local is
 			for is in $inbounds ; do
 				add_inbound_setting "$is"
 			done
-			json_close_array
+
+			json_close_array # inbounds
 		fi
 
 		if [ -n "$outbounds" ] ; then
 			json_add_array "outbounds"
+
 			local os
 			for os in $outbounds ; do
 				add_outbound_setting "$os"
 			done
-			json_close_array
+
+			json_close_array # outbounds
 		fi
 
 		json_dump -i >"$temp_config"
+
 		json_cleanup
 		json_set_namespace "$old_ns"
 
