@@ -202,7 +202,7 @@ function import_outbound()
 	uci:set("v2ray", section_name, "s_vmess_user_alter_id", obj["aid"] or "")
 	uci:set("v2ray", section_name, "ss_security", obj["tls"] or "")
 
-	local network = obj["net"] or "tcp"
+	local network = obj["net"] or ""
 	local header_type = obj["type"] or ""
 	local host_list = obj["host"] or ""
 	local path = obj["path"] or ""
