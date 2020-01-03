@@ -1062,26 +1062,33 @@ add_inbound_setting() {
 	if [ "x$ss_security" = "xtls" ] ; then
 		json_add_object "tlsSettings"
 
-		json_add_string "serverName" "$ss_tls_server_name"
+		test -n "$ss_tls_server_name" && \
+			json_add_string "serverName" "$ss_tls_server_name"
+
 		if [ -n "$ss_tls_alpn" ] ; then
 			json_add_array "alpn"
 			json_add_string "" "$ss_tls_alpn"
 			json_close_array
 		fi
+
 		json_add_boolean "allowInsecure" "$ss_tls_allow_insecure"
 		json_add_boolean "allowInsecureCiphers" "$ss_tls_allow_insecure_ciphers"
 		json_add_boolean "disableSystemRoot" "$ss_tls_disable_system_root"
 
 		json_add_array "certificates"
 		if [ -n "$ss_tls_cert_fiile" ] ; then
+			json_add_object
+
 			json_add_string "certificateFile" "$ss_tls_cert_fiile"
 			json_add_string "keyFile" "$ss_tls_key_file"
 			test -n "$ss_tls_cert_usage" && \
 				json_add_string "usage" "$ss_tls_cert_usage"
-		fi
-		json_close_array
 
-		json_close_object
+			json_close_object
+		fi
+		json_close_array # certificates
+
+		json_close_object # tlsSettings
 	fi
 
 	case "${ss_network:-x}" in
@@ -1436,26 +1443,31 @@ add_outbound_setting() {
 	if [ "x$ss_security" = "xtls" ] ; then
 		json_add_object "tlsSettings"
 
-		json_add_string "serverName" "$ss_tls_server_name"
+		test -n "$ss_tls_server_name" && \
+			json_add_string "serverName" "$ss_tls_server_name"
+
 		if [ -n "$ss_tls_alpn" ] ; then
 			json_add_array "alpn"
 			json_add_string "" "$ss_tls_alpn"
 			json_close_array
 		fi
+
 		json_add_boolean "allowInsecure" "$ss_tls_allow_insecure"
 		json_add_boolean "allowInsecureCiphers" "$ss_tls_allow_insecure_ciphers"
 		json_add_boolean "disableSystemRoot" "$ss_tls_disable_system_root"
 
 		json_add_array "certificates"
 		if [ -n "$ss_tls_cert_fiile" ] ; then
+			json_add_object
 			json_add_string "certificateFile" "$ss_tls_cert_fiile"
 			json_add_string "keyFile" "$ss_tls_key_file"
 			test -n "$ss_tls_cert_usage" && \
 				json_add_string "usage" "$ss_tls_cert_usage"
+			json_close_object
 		fi
-		json_close_array
+		json_close_array # certificates
 
-		json_close_object
+		json_close_object # tlsSettings
 	fi
 
 	case "${ss_network:-x}" in
