@@ -926,16 +926,19 @@ add_inbound_setting() {
 			else
 				test -n "$s_dokodemo_door_address" && \
 					json_add_string "address" "$s_dokodemo_door_address"
+
 				test -n "$s_dokodemo_door_port" && \
 					json_add_int "port" "$s_dokodemo_door_port"
+
+				test -n "$s_dokodemo_door_follow_redirect" && \
+					json_add_boolean "followRedirect" "$s_dokodemo_door_follow_redirect"
+
 				test -n "$s_dokodemo_door_network" && \
 					json_add_string "network" "$(echo "$s_dokodemo_door_network" | tr -s ' ' ',')"
 			fi
 
 			test -n "$s_dokodemo_door_timeout" && \
 				json_add_int "timeout" "$s_dokodemo_door_timeout"
-
-			json_add_boolean "followRedirect" "$s_dokodemo_door_follow_redirect"
 
 			test -n "$s_dokodemo_door_user_level" && \
 				json_add_int "userLevel" "$s_dokodemo_door_user_level"
