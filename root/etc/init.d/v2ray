@@ -1649,12 +1649,12 @@ add_outbound_setting() {
 
 init_transparent_proxy() {
 	local tp_cfg="main_transparent_proxy"
-	local redirect_port use_tproxy udp_proxy_enabled dns_proxy_enabled
+	local redirect_port use_tproxy redirect_udp redirect_dns
 
 	config_get redirect_port "$tp_cfg" "redirect_port"
 	config_get_bool use_tproxy "$tp_cfg" "use_tproxy" "0"
-	config_get_bool udp_proxy_enabled "$tp_cfg" "udp_proxy_enabled" "0"
-	config_get_bool dns_proxy_enabled "$tp_cfg" "dns_proxy_enabled" "0"
+	config_get_bool redirect_udp "$tp_cfg" "redirect_udp" "0"
+	config_get_bool redirect_dns "$tp_cfg" "redirect_dns" "0"
 
 	if [ -n "$redirect_port" ] && \
 		! validate_data "port" "$redirect_port" 2>/dev/null ; then
@@ -1665,9 +1665,9 @@ init_transparent_proxy() {
 	TRANSPARENT_PROXY_PORT="$redirect_port"
 	TRANSPARENT_PROXY_USE_TPROXY="$use_tproxy"
 
-	if [ "x$udp_proxy_enabled" = "x1" ] ; then
+	if [ "x$redirect_udp" = "x1" ] ; then
 		TRANSPARENT_PROXY_ADDITION="udp"
-	elif [ "x$dns_proxy_enabled" = "x1" ] ; then
+	elif [ "x$redirect_dns" = "x1" ] ; then
 		TRANSPARENT_PROXY_ADDITION="dns"
 	else
 		TRANSPARENT_PROXY_ADDITION=
@@ -1688,12 +1688,12 @@ setup_transparent_proxy() {
 	_info "Setting transparent proxy on port: $TRANSPARENT_PROXY_PORT"
 
 	local tp_cfg="main_transparent_proxy"
-	local proxy_privileged_ports proxy_mode direct_list_dns proxy_list_dns
+	local only_privileged_ports proxy_mode direct_list_dns proxy_list_dns
 
+	config_get_bool only_privileged_ports "$tp_cfg" "only_privileged_ports" "0"
 	config_get proxy_mode "$tp_cfg" "proxy_mode"
 	config_get direct_list_dns "$tp_cfg" "direct_list_dns"
 	config_get proxy_list_dns "$tp_cfg" "proxy_list_dns"
-	config_get_bool proxy_privileged_ports "$tp_cfg" "proxy_privileged_ports" "0"
 
 	_info "Transparent proxy mode: $proxy_mode"
 
@@ -1734,7 +1734,7 @@ setup_transparent_proxy() {
 			;;
 	esac
 
-	if [ "x$proxy_privileged_ports" = "x1" ] ; then
+	if [ "x$only_privileged_ports" = "x1" ] ; then
 		ext_args="--dport 0:1023 $ext_args"
 	fi
 

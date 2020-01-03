@@ -253,10 +253,6 @@ msgstr ""
 msgid "DNS Servers"
 msgstr "DNS 服务器"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:55
-msgid "DNS proxy enabled"
-msgstr "启用 DNS 代理"
-
 #: luasrc/model/cbi/v2ray/dns.lua:43
 msgid "DNS server"
 msgstr "DNS 服务器"
@@ -659,6 +655,10 @@ msgstr "每行一个地址，支持的类型：域名、IP、CIDR。例如：%s�
 msgid "Only privileged ports"
 msgstr "仅特权端口"
 
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:51
+msgid "Only redirect traffic on ports below 1024."
+msgstr "仅转发端口小于 1024 的流量。"
+
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:215
 msgid ""
 "Optional feature to suggest client to take a detour. If specified, this "
@@ -745,10 +745,6 @@ msgstr "代理列表 DNS"
 msgid "Proxy mode"
 msgstr "代理模式"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:51
-msgid "Proxy ports below 1024."
-msgstr "代理小于 1024 的端口。"
-
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:377
 msgid "Proxy settings"
 msgstr "出站代理配置"
@@ -761,6 +757,22 @@ msgstr "读取缓冲区大小"
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:86
 msgid "Redirect"
 msgstr "发送到指定地址"
+
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:55
+msgid "Redirect DNS"
+msgstr "转发 DNS"
+
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:55
+msgid "Redirect DNS traffic to V2Ray."
+msgstr "转发 DNS 流量到 V2Ray。"
+
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:53
+msgid "Redirect UDP"
+msgstr "转发 UDP"
+
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:53
+msgid "Redirect UDP traffic to V2Ray."
+msgstr "转发 UDP 流量到 V2Ray。"
 
 #: luasrc/model/cbi/v2ray/transparent-proxy.lua:41
 msgid "Redirect port"
@@ -875,6 +887,10 @@ msgstr "服务器端口"
 #: luasrc/model/cbi/v2ray/main.lua:106
 msgid "Settings"
 msgstr "配置"
+
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:48
+msgid "Setup redirect rules with TProxy."
+msgstr "使用 TProxy 来设置转发规则。"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:415
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:417
@@ -1004,10 +1020,6 @@ msgstr "类型"
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:174
 msgid "UDP"
 msgstr ""
-
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:53
-msgid "UDP proxy enabled"
-msgstr "启用 UDP 代理"
 
 #: luasrc/view/v2ray/list_status.htm:38 luasrc/view/v2ray/list_status.htm:54
 msgid "Update"

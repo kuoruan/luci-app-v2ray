@@ -145,8 +145,6 @@ config outbound 'dns_out'
 
 config transparent_proxy 'main_transparent_proxy'
 	option redirect_port ''
-	option udp_proxy_enabled '0'
-	option dns_proxy_enabled '0'
 	option proxy_mode 'default'
 	option apnic_delegated_mirror 'apnic'
 	option gfwlist_mirror 'github'

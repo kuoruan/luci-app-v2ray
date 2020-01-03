@@ -45,16 +45,16 @@ for k, v in pairs(dokodemo_door_list) do
 end
 o.datatype = "port"
 
-o = s:option(Flag, "use_tproxy", translate("Use TProxy"))
+o = s:option(Flag, "use_tproxy", translate("Use TProxy"), translate("Setup redirect rules with TProxy."))
 
-o = s:option(Flag, "proxy_privileged_ports", translate("Only privileged ports"),
-	translate("Proxy ports below 1024."))
+o = s:option(Flag, "only_privileged_ports", translate("Only privileged ports"),
+	translate("Only redirect traffic on ports below 1024."))
 
-o = s:option(Flag, "udp_proxy_enabled", translate("UDP proxy enabled"))
+o = s:option(Flag, "redirect_udp", translate("Redirect UDP"), translate("Redirect UDP traffic to V2Ray."))
 
-o = s:option(Flag, "dns_proxy_enabled", translate("DNS proxy enabled"))
-o:depends("udp_proxy_enabled", "")
-o:depends("udp_proxy_enabled", "0")
+o = s:option(Flag, "redirect_dns", translate("Redirect DNS"), translate("Redirect DNS traffic to V2Ray."))
+o:depends("redirect_udp", "")
+o:depends("redirect_udp", "0")
 
 o = s:option(ListValue, "proxy_mode", translate("Proxy mode"))
 o:value("default", translate("Default"))

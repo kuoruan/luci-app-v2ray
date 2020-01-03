@@ -253,10 +253,6 @@ msgstr ""
 msgid "DNS Servers"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:55
-msgid "DNS proxy enabled"
-msgstr ""
-
 #: luasrc/model/cbi/v2ray/dns.lua:43
 msgid "DNS server"
 msgstr ""
@@ -659,6 +655,10 @@ msgstr ""
 msgid "Only privileged ports"
 msgstr ""
 
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:51
+msgid "Only redirect traffic on ports below 1024."
+msgstr ""
+
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:215
 msgid ""
 "Optional feature to suggest client to take a detour. If specified, this "
@@ -745,10 +745,6 @@ msgstr ""
 msgid "Proxy mode"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:51
-msgid "Proxy ports below 1024."
-msgstr ""
-
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:377
 msgid "Proxy settings"
 msgstr ""
@@ -760,6 +756,22 @@ msgstr ""
 
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:86
 msgid "Redirect"
+msgstr ""
+
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:55
+msgid "Redirect DNS"
+msgstr ""
+
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:55
+msgid "Redirect DNS traffic to V2Ray."
+msgstr ""
+
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:53
+msgid "Redirect UDP"
+msgstr ""
+
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:53
+msgid "Redirect UDP traffic to V2Ray."
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/transparent-proxy.lua:41
@@ -874,6 +886,10 @@ msgstr ""
 
 #: luasrc/model/cbi/v2ray/main.lua:106
 msgid "Settings"
+msgstr ""
+
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:48
+msgid "Setup redirect rules with TProxy."
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:415
@@ -1003,10 +1019,6 @@ msgstr ""
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:174
 msgid "UDP"
-msgstr ""
-
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:53
-msgid "UDP proxy enabled"
 msgstr ""
 
 #: luasrc/view/v2ray/list_status.htm:38 luasrc/view/v2ray/list_status.htm:54
