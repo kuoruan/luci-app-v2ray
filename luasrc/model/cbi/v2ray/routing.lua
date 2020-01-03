@@ -1,4 +1,4 @@
--- Copyright 2019 Xingwang Liao <kuoruan@gmail.com>
+-- Copyright 2019-2020 Xingwang Liao <kuoruan@gmail.com>
 -- Licensed to the public under the MIT License.
 
 local dsp = require "luci.dispatcher"

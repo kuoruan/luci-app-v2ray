@@ -1,4 +1,8 @@
 #!/bin/sh
+#
+# Copyright 2019-2020 Xingwang Liao <kuoruan@gmail.com>
+# Licensed to the public under the MIT License.
+#
 
 # v2ray main
 v2ray=$(uci -q get v2ray.main)
