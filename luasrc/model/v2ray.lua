@@ -39,26 +39,28 @@ function generate_gfwlist()
 		gfwlist_url = gfwlist_urls['github']
 	end
 
-	local lines = {}
-
-	local f = sys.httpget(url, true)
+	local f = sys.httpget(gfwlist_url, true)
 	if not f then
 		return false
 	end
 
+	local t = {}
+
 	for line in f:lines() do
-		lines[#lines + 1] = line
+		t[#t+1] = line
 	end
 
 	f:close()
 
-	if not next(lines) then
+	if not next(t) then
 		return false
 	end
 
+	local content = table.concat(t, "")
+
 	local domains = {}
 
-	local decoded = nixio.bin.b64decode(table.contact(lines, ""))
+	local decoded = nixio.bin.b64decode(content)
 
 	for line in util.imatch(decoded) do
 		if not string.match(line, "^$") and
