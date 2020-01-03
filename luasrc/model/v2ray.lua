@@ -5,6 +5,7 @@ local nixio = require "nixio"
 local util = require "luci.util"
 local sys = require "luci.sys"
 local uci = require "luci.model.uci".cursor()
+local json = require "luci.jsonc"
 
 module("luci.model.v2ray", package.seeall)
 
@@ -211,4 +212,20 @@ function get_routelist_status()
 			lastModify = chnroute6_time ~= "" and util.trim(chnroute6_time) or "-/-/-"
 		}
 	}
+end
+
+function vmess_to_object(link)
+	local content = string.match(link, "^vmess://(%S+)")
+
+	if not content or content == "" then
+		return nil
+	end
+
+	local decoded = nixio.bin.b64decode(content)
+
+	if not decoded or decoded == "" then
+		return nil
+	end
+
+	return json.parse(decoded)
 end

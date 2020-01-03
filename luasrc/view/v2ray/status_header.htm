@@ -1,15 +1,15 @@
 <%#
- Copyright 2019 Xingwang Liao <kuoruan@gmail.com>
- Licensed to the public under the MIT License.
+	Copyright 2019 Xingwang Liao <kuoruan@gmail.com>
+	Licensed to the public under the MIT License.
 -%>
 
 <%
 local dsp = require "luci.dispatcher"
 -%>
 
-<fieldset class="cbi-section">
+<div class="cbi-section">
 	<p id="v2ray_status"><em><%:Collecting data...%></em></p>
-</fieldset>
+</div>
 
 <script type="text/javascript">//<![CDATA[
 	XHR.poll(5, '<%=dsp.build_url("admin/services/v2ray/status")%>', null,

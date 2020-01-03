@@ -1,6 +1,6 @@
 <%#
- Copyright 2019 Xingwang Liao <kuoruan@gmail.com>
- Licensed to the public under the MIT License.
+	Copyright 2019 Xingwang Liao <kuoruan@gmail.com>
+	Licensed to the public under the MIT License.
 -%>
 
 <%
@@ -37,11 +37,13 @@ local dsp = require "luci.dispatcher"
 				btn.disabled = false;
 				btn.value    = '<%:Update%>';
 
-				if (x.status === 200 && data) {
-					if (data['<%=self.listtype%>'] === true) {
-						alert('<%:List updated, reload page to see detail.%>');
+				if (x.status === 200 && data)
+				{
+					if (data['<%=self.listtype%>'] === true)
+					{
+						window.alert('<%:List updated, reload page to see detail.%>');
 					} else {
-						alert('<%:List update failed, please try again later.%>');
+						window.alert('<%:List update failed, please try again later.%>');
 					}
 				}
 			}

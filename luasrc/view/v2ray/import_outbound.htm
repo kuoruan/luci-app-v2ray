@@ -1,0 +1,54 @@
+<%#
+  Copyright 2020 Xingwang Liao <kuoruan@gmail.com>
+  Licensed to the public under the MIT License.
+-%>
+
+<%
+local dsp = require "luci.dispatcher"
+-%>
+
+<div class="cbi-section">
+  <div class="cbi-section-descr">
+    <input type="button" class="cbi-button" value="<%:Import%>" onclick="return import_outbound(this);" />
+    <span style="margin-left: 5px;"><%=translatef("Allowed link format: <code>%s</code>", "vmess://xxxxx")%></span>
+  </div>
+</div>
+
+<script type="text/javascript">//<![CDATA[
+  function import_outbound(btn) {
+    var link = window.prompt('<%:Vmess link:%>', '');
+
+    if (!link) return;
+
+    if (link.indexOf("vmess://") !== 0)
+    {
+      window.alert('<%:Unsupported Link%>');
+      return
+    }
+
+    btn.disabled = true;
+    btn.value    = '<%:Importing...%>';
+
+    (new XHR()).post('<%=dsp.build_url("admin/services/v2ray/import-outbound")%>',
+			{ token: '<%=token%>', link: link },
+			function(x, data)
+			{
+				btn.disabled = false;
+				btn.value    = '<%:Import%>';
+
+        if (x.status === 200 && data)
+        {
+          if (data.success)
+          {
+            window.alert('<%:Link imported%>');
+            window.location.reload();
+          }
+          else
+          {
+            window.alert(data.message || '<%:Import failed%>');
+          }
+        }
+			}
+		);
+  }
+//]]></script>

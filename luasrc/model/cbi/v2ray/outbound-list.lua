@@ -6,6 +6,7 @@ local dsp = require "luci.dispatcher"
 local m, s, o
 
 m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Outbound") })
+m:append(Template("v2ray/import_outbound"))
 
 s = m:section(TypedSection, "outbound")
 s.anonymous = true
