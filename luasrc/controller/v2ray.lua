@@ -235,10 +235,14 @@ function import_outbound()
 		uci:set("v2ray", section_name, "ss_network", "http")
 		uci:set("v2ray", section_name, "ss_http_path", path)
 
-		local host = string.match(host_list, "^([^,%s]+)")
+		local hosts = { }
 
-		if host then
-			uci:set("v2ray", section_name, "ss_http_host", header_type)
+		for h in string.gmatch(host_list, "([^,%s]+),?") do
+			hosts[#hosts+1] = h
+		end
+
+		if next(hosts) then
+			uci:set_list("v2ray", section_name, "ss_http_host", hosts)
 		end
 	elseif network == "quic" then
 		uci:set("v2ray", section_name, "ss_network", "quic")
