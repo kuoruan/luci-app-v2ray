@@ -4,6 +4,8 @@
 local uci = require "luci.model.uci".cursor()
 local fs = require "nixio.fs"
 local sys = require "luci.sys"
+local nwm = require "luci.model.network".init()
+local v2ray = require "luci.model.v2ray"
 
 local m, s, o
 
@@ -21,7 +23,16 @@ uci:foreach("v2ray", "inbound", function(s)
   end
 end)
 
-local proxy_list_path, direct_list_path = "/etc/v2ray/proxylist.txt", "/etc/v2ray/directlist.txt"
+local interfaces = {}
+for _, net in ipairs(nwm:get_networks()) do
+	local net_name = net:name()
+	if net_name ~= "loopback" and string.find(net_name, "wan") ~= 1 then
+		local device = net:get_interface()
+		if device then
+			interfaces[net_name] = device:get_i18n()
+		end
+	end
+end
 
 local has_ssl = true, ssl_note
 
@@ -30,10 +41,15 @@ if not fs.stat("/lib/libustream-ssl.so") then
 	ssl_note = translatef("Please install %s or %s to enable list update.", "libustream-openssl", "libustream-mbedtls")
 end
 
+local list_changed = false
+
 m = Map("v2ray", "%s - %s" % { translate("V2Ray"), translate("Transparent Proxy") })
 m.apply_on_parse = true
 m.on_after_apply = function ()
-	sys.call("/etc/init.d/v2ray reload 2>/dev/null")
+	if list_changed then
+		sys.call("/etc/init.d/v2ray reload 2>/dev/null")
+		list_changed = false
+	end
 end
 
 s = m:section(NamedSection, "main_transparent_proxy", "transparent_proxy")
@@ -44,6 +60,25 @@ for k, v in pairs(dokodemo_door_list) do
 	o:value(k, v)
 end
 o.datatype = "port"
+
+o = s:option(MultiValue, "lan_ifaces", translate("LAN interfaces"), translate("Enable proxy on selected interfaces."))
+o.delimiter = " "
+o.forcewrite = true
+o.cfgvalue = function(...)
+	local v = MultiValue.cfgvalue(...)
+	if not v then
+		local names = {}
+		for name, _ in pairs(interfaces) do
+			names[#names+1] = name
+		end
+		return table.concat(names, " ")
+	else
+		return v
+	end
+end
+for k, v in pairs(interfaces) do
+	o:value(k, v)
+end
 
 o = s:option(Flag, "use_tproxy", translate("Use TProxy"), translate("Setup redirect rules with TProxy."))
 
@@ -89,15 +124,12 @@ o = s:option(TextValue, "_proxy_list", translate("Extra proxy list"),
 o.wrap = "off"
 o.rows = 5
 o.datatype = "string"
-o.cfgvalue = function(self, section)
-  return fs.readfile(proxy_list_path) or ""
-end
-o.write = function(self, section, value)
-	value = value:gsub("\r\n?", "\n")
-	fs.writefile(proxy_list_path, value)
-end
-o.remove = function(self, section, value)
-	fs.writefile(proxy_list_path, "")
+o.filepath = "/etc/v2ray/proxylist.txt"
+o.cfgvalue = v2ray.textarea_cfgvalue
+o.write = v2ray.textarea_write
+o.remove = v2ray.textarea_remove
+o.parse = function(...)
+	list_changed = v2ray.textarea_parse(...)
 end
 
 o = s:option(TextValue, "_direct_list", translate("Extra direct list"),
@@ -105,15 +137,12 @@ o = s:option(TextValue, "_direct_list", translate("Extra direct list"),
 o.wrap = "off"
 o.rows = 5
 o.datatype = "string"
-o.cfgvalue = function(self, section)
-  return fs.readfile(direct_list_path) or ""
-end
-o.write = function(self, section, value)
-	value = value:gsub("\r\n?", "\n")
-	fs.writefile(direct_list_path, value)
-end
-o.remove = function(self, section, value)
-	fs.writefile(direct_list_path, "")
+o.filepath = "/etc/v2ray/directlist.txt"
+o.cfgvalue = v2ray.textarea_cfgvalue
+o.write = v2ray.textarea_write
+o.remove = v2ray.textarea_remove
+o.parse = function(...)
+	list_changed = v2ray.textarea_parse(...)
 end
 
 o = s:option(Value, "proxy_list_dns", translate("Proxy list DNS"),

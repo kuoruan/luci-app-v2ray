@@ -40,6 +40,8 @@ else
 	exit 1
 fi
 
+. /lib/functions/network.sh
+
 _log() {
 	local level="$1" ; shift
 	local msg="$@"
@@ -388,10 +390,12 @@ outbound_section_validate() {
 		'mux_concurrency:uinteger:8'
 }
 
-add_v2ray_rules() {
-	local port="$1"
-	local ext_args="$2"
-	local addition_proxy="$3"
+add_v2ray_redirect_rules() {
+	local ext_args="$1"
+
+	local port="$TRANSPARENT_PROXY_PORT"
+
+	test -n "$port" || return
 
 	iptables-restore --noflush <<-EOF 2>/dev/null
 		*nat
@@ -404,12 +408,12 @@ add_v2ray_rules() {
 		COMMIT
 	EOF
 
-	if [ -n "$addition_proxy" ] ; then
-		ip route add local default dev lo table 100 2>/dev/null
+	if [ -n "$TRANSPARENT_PROXY_ADDITION" ] ; then
+		ip route add local 0.0.0.0/0 dev lo table 100 2>/dev/null
 		ip rule add fwmark 1 lookup 100
 
 		local d_port=""
-		if [ "$addition_proxy" = "dns" ] ; then
+		if [ "$TRANSPARENT_PROXY_ADDITION" = "dns" ] ; then
 			d_port="--dport 53"
 		fi
 
@@ -418,7 +422,7 @@ add_v2ray_rules() {
 			:V2RAY -
 			-A V2RAY -p udp -j RETURN -m mark --mark 0xff
 			-A V2RAY -p udp -j RETURN -m set --match-set $IPSET_DST_DIRECT_V4 dst
-			-A V2RAY -p udp $d_port -j TPROXY --on-port $port --tproxy-mark 0x01/0x01
+			-A V2RAY -p udp $d_port -j TPROXY --on-port $port --tproxy-mark 0x1/0x1
 			-A PREROUTING -p udp -j V2RAY
 
 			:V2RAY_MARK -
@@ -432,31 +436,41 @@ add_v2ray_rules() {
 }
 
 add_v2ray_tproxy_rules() {
-	local port="$1"
-	local ext_args="$2"
-	local addition_proxy="$3"
+	local ext_args="$1"
 
-	ip route add local default dev lo table 100 2>/dev/null
+	local port="$TRANSPARENT_PROXY_PORT"
+
+	test -n "$port" || return
+
 	ip rule add fwmark 1 lookup 100
+	ip route add local 0.0.0.0/0 dev lo table 100 2>/dev/null
 
 	local d_port=""
-	if [ "x$addition_proxy" = "xdns" ] ; then
+	if [ "x$TRANSPARENT_PROXY_ADDITION" = "xdns" ] ; then
 		d_port="--dport 53"
 	fi
 
+	# https://www.kernel.org/doc/Documentation/networking/tproxy.txt
 	iptables-restore --noflush <<-EOF 2>/dev/null
 		*mangle
 		:V2RAY -
+		-A V2RAY -j RETURN -m mark --mark 0xff
 		-A V2RAY -j RETURN -m set --match-set $IPSET_DST_DIRECT_V4 dst
-		-A V2RAY -p tcp $ext_args -j TPROXY --on-port $port --tproxy-mark 0x01/0x01
-		$(test -n "$addition_proxy" && echo "-A V2RAY -p udp $d_port -j TPROXY --on-port $port --tproxy-mark 0x01/0x01")
+		-A V2RAY -p tcp $ext_args -j TPROXY --on-port $port --tproxy-mark 0x1/0x1
+		$(
+			test -n "$TRANSPARENT_PROXY_ADDITION" && \
+				echo "-A V2RAY -p udp $d_port -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
+		)
 		-A PREROUTING -j V2RAY
 
 		:V2RAY_MASK -
 		-A V2RAY_MASK -j RETURN -m mark --mark 0xff
 		-A V2RAY_MASK -j RETURN -m set --match-set $IPSET_DST_DIRECT_V4 dst
-		-A V2RAY_MASK -p tcp -j MARK --set-mark 1
-		$(test -n "$addition_proxy" && echo "-A V2RAY_MASK -p udp $d_port -j MARK --set-mark 1")
+		-A V2RAY_MASK -p tcp $ext_args -j MARK --set-mark 1
+		$(
+			test -n "$TRANSPARENT_PROXY_ADDITION" && \
+				echo "-A V2RAY_MASK -p udp $d_port -j MARK --set-mark 1"
+		)
 		-A OUTPUT -j V2RAY_MASK
 		COMMIT
 	EOF
@@ -468,13 +482,10 @@ clear_v2ray_rules() {
 	while ip rule del fwmark 1 lookup 100 2>/dev/null ; do true ; done
 
 	ip route flush table 100
-	ip route del local default dev lo table 100 2>/dev/null
+	ip route del local 0.0.0.0/0 dev lo table 100 2>/dev/null
 }
 
 create_v2ray_ipset() {
-	local outbound_v4="$1"
-	local outbound_v6="$2"
-
 	# https://en.wikipedia.org/wiki/Reserved_IP_addresses
 	local reserved_v4="$(cat >&1 <<-EOF
 		0.0.0.0/8
@@ -513,6 +524,9 @@ create_v2ray_ipset() {
 		ff00::/8
 	EOF
 	)"
+
+	local outbound_v4="$OUTBOUND_SERVERS_V4"
+	local outbound_v6="$OUTBOUND_SERVERS_V6"
 
 	ipset -! restore <<-EOF 2>/dev/null
 		create $IPSET_SRC_IGNORE_V4 hash:ip hashsize 64 family inet timeout 0
@@ -1826,7 +1840,7 @@ setup_transparent_proxy() {
 
 	_info "Transparent proxy mode: $proxy_mode"
 
-	create_v2ray_ipset "$OUTBOUND_SERVERS_V4" "$OUTBOUND_SERVERS_V6"
+	create_v2ray_ipset
 	init_rules_for_listfile "$direct_list_dns" "$proxy_list_dns"
 
 	local ext_args
@@ -1878,11 +1892,9 @@ setup_transparent_proxy() {
 
 	if [ "x$TRANSPARENT_PROXY_USE_TPROXY" = "x1" ] ; then
 		_info "Use TProxy to setup iptables"
-		add_v2ray_tproxy_rules "$TRANSPARENT_PROXY_PORT" "$ext_args" \
-			"$TRANSPARENT_PROXY_ADDITION"
+		add_v2ray_tproxy_rules "$ext_args"
 	else
-		add_v2ray_rules "$TRANSPARENT_PROXY_PORT" "$ext_args" \
-			"$TRANSPARENT_PROXY_ADDITION"
+		add_v2ray_redirect_rules "$ext_args"
 	fi
 }
 

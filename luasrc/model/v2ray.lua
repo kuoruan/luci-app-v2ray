@@ -229,3 +229,56 @@ function vmess_to_object(link)
 
 	return json.parse(decoded)
 end
+
+function textarea_parse(self, section, novld)
+	local fvalue = self:formvalue(section)
+	local cvalue = self:cfgvalue(section)
+
+	if fvalue and #fvalue > 0 then
+		local val_err
+		fvalue, val_err = self:validate(fvalue, section)
+
+		if not fvalue and not novld then
+			self:add_error(section, "invalid", val_err)
+			return false
+		end
+
+		if fvalue and fvalue ~= cvalue then
+			if self:write(section, fvalue) then
+				self.section.changed = true
+				return true
+			end
+		end
+	else
+		if self:remove(section) then
+			self.section.changed = true
+			return true
+		end
+	end
+
+	return false
+end
+
+function textarea_cfgvalue(self, section)
+	if not self.filepath then
+		return ""
+	end
+	return nixio.fs.readfile(self.filepath) or ""
+end
+
+function textarea_write(self, section, value)
+	if not self.filepath then
+		return false
+	end
+
+	value = value:gsub("\r\n?", "\n")
+	return nixio.fs.writefile(self.filepath, value)
+end
+
+function textarea_remove(self, section)
+	if not self.filepath then
+		return false
+	end
+
+	return nixio.fs.writefile(self.filepath, "")
+end
