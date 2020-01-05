@@ -232,7 +232,7 @@ reverse_section_validate() {
 inbound_section_validate() {
 	uci_validate_section "$NAME" "inbound" "$1" \
 		'port:or(port, portrange, string)' \
-		'listen:ipaddr:0.0.0.0' \
+		'listen:ipaddr' \
 		'protocol:string' \
 		's_dokodemo_door_address:host' \
 		's_dokodemo_door_port:port' \
@@ -315,7 +315,7 @@ inbound_section_validate() {
 
 outbound_section_validate() {
 	uci_validate_section "$NAME" "outbound" "$1" \
-		'send_through:ipaddr:0.0.0.0' \
+		'send_through:ipaddr' \
 		'protocol:string' \
 		'tag:string' \
 		's_blackhole_reponse_type:or("none", "http")' \
@@ -958,7 +958,8 @@ add_inbound_setting() {
 
 	json_add_object ""
 
-	json_add_string "listen" "$listen"
+	test -n "$listen" && \
+		json_add_string "listen" "$listen"
 	json_add_int "port" "$port"
 	json_add_string "protocol" "$protocol"
 
@@ -1392,7 +1393,8 @@ add_outbound_setting() {
 
 	json_add_object ""
 
-	json_add_string "sendThrough" "$send_through"
+	test -n "$send_through" && \
+		json_add_string "sendThrough" "$send_through"
 	json_add_string "protocol" "$protocol"
 
 	case "${protocol:-x}" in
