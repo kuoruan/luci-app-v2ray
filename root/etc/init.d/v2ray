@@ -40,8 +40,6 @@ else
 	exit 1
 fi
 
-. /lib/functions/network.sh
-
 _log() {
 	local level="$1" ; shift
 	local msg="$@"
@@ -392,6 +390,8 @@ outbound_section_validate() {
 
 add_v2ray_redirect_rules() {
 	local ext_args="$1"
+	local lan_devices="$2"
+	local lan_ipaddrs="$3"
 
 	local port="$TRANSPARENT_PROXY_PORT"
 
@@ -403,7 +403,16 @@ add_v2ray_redirect_rules() {
 		-A V2RAY -p tcp -j RETURN -m mark --mark 0xff
 		-A V2RAY -p tcp -j RETURN -m set --match-set $IPSET_DST_DIRECT_V4 dst
 		-A V2RAY -p tcp $ext_args -j REDIRECT --to-ports $port
-		-A PREROUTING -p tcp -j V2RAY
+		$(
+			if [ -n "$lan_devices" ] ; then
+				local device
+				for device in $lan_devices ; do
+					echo "-A PREROUTING -p tcp -i $device -j V2RAY"
+				done
+			else
+				echo "-A PREROUTING -p tcp -j V2RAY"
+			fi
+		)
 		-A OUTPUT -p tcp -j V2RAY
 		COMMIT
 	EOF
@@ -421,9 +430,28 @@ add_v2ray_redirect_rules() {
 			*mangle
 			:V2RAY -
 			-A V2RAY -p udp -j RETURN -m mark --mark 0xff
+			$(
+				if [ -n "$lan_ipaddrs" ] ; then
+					local ipaddr
+					for ipaddr in $lan_ipaddrs ; do
+						echo "-A V2RAY -p udp --dport 53 -d $ipaddr -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
+					done
+				fi
+			)
 			-A V2RAY -p udp -j RETURN -m set --match-set $IPSET_DST_DIRECT_V4 dst
 			-A V2RAY -p udp $d_port -j TPROXY --on-port $port --tproxy-mark 0x1/0x1
-			-A PREROUTING -p udp -j V2RAY
+			$(
+				if [ -n "$lan_devices" ] ; then
+					local device
+					for device in $lan_devices ; do
+						echo "-A PREROUTING -p udp -i $device -j V2RAY"
+					done
+
+					echo "-A PREROUTING -p udp -j V2RAY -m mark --mark 0x1"
+				else
+					echo "-A PREROUTING -p udp -j V2RAY"
+				fi
+			)
 
 			:V2RAY_MARK -
 			-A V2RAY_MARK -p udp -j RETURN -m mark --mark 0xff
@@ -437,6 +465,8 @@ add_v2ray_redirect_rules() {
 
 add_v2ray_tproxy_rules() {
 	local ext_args="$1"
+	local lan_devices="$2"
+	local lan_ipaddrs="$3"
 
 	local port="$TRANSPARENT_PROXY_PORT"
 
@@ -455,13 +485,33 @@ add_v2ray_tproxy_rules() {
 		*mangle
 		:V2RAY -
 		-A V2RAY -j RETURN -m mark --mark 0xff
+		$(
+			if [ -n "$TRANSPARENT_PROXY_ADDITION" ] ; then
+				if [ -n "$lan_ipaddrs" ] ; then
+					local ipaddr
+					for ipaddr in $lan_ipaddrs ; do
+						echo "-A V2RAY -p udp --dport 53 -d $ipaddr -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
+					done
+				fi
+			fi
+		)
 		-A V2RAY -j RETURN -m set --match-set $IPSET_DST_DIRECT_V4 dst
 		-A V2RAY -p tcp $ext_args -j TPROXY --on-port $port --tproxy-mark 0x1/0x1
 		$(
 			test -n "$TRANSPARENT_PROXY_ADDITION" && \
 				echo "-A V2RAY -p udp $d_port -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
+
+			if [ -n "$lan_devices" ] ; then
+				local device
+				for device in $lan_devices ; do
+					echo "-A PREROUTING -i $device -j V2RAY"
+				done
+
+				echo "-A PREROUTING -j V2RAY -m mark --mark 0x1"
+			else
+				echo "-A PREROUTING -j V2RAY"
+			fi
 		)
-		-A PREROUTING -j V2RAY
 
 		:V2RAY_MASK -
 		-A V2RAY_MASK -j RETURN -m mark --mark 0xff
@@ -1833,8 +1883,9 @@ setup_transparent_proxy() {
 	_info "Setting transparent proxy on port: $TRANSPARENT_PROXY_PORT"
 
 	local tp_cfg="main_transparent_proxy"
-	local only_privileged_ports proxy_mode direct_list_dns proxy_list_dns
+	local lan_ifaces only_privileged_ports proxy_mode direct_list_dns proxy_list_dns
 
+	config_get lan_ifaces "$tp_cfg" "lan_ifaces"
 	config_get_bool only_privileged_ports "$tp_cfg" "only_privileged_ports" "0"
 	config_get proxy_mode "$tp_cfg" "proxy_mode"
 	config_get direct_list_dns "$tp_cfg" "direct_list_dns"
@@ -1892,11 +1943,42 @@ setup_transparent_proxy() {
 
 	rm -f "$FILE_V2RAY_DNSMASQ_CACHE"
 
+	local lan_devices lan_ipaddrs
+
+	if [ -n "$lan_ifaces" ] ; then
+		. /lib/functions/network.sh
+
+		local lan
+		for lan in $lan_ifaces ; do
+			local device ipaddrs ipaddr
+			network_get_device device "$lan"
+			network_get_ipaddrs ipaddrs "$lan"
+
+			if [ -n "$device" ] ; then
+				if [ -n "$lan_devices" ] ; then
+					lan_devices="$lan_devices $device"
+				else
+					lan_devices="$device"
+				fi
+			fi
+
+			if [ -n "$ipaddrs" ] ; then
+				for ipaddr in $ipaddrs ; do
+					if [ -n "$lan_ipaddrs" ] ; then
+						lan_ipaddrs="$ipaddr"
+					else
+						lan_ipaddrs="$lan_ipaddrs $ipaddr"
+					fi
+				done
+			fi
+		done
+	fi
+
 	if [ "x$TRANSPARENT_PROXY_USE_TPROXY" = "x1" ] ; then
 		_info "Use TProxy to setup iptables"
-		add_v2ray_tproxy_rules "$ext_args"
+		add_v2ray_tproxy_rules "$ext_args" "$lan_devices" "$lan_ipaddrs"
 	else
-		add_v2ray_redirect_rules "$ext_args"
+		add_v2ray_redirect_rules "$ext_args" "$lan_devices" "$lan_ipaddrs"
 	fi
 }
 
