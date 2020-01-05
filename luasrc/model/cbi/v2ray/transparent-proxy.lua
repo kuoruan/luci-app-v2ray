@@ -54,7 +54,7 @@ end
 
 s = m:section(NamedSection, "main_transparent_proxy", "transparent_proxy")
 
-o = s:option(Value, "redirect_port", translate("Redirect port"), translate("Enable transparent proxy on Dokodemo-door port"))
+o = s:option(Value, "redirect_port", translate("Redirect port"), translate("Enable transparent proxy on Dokodemo-door port."))
 o:value("", translate("None"))
 for k, v in pairs(dokodemo_door_list) do
 	o:value(k, v)

@@ -85,13 +85,13 @@ o:depends("loglevel", "info")
 o:depends("loglevel", "warning")
 o:depends("loglevel", "error")
 
-o = s:option(MultiValue, "inbounds", translate("Inbound proxies"))
+o = s:option(MultiValue, "inbounds", translate("Inbounds enabled"))
 o:depends("config_file", "")
 for _, v in ipairs(inbound_keys) do
 	o:value(v, inbound_table[v])
 end
 
-o = s:option(MultiValue, "outbounds", translate("Outbound proxies"))
+o = s:option(MultiValue, "outbounds", translate("Outbounds enabled"))
 o:depends("config_file", "")
 for _, v in ipairs(outbound_keys) do
 	o:value(v, outbound_table[v])
