@@ -379,7 +379,7 @@ msgid "Enable proxy on selected interfaces."
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/transparent-proxy.lua:57
-msgid "Enable transparent proxy on Dokodemo-door port"
+msgid "Enable transparent proxy on Dokodemo-door port."
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/dns.lua:26
