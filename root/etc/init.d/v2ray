@@ -1479,7 +1479,7 @@ add_outbound_setting() {
 			json_add_object "settings"
 
 			test -n "$s_freedom_domain_strategy" && \
-				json_add_string "domainStrategy"
+				json_add_string "domainStrategy" "$s_freedom_domain_strategy"
 			test -n "$s_freedom_redirect" && \
 				json_add_string "redirect" "$s_freedom_redirect"
 			test -n "$s_freedom_user_level" && \
