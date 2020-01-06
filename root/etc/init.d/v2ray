@@ -394,6 +394,8 @@ add_v2ray_redirect_rules() {
 	local lan_ipaddrs="$3"
 
 	local port="$TRANSPARENT_PROXY_PORT"
+	local addition="$TRANSPARENT_PROXY_ADDITION"
+	local ipset_dst_direct="$IPSET_DST_DIRECT_V4"
 
 	test -n "$port" || return
 
@@ -401,7 +403,7 @@ add_v2ray_redirect_rules() {
 		*nat
 		:V2RAY -
 		-A V2RAY -p tcp -j RETURN -m mark --mark 0xff
-		-A V2RAY -p tcp -j RETURN -m set --match-set $IPSET_DST_DIRECT_V4 dst
+		-A V2RAY -p tcp -j RETURN -m set --match-set $ipset_dst_direct dst
 		-A V2RAY -p tcp $ext_args -j REDIRECT --to-ports $port
 		$(
 			if [ -n "$lan_devices" ] ; then
@@ -417,14 +419,9 @@ add_v2ray_redirect_rules() {
 		COMMIT
 	EOF
 
-	if [ -n "$TRANSPARENT_PROXY_ADDITION" ] ; then
-		ip route add local 0.0.0.0/0 dev lo table 100 2>/dev/null
+	if [ -n "$addition" ] ; then
 		ip rule add fwmark 1 lookup 100
-
-		local d_port=""
-		if [ "$TRANSPARENT_PROXY_ADDITION" = "dns" ] ; then
-			d_port="--dport 53"
-		fi
+		ip route add local 0.0.0.0/0 dev lo table 100 2>/dev/null
 
 		iptables-restore --noflush <<-EOF 2>/dev/null
 			*mangle
@@ -438,9 +435,14 @@ add_v2ray_redirect_rules() {
 					done
 				fi
 			)
-			-A V2RAY -p udp -j RETURN -m set --match-set $IPSET_DST_DIRECT_V4 dst
-			-A V2RAY -p udp $d_port -j TPROXY --on-port $port --tproxy-mark 0x1/0x1
+			-A V2RAY -p udp -j RETURN -m set --match-set $ipset_dst_direct dst
 			$(
+				if [ "$addition" = "dns" ] ; then
+					echo "-A V2RAY -p udp --dport 53 -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
+				else
+					echo "-A V2RAY -p udp -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
+				fi
+
 				if [ -n "$lan_devices" ] ; then
 					local device
 					for device in $lan_devices ; do
@@ -455,8 +457,14 @@ add_v2ray_redirect_rules() {
 
 			:V2RAY_MARK -
 			-A V2RAY_MARK -p udp -j RETURN -m mark --mark 0xff
-			-A V2RAY_MARK -p udp -j RETURN -m set --match-set $IPSET_DST_DIRECT_V4 dst
-			-A V2RAY_MARK -p udp $d_port -j MARK --set-mark 1
+			-A V2RAY_MARK -p udp -j RETURN -m set --match-set $ipset_dst_direct dst
+			$(
+				if [ "$addition" = "dns" ] ; then
+					echo "-A V2RAY_MARK -p udp --dport 53 -j MARK --set-mark 1"
+				else
+					echo "-A V2RAY_MARK -p udp -j MARK --set-mark 1"
+				fi
+			)
 			-A OUTPUT -p udp -j V2RAY_MARK
 			COMMIT
 		EOF
@@ -469,37 +477,38 @@ add_v2ray_tproxy_rules() {
 	local lan_ipaddrs="$3"
 
 	local port="$TRANSPARENT_PROXY_PORT"
+	local addition="$TRANSPARENT_PROXY_ADDITION"
+	local ipset_dst_direct="$IPSET_DST_DIRECT_V4"
 
 	test -n "$port" || return
+
+	# https://www.kernel.org/doc/Documentation/networking/tproxy.txt
 
 	ip rule add fwmark 1 lookup 100
 	ip route add local 0.0.0.0/0 dev lo table 100 2>/dev/null
 
-	local d_port=""
-	if [ "x$TRANSPARENT_PROXY_ADDITION" = "xdns" ] ; then
-		d_port="--dport 53"
-	fi
-
-	# https://www.kernel.org/doc/Documentation/networking/tproxy.txt
 	iptables-restore --noflush <<-EOF 2>/dev/null
 		*mangle
 		:V2RAY -
 		-A V2RAY -j RETURN -m mark --mark 0xff
 		$(
-			if [ -n "$TRANSPARENT_PROXY_ADDITION" ] ; then
-				if [ -n "$lan_ipaddrs" ] ; then
-					local ipaddr
-					for ipaddr in $lan_ipaddrs ; do
-						echo "-A V2RAY -p udp --dport 53 -d $ipaddr -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
-					done
-				fi
+			if [ -n "$addition" ] && [ -n "$lan_ipaddrs" ] ; then
+				local ipaddr
+				for ipaddr in $lan_ipaddrs ; do
+					echo "-A V2RAY -p udp --dport 53 -d $ipaddr -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
+				done
 			fi
 		)
-		-A V2RAY -j RETURN -m set --match-set $IPSET_DST_DIRECT_V4 dst
+		-A V2RAY -j RETURN -m set --match-set $ipset_dst_direct dst
 		-A V2RAY -p tcp $ext_args -j TPROXY --on-port $port --tproxy-mark 0x1/0x1
 		$(
-			test -n "$TRANSPARENT_PROXY_ADDITION" && \
-				echo "-A V2RAY -p udp $d_port -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
+			if [ -n "$addition" ] ; then
+				if [ "$addition" = "dns" ] ; then
+					echo "-A V2RAY -p udp --dport 53 -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
+				else
+					echo "-A V2RAY -p udp -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
+				fi
+			fi
 
 			if [ -n "$lan_devices" ] ; then
 				local device
@@ -515,11 +524,16 @@ add_v2ray_tproxy_rules() {
 
 		:V2RAY_MASK -
 		-A V2RAY_MASK -j RETURN -m mark --mark 0xff
-		-A V2RAY_MASK -j RETURN -m set --match-set $IPSET_DST_DIRECT_V4 dst
+		-A V2RAY_MASK -j RETURN -m set --match-set $ipset_dst_direct dst
 		-A V2RAY_MASK -p tcp $ext_args -j MARK --set-mark 1
 		$(
-			test -n "$TRANSPARENT_PROXY_ADDITION" && \
-				echo "-A V2RAY_MASK -p udp $d_port -j MARK --set-mark 1"
+			if [ -n "$addition" ] ; then
+				if [ "$addition" = "dns" ] ; then
+					echo "-A V2RAY_MASK -p udp --dport 53 -j MARK --set-mark 1"
+				else
+					echo "-A V2RAY_MASK -p udp -j MARK --set-mark 1"
+				fi
+			fi
 		)
 		-A OUTPUT -j V2RAY_MASK
 		COMMIT
