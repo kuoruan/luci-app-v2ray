@@ -91,7 +91,8 @@ o = s:option(Flag, "redirect_dns", translate("Redirect DNS"), translate("Redirec
 o:depends("redirect_udp", "")
 o:depends("redirect_udp", "0")
 
-o = s:option(ListValue, "proxy_mode", translate("Proxy mode"))
+o = s:option(ListValue, "proxy_mode", translate("Proxy mode"),
+	translate("If enabled, iptables rules will be added to pre-filter traffic and then sent to V2Ray."))
 o:value("default", translate("Default"))
 o:value("cn_direct", translate("CN Direct"))
 o:value("cn_proxy", translate("CN Proxy"))

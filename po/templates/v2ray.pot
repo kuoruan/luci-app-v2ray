@@ -30,7 +30,7 @@ msgstr ""
 msgid "A platform for building proxies to bypass network restrictions."
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:100
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:101
 msgid "APNIC delegated mirror"
 msgstr ""
 
@@ -172,15 +172,15 @@ msgstr ""
 msgid "Buffer size"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:106
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:107
 msgid "CHNRoute"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:96
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:97
 msgid "CN Direct"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:97
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:98
 msgid "CN Proxy"
 msgstr ""
 
@@ -261,12 +261,12 @@ msgstr ""
 msgid "DNS server"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:152
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:153
 msgid ""
 "DNS used for domains in direct list, format: <code>ip#port</code>. eg: %s"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:149
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:150
 msgid ""
 "DNS used for domains in proxy list, format: <code>ip#port</code>. eg: %s"
 msgstr ""
@@ -275,7 +275,7 @@ msgstr ""
 msgid "Debug"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:95
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:96
 msgid "Default"
 msgstr ""
 
@@ -305,7 +305,7 @@ msgstr ""
 msgid "Detour to"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:151
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:152
 msgid "Direct list DNS"
 msgstr ""
 
@@ -400,11 +400,11 @@ msgstr ""
 msgid "Error log file"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:135
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:136
 msgid "Extra direct list"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:122
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:123
 msgid "Extra proxy list"
 msgstr ""
 
@@ -433,15 +433,15 @@ msgstr ""
 msgid "For more information, please visit: %s"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:117
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:118
 msgid "GFWList"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:98
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:99
 msgid "GFWList Proxy"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:111
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:112
 msgid "GFWList mirror"
 msgstr ""
 
@@ -509,6 +509,12 @@ msgstr ""
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:177
 #: luasrc/model/cbi/v2ray/routing-rule-detail.lua:31
 msgid "IP"
+msgstr ""
+
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:95
+msgid ""
+"If enabled, iptables rules will be added to pre-filter traffic and then sent "
+"to V2Ray."
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:70
@@ -687,8 +693,8 @@ msgstr ""
 msgid "One Time Auth (OTA)"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:123
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:136
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:124
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:137
 msgid "One address per line. Allow types: DOMAIN, IP, CIDR. eg: %s, %s, %s"
 msgstr ""
 
@@ -778,7 +784,7 @@ msgstr ""
 msgid "Protocol"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:148
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:149
 msgid "Proxy list DNS"
 msgstr ""
 
