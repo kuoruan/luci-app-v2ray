@@ -1565,14 +1565,19 @@ add_outbound_setting() {
 
 			json_add_int "port" "$s_socks_server_port"
 
-			json_add_array "users"
-			json_add_object ""
-			json_add_string "user" "$s_socks_account_user"
-			json_add_string "pass" "$s_socks_account_pass"
-			test -n "$s_socks_user_level" && \
-				json_add_int "level" "$s_socks_user_level"
-			json_close_object
-			json_close_array # users
+			if [ -n "$s_socks_account_user" ] ; then
+				json_add_array "users"
+				json_add_object ""
+
+				json_add_string "user" "$s_socks_account_user"
+				json_add_string "pass" "$s_socks_account_pass"
+
+				test -n "$s_socks_user_level" && \
+					json_add_int "level" "$s_socks_user_level"
+
+				json_close_object
+				json_close_array # users
+			fi
 
 			json_close_object
 
