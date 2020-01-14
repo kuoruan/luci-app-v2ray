@@ -1152,7 +1152,7 @@ add_inbound_setting() {
 				json_add_string "id" "$s_vmess_client_id"
 
 				test -n "$s_vmess_client_alter_id" && \
-					json_add_string "alterId" "$s_vmess_client_alter_id"
+					json_add_int "alterId" "$s_vmess_client_alter_id"
 				test -n "$s_vmess_client_email" && \
 					json_add_string "email" "$s_vmess_client_email"
 				test -n "$s_vmess_client_user_level" && \
