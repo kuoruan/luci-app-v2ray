@@ -1507,7 +1507,7 @@ add_outbound_setting() {
 
 			json_add_object ""
 
-			json_add_string "adress" "$s_http_server_address"
+			json_add_string "address" "$s_http_server_address"
 			append_server_address "$s_http_server_address"
 
 			test -n "$s_http_server_port" && \
