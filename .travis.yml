@@ -1,5 +1,5 @@
+os: linux
 dist: trusty
-sudo: false
 notifications:
   email: false
 language: c
@@ -80,9 +80,9 @@ deploy:
   provider: releases
   file_glob: true
   file: "$TRAVIS_BUILD_DIR/*.ipk"
-  skip_cleanup: true
+  cleanup: false
   on:
     tags: true
     all_branches: true
-  api_key:
+  token:
     secure: eePvdLjXTvHqFH2Vx3gNCsPL5qzVVaQ1XcLUg5WekHpLfyt/VpzDZPu5jiJg6zLH0N4k5+Xb49I+E1JEMSCoV1Gjwq1E0GO6uu5Nrv1r9tsqWilY87YLQyhmKAOGNoJcieb4qYyqzV1eLkjMWnvwZ+kwqyJ16EiPiO5hZ2qNq+npe7N4CKkZdGBclB2odKVLtZB3s8lngmvwiWzKCTrBaP+z4akQCxp3++DO2BgfzTxO3Cg4EUyTSryzhaV0UEnHky0nIrP3e/DapbVAkIUXlv9hZ9ins5M4j0vQJmmB5bN2JsTNfYZVG/09sVgdNKc6hBUieVfDLnJ+kzpeXHjWGcuBfuvdHlq8n+hBo3w0dMccVr7FfDuMmkvOWyiDuTNbboJe0eg9D4a5PAKtYwGJeqHAF8PG/wGC6qa7d2pcnM6hTIREjU7J3IbKlLPwErK+2zL88IGGDiqkdVlZeKXscZcuOL3OlwdOBGWEP1uICXIOZawjNHIqqEmNml/C+FX4oCD7udOcc1V1gbvBrirbcy05HS12pNjKGYjpIAu6LInPPNxjUrrAUrMnsR1OCsfIIH/L91wkq6pO1D7hKK8a7cUVH60YDQs08r/c5NggK6cdkEylkkSEK2g3pFjiVBkR/mtKrvuAlCv2X8lJm+k7KJ+x1X3oS0I81xh3vGVRvQU=
