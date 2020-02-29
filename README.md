@@ -65,6 +65,8 @@ Depends:
 
 For translations, please install ```luci-i18n-v2ray-*```.
 
+> You may need to remove ```dnsmasq``` before installing this package.
+
 ## Configure
 
 1. Download V2Ray file from V2Ray release [link](https://github.com/v2ray/v2ray-core/releases) or V2Ray ipk release [link](https://github.com/kuoruan/openwrt-v2ray/releases).
