@@ -188,6 +188,10 @@ msgstr "代理 CN"
 msgid "Can't get V2Ray version"
 msgstr "无法获取 V2Ray 版本信息"
 
+#: luasrc/view/v2ray/import_outbound.htm:31
+msgid "Cancel"
+msgstr "取消"
+
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:261
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:231
 msgid "Certificate file"
@@ -408,7 +412,7 @@ msgstr "额外的直连列表"
 msgid "Extra proxy list"
 msgstr "额外的代理列表"
 
-#: luasrc/controller/v2ray.lua:187
+#: luasrc/controller/v2ray.lua:202
 msgid "Failed to create new section"
 msgstr "创建新配置项失败"
 
@@ -416,7 +420,7 @@ msgstr "创建新配置项失败"
 msgid "Failed to open file."
 msgstr "无法打开文件"
 
-#: luasrc/controller/v2ray.lua:260
+#: luasrc/controller/v2ray.lua:276
 msgid "Failed to save section"
 msgstr "保存配置项失败"
 
@@ -531,15 +535,20 @@ msgid ""
 msgstr "如果启用了透明代理，此选项会被忽略，并自动设置为255。"
 
 #: luasrc/view/v2ray/import_outbound.htm:12
-#: luasrc/view/v2ray/import_outbound.htm:37
+#: luasrc/view/v2ray/import_outbound.htm:53
+#: luasrc/view/v2ray/import_outbound.htm:65
 msgid "Import"
 msgstr "导入"
 
-#: luasrc/view/v2ray/import_outbound.htm:48
+#: luasrc/view/v2ray/import_outbound.htm:60
 msgid "Import failed"
 msgstr "导入失败"
 
-#: luasrc/view/v2ray/import_outbound.htm:30
+#: luasrc/view/v2ray/import_outbound.htm:21
+msgid "Import multiple vmess:// links at once. One link per line."
+msgstr "可一次添加多个 vmess:// 链接。每个链接一行。"
+
+#: luasrc/view/v2ray/import_outbound.htm:47
 msgid "Importing..."
 msgstr "导入中……"
 
@@ -571,7 +580,7 @@ msgstr "JSON 内容验证失败。"
 msgid "Invalid V2Ray file"
 msgstr "V2Ray 文件有误"
 
-#: luasrc/controller/v2ray.lua:166
+#: luasrc/controller/v2ray.lua:166 luasrc/controller/v2ray.lua:178
 msgid "Invalid link"
 msgstr "无效链接"
 
@@ -602,7 +611,7 @@ msgstr "等级"
 msgid "Levels"
 msgstr "等级"
 
-#: luasrc/view/v2ray/import_outbound.htm:43
+#: luasrc/view/v2ray/import_outbound.htm:57
 msgid "Link imported"
 msgstr "链接已导入"
 
@@ -1068,11 +1077,11 @@ msgstr "类型"
 msgid "UDP"
 msgstr ""
 
-#: luasrc/view/v2ray/import_outbound.htm:25
+#: luasrc/view/v2ray/import_outbound.htm:42
 msgid "Unsupported Link"
 msgstr "不支持的链接"
 
-#: luasrc/controller/v2ray.lua:176
+#: luasrc/controller/v2ray.lua:188
 msgid "Unsupported link version"
 msgstr "不支持的链接版本"
 

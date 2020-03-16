@@ -214,6 +214,16 @@ function get_routelist_status()
 	}
 end
 
+function parse_vmess_links(link)
+	local objs = {}
+	string.gsub(link, "vmess://[%w+=]+", function (l)
+		local obj = vmess_to_object(l)
+		table.insert(objs, obj)
+	end)
+
+	return objs
+end
+
 function vmess_to_object(link)
 	local content = string.match(link, "^vmess://(%S+)")
 
