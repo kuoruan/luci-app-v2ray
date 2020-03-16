@@ -188,6 +188,10 @@ msgstr ""
 msgid "Can't get V2Ray version"
 msgstr ""
 
+#: luasrc/view/v2ray/import_outbound.htm:31
+msgid "Cancel"
+msgstr ""
+
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:261
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:231
 msgid "Certificate file"
@@ -408,7 +412,7 @@ msgstr ""
 msgid "Extra proxy list"
 msgstr ""
 
-#: luasrc/controller/v2ray.lua:187
+#: luasrc/controller/v2ray.lua:202
 msgid "Failed to create new section"
 msgstr ""
 
@@ -416,7 +420,7 @@ msgstr ""
 msgid "Failed to open file."
 msgstr ""
 
-#: luasrc/controller/v2ray.lua:260
+#: luasrc/controller/v2ray.lua:276
 msgid "Failed to save section"
 msgstr ""
 
@@ -531,15 +535,20 @@ msgid ""
 msgstr ""
 
 #: luasrc/view/v2ray/import_outbound.htm:12
-#: luasrc/view/v2ray/import_outbound.htm:37
+#: luasrc/view/v2ray/import_outbound.htm:53
+#: luasrc/view/v2ray/import_outbound.htm:65
 msgid "Import"
 msgstr ""
 
-#: luasrc/view/v2ray/import_outbound.htm:48
+#: luasrc/view/v2ray/import_outbound.htm:60
 msgid "Import failed"
 msgstr ""
 
-#: luasrc/view/v2ray/import_outbound.htm:30
+#: luasrc/view/v2ray/import_outbound.htm:21
+msgid "Import multiple vmess:// links at once. One link per line."
+msgstr ""
+
+#: luasrc/view/v2ray/import_outbound.htm:47
 msgid "Importing..."
 msgstr ""
 
@@ -571,7 +580,7 @@ msgstr ""
 msgid "Invalid V2Ray file"
 msgstr ""
 
-#: luasrc/controller/v2ray.lua:166
+#: luasrc/controller/v2ray.lua:166 luasrc/controller/v2ray.lua:178
 msgid "Invalid link"
 msgstr ""
 
@@ -602,7 +611,7 @@ msgstr ""
 msgid "Levels"
 msgstr ""
 
-#: luasrc/view/v2ray/import_outbound.htm:43
+#: luasrc/view/v2ray/import_outbound.htm:57
 msgid "Link imported"
 msgstr ""
 
@@ -1068,11 +1077,11 @@ msgstr ""
 msgid "UDP"
 msgstr ""
 
-#: luasrc/view/v2ray/import_outbound.htm:25
+#: luasrc/view/v2ray/import_outbound.htm:42
 msgid "Unsupported Link"
 msgstr ""
 
-#: luasrc/controller/v2ray.lua:176
+#: luasrc/controller/v2ray.lua:188
 msgid "Unsupported link version"
 msgstr ""
 

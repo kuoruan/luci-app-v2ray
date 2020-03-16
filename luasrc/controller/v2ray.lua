@@ -157,9 +157,9 @@ end
 function import_outbound()
 	local link = http.formvalue("link")
 
-	local obj = v2ray.vmess_to_object(link or "")
+	local objs = v2ray.parse_vmess_links(link or "")
 
-	if not obj or not next(obj) then
+	if not objs or #objs == 0 then
 		http.prepare_content("application/json")
 		http.write_json({
 			success = false,
@@ -168,87 +168,103 @@ function import_outbound()
 		return
 	end
 
-	local ver = obj["v"]
-	if ver ~= "2" then
-		http.prepare_content("application/json")
-		http.write_json({
-			success = false,
-			message = i18n.translate("Unsupported link version")
-		})
-		return
+	for i=1, #objs do
+		local obj = objs[i]
+
+		if not obj or not next(obj) then
+			http.prepare_content("application/json")
+			http.write_json({
+				success = false,
+				message = i18n.translate("Invalid link")
+			})
+			return
+		end
+
+		local ver = obj["v"]
+		if ver ~= "2" then
+			http.prepare_content("application/json")
+			http.write_json({
+				success = false,
+				message = i18n.translate("Unsupported link version")
+			})
+			return
+		end
 	end
 
-	local section_name = uci:add("v2ray", "outbound")
+	for i=1, #objs do
+		local obj = objs[i]
+		local section_name = uci:add("v2ray", "outbound")
 
-	if not section_name then
-		http.prepare_content("application/json")
-		http.write_json({
-			success = false,
-			message = i18n.translate("Failed to create new section")
-		})
-		return
-	end
-
-	local address = obj["add"] or "0.0.0.0"
-	local port = obj["port"] or "0"
-
-	local alias = obj["ps"] or string.format("%s:%s", address, port)
-
-	uci:set("v2ray", section_name, "alias", alias)
-	uci:set("v2ray", section_name, "protocol", "vmess")
-	uci:set("v2ray", section_name, "s_vmess_address", address)
-	uci:set("v2ray", section_name, "s_vmess_port", port)
-	uci:set("v2ray", section_name, "s_vmess_user_id", obj["id"] or "")
-	uci:set("v2ray", section_name, "s_vmess_user_alter_id", obj["aid"] or "")
-	uci:set("v2ray", section_name, "ss_security", obj["tls"] or "")
-
-	local network = obj["net"] or ""
-	local header_type = obj["type"] or ""
-	local host_list = obj["host"] or ""
-	local path = obj["path"] or ""
-
-	if network == "tcp" then
-		uci:set("v2ray", section_name, "ss_network", "tcp")
-
-		uci:set("v2ray", section_name, "ss_tcp_header_type", header_type)
-
-		local host = string.match(host_list, "^([^,%s]+)")
-
-		if header_type == "http" and host then
-			local host_header = string.format("Host=%s", host)
-			uci:set_list("v2ray", section_name, "ss_tcp_header_request_headers", host_header)
-		end
-	elseif network == "kcp" or network == "mkcp" then
-		uci:set("v2ray", section_name, "ss_network", "kcp")
-		uci:set("v2ray", section_name, "ss_kcp_header_type", header_type)
-	elseif network == "ws" then
-		uci:set("v2ray", section_name, "ss_network", "ws")
-		uci:set("v2ray", section_name, "ss_websocket_path", path)
-
-		local host = string.match(host_list, "^([^,%s]+)")
-
-		if host then
-			local host_header = string.format("Host=%s", host)
-			uci:set_list("v2ray", section_name, "ss_websocket_headers", host_header)
-		end
-	elseif network == "http" or network == "h2" then
-		uci:set("v2ray", section_name, "ss_network", "http")
-		uci:set("v2ray", section_name, "ss_http_path", path)
-
-		local hosts = { }
-
-		for h in string.gmatch(host_list, "([^,%s]+),?") do
-			hosts[#hosts+1] = h
+		if not section_name then
+			http.prepare_content("application/json")
+			http.write_json({
+				success = false,
+				message = i18n.translate("Failed to create new section")
+			})
+			return
 		end
 
-		if next(hosts) then
-			uci:set_list("v2ray", section_name, "ss_http_host", hosts)
+		local address = obj["add"] or "0.0.0.0"
+		local port = obj["port"] or "0"
+
+		local alias = obj["ps"] or string.format("%s:%s", address, port)
+
+		uci:set("v2ray", section_name, "alias", alias)
+		uci:set("v2ray", section_name, "protocol", "vmess")
+		uci:set("v2ray", section_name, "s_vmess_address", address)
+		uci:set("v2ray", section_name, "s_vmess_port", port)
+		uci:set("v2ray", section_name, "s_vmess_user_id", obj["id"] or "")
+		uci:set("v2ray", section_name, "s_vmess_user_alter_id", obj["aid"] or "")
+		uci:set("v2ray", section_name, "ss_security", obj["tls"] or "")
+
+		local network = obj["net"] or ""
+		local header_type = obj["type"] or ""
+		local host_list = obj["host"] or ""
+		local path = obj["path"] or ""
+
+		if network == "tcp" then
+			uci:set("v2ray", section_name, "ss_network", "tcp")
+
+			uci:set("v2ray", section_name, "ss_tcp_header_type", header_type)
+
+			local host = string.match(host_list, "^([^,%s]+)")
+
+			if header_type == "http" and host then
+				local host_header = string.format("Host=%s", host)
+				uci:set_list("v2ray", section_name, "ss_tcp_header_request_headers", host_header)
+			end
+		elseif network == "kcp" or network == "mkcp" then
+			uci:set("v2ray", section_name, "ss_network", "kcp")
+			uci:set("v2ray", section_name, "ss_kcp_header_type", header_type)
+		elseif network == "ws" then
+			uci:set("v2ray", section_name, "ss_network", "ws")
+			uci:set("v2ray", section_name, "ss_websocket_path", path)
+
+			local host = string.match(host_list, "^([^,%s]+)")
+
+			if host then
+				local host_header = string.format("Host=%s", host)
+				uci:set_list("v2ray", section_name, "ss_websocket_headers", host_header)
+			end
+		elseif network == "http" or network == "h2" then
+			uci:set("v2ray", section_name, "ss_network", "http")
+			uci:set("v2ray", section_name, "ss_http_path", path)
+
+			local hosts = { }
+
+			for h in string.gmatch(host_list, "([^,%s]+),?") do
+				hosts[#hosts+1] = h
+			end
+
+			if next(hosts) then
+				uci:set_list("v2ray", section_name, "ss_http_host", hosts)
+			end
+		elseif network == "quic" then
+			uci:set("v2ray", section_name, "ss_network", "quic")
+			uci:set("v2ray", section_name, "ss_quic_header_type", header_type)
+			uci:set("v2ray", section_name, "ss_quic_security", host_list)
+			uci:set("v2ray", section_name, "ss_quic_key", path)
 		end
-	elseif network == "quic" then
-		uci:set("v2ray", section_name, "ss_network", "quic")
-		uci:set("v2ray", section_name, "ss_quic_header_type", header_type)
-		uci:set("v2ray", section_name, "ss_quic_security", host_list)
-		uci:set("v2ray", section_name, "ss_quic_key", path)
 	end
 
 	local success = uci:save("v2ray")

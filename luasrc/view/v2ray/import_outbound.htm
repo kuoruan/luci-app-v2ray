@@ -15,40 +15,60 @@ local dsp = require "luci.dispatcher"
 </div>
 
 <script type="text/javascript">//<![CDATA[
-	function import_outbound(btn) {
-		var link = window.prompt('<%:Vmess link:%>', '');
+function import_outbound() {
+	var title = '<%:Vmess link:%>'
 
-		if (!link) return;
+	var children = [E('p', {}, '<%:Import multiple vmess:// links at once. One link per line.%>')];
 
-		if (link.indexOf("vmess://") !== 0)
-		{
-			window.alert('<%:Unsupported Link%>');
-			return;
-		}
+	children.push(E('textarea', {
+		'name': 'link',
+		'rows': 10
+	}));
 
-		btn.disabled = true;
-		btn.value    = '<%:Importing...%>';
+	var cancelButton = E('div', {
+		'class': 'btn cbi-button-neutral',
+		'click': L.hideModal
+	}, '<%:Cancel%>');
 
-		(new XHR()).post('<%=dsp.build_url("admin/services/v2ray/import-outbound")%>',
-			{ token: '<%=token%>', link: link },
-			function(x, data)
-			{
-				btn.disabled = false;
-				btn.value    = '<%:Import%>';
+	var importButton = E('div', {
+		'class': 'btn cbi-button-positive',
+		'click': function (ev) {
+			var btn = ev.target;
+			var link = findParent(ev.target, '.modal').querySelector('textarea[name=link]').value;
 
-				if (x.status === 200 && data)
-				{
-					if (data.success)
-					{
+			if (!link) return;
+
+			if (!/^(vmess:\/\/[\w+=]+\s*)+$/.test(link)) {
+				window.alert('<%:Unsupported Link%>');
+				return;
+			}
+
+			btn.classList.add('disabled');
+			btn.innerText = '<%:Importing...%>';
+
+			L.post('admin/services/v2ray/import-outbound', {
+				link: link
+			}, function (x, data) {
+				btn.classList.remove('disabled');
+				btn.innerText = '<%:Import%>';
+
+				if (x.status === 200 && data) {
+					if (data.success) {
 						window.alert('<%:Link imported%>');
 						window.location.reload();
-					}
-					else
-					{
+					} else {
 						window.alert(data.message || '<%:Import failed%>');
 					}
 				}
-			}
-		);
-	}
+			});
+		}
+	}, '<%:Import%>');
+
+	children.push(E('div', {
+		'class': 'right'
+	}, [cancelButton, ' ', importButton]));
+
+	L.showModal(title, children);
+}
+
 //]]></script>
