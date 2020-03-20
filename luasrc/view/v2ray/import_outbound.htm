@@ -6,69 +6,93 @@
 <%
 local dsp = require "luci.dispatcher"
 -%>
-
+<style type="text/css">
+	._import-modal {
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		width: 500px;
+		max-width: 80%;
+		background: #fff;
+		box-sizing: border-box;
+		padding: 20px;
+		transform: translate(-50%, -50%);
+		z-index: 10;
+		border-radius: 5px;
+		box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+	}
+	._import-modal__main textarea {
+		display: block;
+		width: 100%;
+		border: 1px solid #eee;
+	}
+	._import-modal__footer {
+		padding-top: 6px;
+		text-align: right;
+	}
+</style>
 <div class="cbi-section">
 	<div class="cbi-section-descr">
-		<input type="button" class="cbi-button" value="<%:Import%>" onclick="return import_outbound(this);" />
+		<input type="button" class="cbi-button" value="<%:Import%>" onclick="return show_import_modal(this);" />
 		<span style="margin-left: 5px;"><%=translatef("Allowed link format: <code>%s</code>", "vmess://xxxxx")%></span>
+	</div>
+</div>
+<div id="_import-modal" class="_import-modal" style="display: none;">
+	<div class="_import-modal__main">
+		<h4><%:Import multiple vmess:// links at once. One link per line.%></h4>
+		<textarea id="_import-modal__input" rows="10"></textarea>
+	</div>
+	<div class="_import-modal__footer">
+		<input type="button" class="cbi-button " value="<%:Close%>" onclick="return close_import_modal(this);" />
+		<input type="button" class="cbi-button cbi-button-apply" value="<%:Submit%>" onclick="return import_outbound(this);" />
 	</div>
 </div>
 
 <script type="text/javascript">//<![CDATA[
-function import_outbound() {
-	var title = '<%:Vmess link:%>'
-
-	var children = [E('p', {}, '<%:Import multiple vmess:// links at once. One link per line.%>')];
-
-	children.push(E('textarea', {
-		'name': 'link',
-		'rows': 10
-	}));
-
-	var cancelButton = E('div', {
-		'class': 'btn cbi-button-neutral',
-		'click': L.hideModal
-	}, '<%:Cancel%>');
-
-	var importButton = E('div', {
-		'class': 'btn cbi-button-positive',
-		'click': function (ev) {
-			var btn = ev.target;
-			var link = findParent(ev.target, '.modal').querySelector('textarea[name=link]').value;
-
-			if (!link) return;
-
-			if (!/^(vmess:\/\/[\w+=]+\s*)+$/.test(link)) {
-				window.alert('<%:Unsupported Link%>');
-				return;
-			}
-
-			btn.classList.add('disabled');
-			btn.innerText = '<%:Importing...%>';
-
-			L.post('admin/services/v2ray/import-outbound', {
-				link: link
-			}, function (x, data) {
-				btn.classList.remove('disabled');
-				btn.innerText = '<%:Import%>';
-
-				if (x.status === 200 && data) {
-					if (data.success) {
-						window.alert('<%:Link imported%>');
-						window.location.reload();
-					} else {
-						window.alert(data.message || '<%:Import failed%>');
-					}
-				}
-			});
-		}
-	}, '<%:Import%>');
-
-	children.push(E('div', {
-		'class': 'right'
-	}, [cancelButton, ' ', importButton]));
-
-	L.showModal(title, children);
+function show_import_modal(btn) {
+	var modal = document.getElementById("_import-modal");
+	modal.style.display = "block";
 }
 
+function close_import_modal(btn) {
+	var modal = document.getElementById("_import-modal");
+	modal.style.display = "none";
+}
+
+function import_outbound(btn) {
+	var input = document.getElementById("_import-modal__input");
+	var link = (input.value || "").trim();
+
+	if (!link) return;
+
+	if (!/^(vmess:\/\/[\w+=]+\s*)+$/.test(link)) {
+		alert('<%:Unsupported Link%>');
+		return;
+	}
+
+	btn.disabled = true;
+	btn.value    = '<%:Importing...%>';
+
+	(new XHR()).post('<%=dsp.build_url("admin/services/v2ray/import-outbound")%>',
+		{ token: '<%=token%>', link: link },
+		function(x, data)
+		{
+			btn.disabled = false;
+			btn.value    = '<%:Import%>';
+
+			if (x.status === 200 && data)
+			{
+				if (data.success)
+				{
+					alert('<%:Link imported%>');
+					window.location.reload();
+				}
+				else
+				{
+					alert(data.message || '<%:Import failed%>');
+				}
+			}
+		}
+	);
+}
 //]]></script>

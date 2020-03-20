@@ -117,7 +117,7 @@ msgstr "允许不安全的加密方式"
 msgid "Allow transparent"
 msgstr "转发所有 HTTP 请求"
 
-#: luasrc/view/v2ray/import_outbound.htm:13
+#: luasrc/view/v2ray/import_outbound.htm:37
 msgid "Allowed link format: <code>%s</code>"
 msgstr "支持的链接格式：<code>%s</code>"
 
@@ -188,10 +188,6 @@ msgstr "代理 CN"
 msgid "Can't get V2Ray version"
 msgstr "无法获取 V2Ray 版本信息"
 
-#: luasrc/view/v2ray/import_outbound.htm:31
-msgid "Cancel"
-msgstr "取消"
-
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:261
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:231
 msgid "Certificate file"
@@ -221,6 +217,10 @@ msgstr "用户 Alter ID"
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:199
 msgid "Client email"
 msgstr "用户邮箱地址"
+
+#: luasrc/view/v2ray/import_outbound.htm:46
+msgid "Close"
+msgstr "关闭"
 
 #: luasrc/model/cbi/v2ray/main.lua:51 luasrc/view/v2ray/list_status.htm:54
 #: luasrc/view/v2ray/status_header.htm:11
@@ -534,21 +534,20 @@ msgid ""
 "255."
 msgstr "如果启用了透明代理，此选项会被忽略，并自动设置为255。"
 
-#: luasrc/view/v2ray/import_outbound.htm:12
-#: luasrc/view/v2ray/import_outbound.htm:53
-#: luasrc/view/v2ray/import_outbound.htm:65
+#: luasrc/view/v2ray/import_outbound.htm:36
+#: luasrc/view/v2ray/import_outbound.htm:81
 msgid "Import"
 msgstr "导入"
 
-#: luasrc/view/v2ray/import_outbound.htm:60
+#: luasrc/view/v2ray/import_outbound.htm:92
 msgid "Import failed"
 msgstr "导入失败"
 
-#: luasrc/view/v2ray/import_outbound.htm:21
+#: luasrc/view/v2ray/import_outbound.htm:42
 msgid "Import multiple vmess:// links at once. One link per line."
-msgstr "可一次添加多个 vmess:// 链接。每个链接一行。"
+msgstr "可一次添加多个 vmess:// 链接，每个链接一行。"
 
-#: luasrc/view/v2ray/import_outbound.htm:47
+#: luasrc/view/v2ray/import_outbound.htm:74
 msgid "Importing..."
 msgstr "导入中……"
 
@@ -611,7 +610,7 @@ msgstr "等级"
 msgid "Levels"
 msgstr "等级"
 
-#: luasrc/view/v2ray/import_outbound.htm:57
+#: luasrc/view/v2ray/import_outbound.htm:87
 msgid "Link imported"
 msgstr "链接已导入"
 
@@ -1004,6 +1003,10 @@ msgstr "数据流网络"
 msgid "Stream settings"
 msgstr "底层传输配置"
 
+#: luasrc/view/v2ray/import_outbound.htm:47
+msgid "Submit"
+msgstr "提交"
+
 #: luasrc/model/cbi/v2ray/policy.lua:35 luasrc/model/cbi/v2ray/policy.lua:37
 msgid "System"
 msgstr "系统"
@@ -1077,7 +1080,7 @@ msgstr "类型"
 msgid "UDP"
 msgstr ""
 
-#: luasrc/view/v2ray/import_outbound.htm:42
+#: luasrc/view/v2ray/import_outbound.htm:69
 msgid "Unsupported Link"
 msgstr "不支持的链接"
 
@@ -1165,10 +1168,6 @@ msgstr "V2Ray 文件"
 #: luasrc/view/v2ray/status_header.htm:42
 msgid "Version: %s"
 msgstr "版本：%s"
-
-#: luasrc/view/v2ray/import_outbound.htm:19
-msgid "Vmess link:"
-msgstr "Vmess 链接："
 
 #: luasrc/model/cbi/v2ray/main.lua:75
 msgid "Warning"
