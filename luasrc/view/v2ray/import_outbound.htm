@@ -14,11 +14,15 @@ local dsp = require "luci.dispatcher"
 		width: 500px;
 		max-width: 80%;
 		background: #fff;
+		-webkit-box-sizing: border-box;
 		box-sizing: border-box;
 		padding: 20px;
+		-webkit-transform: translate(-50%, -50%);
+		-ms-transform: translate(-50%, -50%);
 		transform: translate(-50%, -50%);
 		z-index: 10;
 		border-radius: 5px;
+		-webkit-box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 		box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 	}
 	._import-modal__main textarea {
@@ -31,6 +35,7 @@ local dsp = require "luci.dispatcher"
 		text-align: right;
 	}
 </style>
+
 <div class="cbi-section">
 	<div class="cbi-section-descr">
 		<input type="button" class="cbi-button" value="<%:Import%>" onclick="return show_import_modal(this);" />
@@ -49,50 +54,50 @@ local dsp = require "luci.dispatcher"
 </div>
 
 <script type="text/javascript">//<![CDATA[
-function show_import_modal(btn) {
-	var modal = document.getElementById("_import-modal");
-	modal.style.display = "block";
-}
-
-function close_import_modal(btn) {
-	var modal = document.getElementById("_import-modal");
-	modal.style.display = "none";
-}
-
-function import_outbound(btn) {
-	var input = document.getElementById("_import-modal__input");
-	var link = (input.value || "").trim();
-
-	if (!link) return;
-
-	if (!/^(vmess:\/\/[\w+=]+\s*)+$/.test(link)) {
-		alert('<%:Unsupported Link%>');
-		return;
+	function show_import_modal(btn) {
+		var modal = document.getElementById("_import-modal");
+		modal.style.display = "block";
 	}
 
-	btn.disabled = true;
-	btn.value    = '<%:Importing...%>';
+	function close_import_modal(btn) {
+		var modal = document.getElementById("_import-modal");
+		modal.style.display = "none";
+	}
 
-	(new XHR()).post('<%=dsp.build_url("admin/services/v2ray/import-outbound")%>',
-		{ token: '<%=token%>', link: link },
-		function(x, data)
-		{
-			btn.disabled = false;
-			btn.value    = '<%:Import%>';
+	function import_outbound(btn) {
+		var input = document.getElementById("_import-modal__input");
+		var link = (input.value || "").trim();
 
-			if (x.status === 200 && data)
+		if (!link) return;
+
+		if (!/^(vmess:\/\/[\w+=]+\s*)+$/.test(link)) {
+			alert('<%:Unsupported Link%>');
+			return;
+		}
+
+		btn.disabled = true;
+		btn.value    = '<%:Importing...%>';
+
+		(new XHR()).post('<%=dsp.build_url("admin/services/v2ray/import-outbound")%>',
+			{ token: '<%=token%>', link: link },
+			function(x, data)
 			{
-				if (data.success)
+				btn.disabled = false;
+				btn.value    = '<%:Import%>';
+
+				if (x.status === 200 && data)
 				{
-					alert('<%:Link imported%>');
-					window.location.reload();
-				}
-				else
-				{
-					alert(data.message || '<%:Import failed%>');
+					if (data.success)
+					{
+						alert('<%:Link imported%>');
+						window.location.reload();
+					}
+					else
+					{
+						alert(data.message || '<%:Import failed%>');
+					}
 				}
 			}
-		}
-	);
-}
+		);
+	}
 //]]></script>
