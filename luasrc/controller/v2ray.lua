@@ -206,6 +206,7 @@ function import_outbound()
 
 		local address = obj["add"] or "0.0.0.0"
 		local port = obj["port"] or "0"
+		local tls = obj["tls"] or ""
 
 		local alias = obj["ps"] or string.format("%s:%s", address, port)
 
@@ -215,23 +216,30 @@ function import_outbound()
 		uci:set("v2ray", section_name, "s_vmess_port", port)
 		uci:set("v2ray", section_name, "s_vmess_user_id", obj["id"] or "")
 		uci:set("v2ray", section_name, "s_vmess_user_alter_id", obj["aid"] or "")
-		uci:set("v2ray", section_name, "ss_security", obj["tls"] or "")
+		uci:set("v2ray", section_name, "ss_security", tls)
 
 		local network = obj["net"] or ""
 		local header_type = obj["type"] or ""
-		local host_list = obj["host"] or ""
 		local path = obj["path"] or ""
+
+		local hosts = { }
+
+		for h in string.gmatch(obj["host"] or "", "([^,%s]+),?") do
+			hosts[#hosts+1] = h
+		end
 
 		if network == "tcp" then
 			uci:set("v2ray", section_name, "ss_network", "tcp")
 
 			uci:set("v2ray", section_name, "ss_tcp_header_type", header_type)
 
-			local host = string.match(host_list, "^([^,%s]+)")
-
-			if header_type == "http" and host then
-				local host_header = string.format("Host=%s", host)
+			if header_type == "http" and next(hosts) then
+				local host_header = string.format("Host=%s", hosts[1])
 				uci:set_list("v2ray", section_name, "ss_tcp_header_request_headers", host_header)
+
+				if tls == "tls" then
+					uci:set("v2ray", section_name, "ss_tls_server_name", hosts[1])
+				end
 			end
 		elseif network == "kcp" or network == "mkcp" then
 			uci:set("v2ray", section_name, "ss_network", "kcp")
@@ -240,21 +248,17 @@ function import_outbound()
 			uci:set("v2ray", section_name, "ss_network", "ws")
 			uci:set("v2ray", section_name, "ss_websocket_path", path)
 
-			local host = string.match(host_list, "^([^,%s]+)")
-
-			if host then
-				local host_header = string.format("Host=%s", host)
+			if next(hosts) then
+				local host_header = string.format("Host=%s", hosts[1])
 				uci:set_list("v2ray", section_name, "ss_websocket_headers", host_header)
+
+				if tls == "tls" then
+					uci:set("v2ray", section_name, "ss_tls_server_name", hosts[1])
+				end
 			end
 		elseif network == "http" or network == "h2" then
 			uci:set("v2ray", section_name, "ss_network", "http")
 			uci:set("v2ray", section_name, "ss_http_path", path)
-
-			local hosts = { }
-
-			for h in string.gmatch(host_list, "([^,%s]+),?") do
-				hosts[#hosts+1] = h
-			end
 
 			if next(hosts) then
 				uci:set_list("v2ray", section_name, "ss_http_host", hosts)
@@ -262,8 +266,15 @@ function import_outbound()
 		elseif network == "quic" then
 			uci:set("v2ray", section_name, "ss_network", "quic")
 			uci:set("v2ray", section_name, "ss_quic_header_type", header_type)
-			uci:set("v2ray", section_name, "ss_quic_security", host_list)
 			uci:set("v2ray", section_name, "ss_quic_key", path)
+
+			if next(hosts) then
+				uci:set("v2ray", section_name, "ss_quic_security", hosts[1])
+
+				if tls == "tls" then
+					uci:set("v2ray", section_name, "ss_tls_server_name", hosts[1])
+				end
+			end
 		end
 	end
 
