@@ -1,5 +1,5 @@
 os: linux
-dist: trusty
+dist: bionic
 notifications:
   email: false
 language: c
