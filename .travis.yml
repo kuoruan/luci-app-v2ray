@@ -69,9 +69,8 @@ deploy:
   file_glob: true
   file: "$TRAVIS_BUILD_DIR/*.ipk"
   cleanup: false
+  edge: true
   on:
     tags: true
     all_branches: true
-    cleanup: false
-    edge: true
   token: $GITHUB_TOKEN
