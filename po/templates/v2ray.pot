@@ -1,7 +1,7 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8"
 
-#: luasrc/model/cbi/v2ray/main.lua:107
+#: luasrc/model/cbi/v2ray/main.lua:112
 msgid "<code>transport</code> field in top level configuration, JSON string"
 msgstr ""
 
@@ -38,7 +38,7 @@ msgstr ""
 msgid "About"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:66
+#: luasrc/model/cbi/v2ray/main.lua:71
 msgid "Access log file"
 msgstr ""
 
@@ -117,7 +117,7 @@ msgstr ""
 msgid "Allow transparent"
 msgstr ""
 
-#: luasrc/view/v2ray/import_outbound.htm:37
+#: luasrc/view/v2ray/import_outbound.htm:42
 msgid "Allowed link format: <code>%s</code>"
 msgstr ""
 
@@ -218,7 +218,7 @@ msgstr ""
 msgid "Client email"
 msgstr ""
 
-#: luasrc/view/v2ray/import_outbound.htm:46
+#: luasrc/view/v2ray/import_outbound.htm:51
 msgid "Close"
 msgstr ""
 
@@ -232,7 +232,7 @@ msgstr ""
 msgid "Concurrency"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:61
+#: luasrc/model/cbi/v2ray/main.lua:66
 msgid "Config file"
 msgstr ""
 
@@ -275,7 +275,7 @@ msgid ""
 "DNS used for domains in proxy list, format: <code>ip#port</code>. eg: %s"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:73
+#: luasrc/model/cbi/v2ray/main.lua:78
 msgid "Debug"
 msgstr ""
 
@@ -388,19 +388,19 @@ msgstr ""
 
 #: luasrc/model/cbi/v2ray/dns.lua:26
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:415
-#: luasrc/model/cbi/v2ray/main.lua:42 luasrc/model/cbi/v2ray/main.lua:100
-#: luasrc/model/cbi/v2ray/main.lua:103
+#: luasrc/model/cbi/v2ray/main.lua:42 luasrc/model/cbi/v2ray/main.lua:105
+#: luasrc/model/cbi/v2ray/main.lua:108
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:379
 #: luasrc/model/cbi/v2ray/policy.lua:27 luasrc/model/cbi/v2ray/reverse.lua:13
 #: luasrc/model/cbi/v2ray/routing.lua:35
 msgid "Enabled"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:76
+#: luasrc/model/cbi/v2ray/main.lua:81
 msgid "Error"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:80
+#: luasrc/model/cbi/v2ray/main.lua:85
 msgid "Error log file"
 msgstr ""
 
@@ -420,7 +420,7 @@ msgstr ""
 msgid "Failed to open file."
 msgstr ""
 
-#: luasrc/controller/v2ray.lua:276
+#: luasrc/controller/v2ray.lua:287
 msgid "Failed to save section"
 msgstr ""
 
@@ -534,20 +534,20 @@ msgid ""
 "255."
 msgstr ""
 
-#: luasrc/view/v2ray/import_outbound.htm:36
-#: luasrc/view/v2ray/import_outbound.htm:81
+#: luasrc/view/v2ray/import_outbound.htm:41
+#: luasrc/view/v2ray/import_outbound.htm:86
 msgid "Import"
 msgstr ""
 
-#: luasrc/view/v2ray/import_outbound.htm:92
+#: luasrc/view/v2ray/import_outbound.htm:97
 msgid "Import failed"
 msgstr ""
 
-#: luasrc/view/v2ray/import_outbound.htm:42
+#: luasrc/view/v2ray/import_outbound.htm:47
 msgid "Import multiple vmess:// links at once. One link per line."
 msgstr ""
 
-#: luasrc/view/v2ray/import_outbound.htm:74
+#: luasrc/view/v2ray/import_outbound.htm:79
 msgid "Importing..."
 msgstr ""
 
@@ -563,15 +563,15 @@ msgstr ""
 msgid "Inbound tag"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:88
+#: luasrc/model/cbi/v2ray/main.lua:93
 msgid "Inbounds enabled"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:74
+#: luasrc/model/cbi/v2ray/main.lua:79
 msgid "Info"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:119
+#: luasrc/model/cbi/v2ray/main.lua:124
 msgid "Invalid JSON content."
 msgstr ""
 
@@ -610,7 +610,7 @@ msgstr ""
 msgid "Levels"
 msgstr ""
 
-#: luasrc/view/v2ray/import_outbound.htm:87
+#: luasrc/view/v2ray/import_outbound.htm:92
 msgid "Link imported"
 msgstr ""
 
@@ -627,7 +627,7 @@ msgstr ""
 msgid "Listen"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:71
+#: luasrc/model/cbi/v2ray/main.lua:76
 msgid "Log level"
 msgstr ""
 
@@ -642,6 +642,10 @@ msgstr ""
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:314
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:279
 msgid "Maximum transmission unit (MTU)"
+msgstr ""
+
+#: luasrc/model/cbi/v2ray/main.lua:61
+msgid "Memory percentage"
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:130
@@ -673,7 +677,7 @@ msgstr ""
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:350
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:381
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:392
-#: luasrc/model/cbi/v2ray/main.lua:64 luasrc/model/cbi/v2ray/main.lua:77
+#: luasrc/model/cbi/v2ray/main.lua:69 luasrc/model/cbi/v2ray/main.lua:82
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:60
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:186
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:204
@@ -732,7 +736,7 @@ msgstr ""
 msgid "Outbound tag"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:94
+#: luasrc/model/cbi/v2ray/main.lua:99
 msgid "Outbounds enabled"
 msgstr ""
 
@@ -939,7 +943,7 @@ msgstr ""
 msgid "Server port"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:106
+#: luasrc/model/cbi/v2ray/main.lua:111
 msgid "Settings"
 msgstr ""
 
@@ -967,7 +971,7 @@ msgstr ""
 msgid "Source: %s"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:100
+#: luasrc/model/cbi/v2ray/main.lua:105
 msgid "Stats"
 msgstr ""
 
@@ -1003,7 +1007,7 @@ msgstr ""
 msgid "Stream settings"
 msgstr ""
 
-#: luasrc/view/v2ray/import_outbound.htm:47
+#: luasrc/view/v2ray/import_outbound.htm:52
 msgid "Submit"
 msgstr ""
 
@@ -1028,6 +1032,10 @@ msgstr ""
 #: luasrc/model/cbi/v2ray/outbound-list.lua:46
 #: luasrc/model/cbi/v2ray/routing.lua:101
 msgid "Tag"
+msgstr ""
+
+#: luasrc/model/cbi/v2ray/main.lua:62
+msgid "The maximum percentage of memory used by V2Ray."
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/main.lua:45
@@ -1058,11 +1066,11 @@ msgstr ""
 msgid "Transparent Proxy"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:103 luasrc/model/cbi/v2ray/main.lua:106
+#: luasrc/model/cbi/v2ray/main.lua:108 luasrc/model/cbi/v2ray/main.lua:111
 msgid "Transport"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:115
+#: luasrc/model/cbi/v2ray/main.lua:120
 msgid "Transport settings is required."
 msgstr ""
 
@@ -1080,7 +1088,7 @@ msgstr ""
 msgid "UDP"
 msgstr ""
 
-#: luasrc/view/v2ray/import_outbound.htm:69
+#: luasrc/view/v2ray/import_outbound.htm:74
 msgid "Unsupported Link"
 msgstr ""
 
@@ -1109,7 +1117,7 @@ msgstr ""
 msgid "Use TProxy"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:62
+#: luasrc/model/cbi/v2ray/main.lua:67
 msgid "Use custom config file."
 msgstr ""
 
@@ -1169,7 +1177,7 @@ msgstr ""
 msgid "Version: %s"
 msgstr ""
 
-#: luasrc/model/cbi/v2ray/main.lua:75
+#: luasrc/model/cbi/v2ray/main.lua:80
 msgid "Warning"
 msgstr ""
 

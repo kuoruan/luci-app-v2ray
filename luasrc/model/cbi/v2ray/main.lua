@@ -58,6 +58,11 @@ o = s:option(Value, "asset_location", translate("V2Ray asset location"),
 o.datatype = "directory"
 o.placeholder = "/usr/bin"
 
+o = s:option(Value, "mem_percentage", translate("Memory percentage"),
+	translate("The maximum percentage of memory used by V2Ray."))
+o.datatype = "and(uinteger, max(100))"
+o.placeholder = "50"
+
 o = s:option(Value, "config_file", translate("Config file"),
 	translate("Use custom config file."))
 o.datatype = "file"

@@ -1,7 +1,7 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8\n"
 
-#: luasrc/model/cbi/v2ray/main.lua:107
+#: luasrc/model/cbi/v2ray/main.lua:112
 msgid "<code>transport</code> field in top level configuration, JSON string"
 msgstr "配置文件中的 <code>transport</code> 项，JSON 字符串"
 
@@ -38,7 +38,7 @@ msgstr "APNIC 分配列表镜像"
 msgid "About"
 msgstr "关于"
 
-#: luasrc/model/cbi/v2ray/main.lua:66
+#: luasrc/model/cbi/v2ray/main.lua:71
 msgid "Access log file"
 msgstr "访问日志文件"
 
@@ -117,7 +117,7 @@ msgstr "允许不安全的加密方式"
 msgid "Allow transparent"
 msgstr "转发所有 HTTP 请求"
 
-#: luasrc/view/v2ray/import_outbound.htm:37
+#: luasrc/view/v2ray/import_outbound.htm:42
 msgid "Allowed link format: <code>%s</code>"
 msgstr "支持的链接格式：<code>%s</code>"
 
@@ -218,7 +218,7 @@ msgstr "用户 Alter ID"
 msgid "Client email"
 msgstr "用户邮箱地址"
 
-#: luasrc/view/v2ray/import_outbound.htm:46
+#: luasrc/view/v2ray/import_outbound.htm:51
 msgid "Close"
 msgstr "关闭"
 
@@ -232,7 +232,7 @@ msgstr "正在收集数据..."
 msgid "Concurrency"
 msgstr "随机端口数量"
 
-#: luasrc/model/cbi/v2ray/main.lua:61
+#: luasrc/model/cbi/v2ray/main.lua:66
 msgid "Config file"
 msgstr "配置文件"
 
@@ -275,7 +275,7 @@ msgid ""
 "DNS used for domains in proxy list, format: <code>ip#port</code>. eg: %s"
 msgstr "代理列表中域名使用的 DNS，格式：<code>ip#port</code>。例如：%s"
 
-#: luasrc/model/cbi/v2ray/main.lua:73
+#: luasrc/model/cbi/v2ray/main.lua:78
 msgid "Debug"
 msgstr "调试"
 
@@ -388,19 +388,19 @@ msgstr "在 Dokodemo-door 端口上启用透明代理。"
 
 #: luasrc/model/cbi/v2ray/dns.lua:26
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:415
-#: luasrc/model/cbi/v2ray/main.lua:42 luasrc/model/cbi/v2ray/main.lua:100
-#: luasrc/model/cbi/v2ray/main.lua:103
+#: luasrc/model/cbi/v2ray/main.lua:42 luasrc/model/cbi/v2ray/main.lua:105
+#: luasrc/model/cbi/v2ray/main.lua:108
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:379
 #: luasrc/model/cbi/v2ray/policy.lua:27 luasrc/model/cbi/v2ray/reverse.lua:13
 #: luasrc/model/cbi/v2ray/routing.lua:35
 msgid "Enabled"
 msgstr "已启用"
 
-#: luasrc/model/cbi/v2ray/main.lua:76
+#: luasrc/model/cbi/v2ray/main.lua:81
 msgid "Error"
 msgstr "错误"
 
-#: luasrc/model/cbi/v2ray/main.lua:80
+#: luasrc/model/cbi/v2ray/main.lua:85
 msgid "Error log file"
 msgstr "错误日志文件"
 
@@ -420,7 +420,7 @@ msgstr "创建新配置项失败"
 msgid "Failed to open file."
 msgstr "无法打开文件"
 
-#: luasrc/controller/v2ray.lua:276
+#: luasrc/controller/v2ray.lua:287
 msgid "Failed to save section"
 msgstr "保存配置项失败"
 
@@ -534,20 +534,20 @@ msgid ""
 "255."
 msgstr "如果启用了透明代理，此选项会被忽略，并自动设置为255。"
 
-#: luasrc/view/v2ray/import_outbound.htm:36
-#: luasrc/view/v2ray/import_outbound.htm:81
+#: luasrc/view/v2ray/import_outbound.htm:41
+#: luasrc/view/v2ray/import_outbound.htm:86
 msgid "Import"
 msgstr "导入"
 
-#: luasrc/view/v2ray/import_outbound.htm:92
+#: luasrc/view/v2ray/import_outbound.htm:97
 msgid "Import failed"
 msgstr "导入失败"
 
-#: luasrc/view/v2ray/import_outbound.htm:42
+#: luasrc/view/v2ray/import_outbound.htm:47
 msgid "Import multiple vmess:// links at once. One link per line."
 msgstr "可一次添加多个 vmess:// 链接，每个链接一行。"
 
-#: luasrc/view/v2ray/import_outbound.htm:74
+#: luasrc/view/v2ray/import_outbound.htm:79
 msgid "Importing..."
 msgstr "导入中……"
 
@@ -563,15 +563,15 @@ msgstr "入站连接标识"
 msgid "Inbound tag"
 msgstr "入站连接标识"
 
-#: luasrc/model/cbi/v2ray/main.lua:88
+#: luasrc/model/cbi/v2ray/main.lua:93
 msgid "Inbounds enabled"
 msgstr "启用的入站连接"
 
-#: luasrc/model/cbi/v2ray/main.lua:74
+#: luasrc/model/cbi/v2ray/main.lua:79
 msgid "Info"
 msgstr "信息"
 
-#: luasrc/model/cbi/v2ray/main.lua:119
+#: luasrc/model/cbi/v2ray/main.lua:124
 msgid "Invalid JSON content."
 msgstr "JSON 内容验证失败。"
 
@@ -610,7 +610,7 @@ msgstr "等级"
 msgid "Levels"
 msgstr "等级"
 
-#: luasrc/view/v2ray/import_outbound.htm:87
+#: luasrc/view/v2ray/import_outbound.htm:92
 msgid "Link imported"
 msgstr "链接已导入"
 
@@ -627,7 +627,7 @@ msgstr "列表已更新，刷新页面查看详情。"
 msgid "Listen"
 msgstr "监听地址"
 
-#: luasrc/model/cbi/v2ray/main.lua:71
+#: luasrc/model/cbi/v2ray/main.lua:76
 msgid "Log level"
 msgstr "日志等级"
 
@@ -643,6 +643,10 @@ msgstr "标记"
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:279
 msgid "Maximum transmission unit (MTU)"
 msgstr "最大传输单元（MTU）"
+
+#: luasrc/model/cbi/v2ray/main.lua:61
+msgid "Memory percentage"
+msgstr "内存百分比"
 
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:130
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:121
@@ -673,7 +677,7 @@ msgstr "无认证"
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:350
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:381
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:392
-#: luasrc/model/cbi/v2ray/main.lua:64 luasrc/model/cbi/v2ray/main.lua:77
+#: luasrc/model/cbi/v2ray/main.lua:69 luasrc/model/cbi/v2ray/main.lua:82
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:60
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:186
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:204
@@ -732,7 +736,7 @@ msgstr "出站连接标识"
 msgid "Outbound tag"
 msgstr "出站连接标识"
 
-#: luasrc/model/cbi/v2ray/main.lua:94
+#: luasrc/model/cbi/v2ray/main.lua:99
 msgid "Outbounds enabled"
 msgstr "启用的出站连接"
 
@@ -939,7 +943,7 @@ msgstr "服务器端证书域名"
 msgid "Server port"
 msgstr "服务器端口"
 
-#: luasrc/model/cbi/v2ray/main.lua:106
+#: luasrc/model/cbi/v2ray/main.lua:111
 msgid "Settings"
 msgstr "配置"
 
@@ -967,7 +971,7 @@ msgstr "来源地址"
 msgid "Source: %s"
 msgstr "源码：%s"
 
-#: luasrc/model/cbi/v2ray/main.lua:100
+#: luasrc/model/cbi/v2ray/main.lua:105
 msgid "Stats"
 msgstr "统计信息"
 
@@ -1003,7 +1007,7 @@ msgstr "数据流网络"
 msgid "Stream settings"
 msgstr "底层传输配置"
 
-#: luasrc/view/v2ray/import_outbound.htm:47
+#: luasrc/view/v2ray/import_outbound.htm:52
 msgid "Submit"
 msgstr "提交"
 
@@ -1029,6 +1033,10 @@ msgstr ""
 #: luasrc/model/cbi/v2ray/routing.lua:101
 msgid "Tag"
 msgstr "标识"
+
+#: luasrc/model/cbi/v2ray/main.lua:62
+msgid "The maximum percentage of memory used by V2Ray."
+msgstr "V2Ray 可使用的最大内存百分比"
 
 #: luasrc/model/cbi/v2ray/main.lua:45
 msgid "This will restart service when config file changes."
@@ -1058,11 +1066,11 @@ msgstr "传输时间间隔（TTI）"
 msgid "Transparent Proxy"
 msgstr "透明代理"
 
-#: luasrc/model/cbi/v2ray/main.lua:103 luasrc/model/cbi/v2ray/main.lua:106
+#: luasrc/model/cbi/v2ray/main.lua:108 luasrc/model/cbi/v2ray/main.lua:111
 msgid "Transport"
 msgstr "底层传输"
 
-#: luasrc/model/cbi/v2ray/main.lua:115
+#: luasrc/model/cbi/v2ray/main.lua:120
 msgid "Transport settings is required."
 msgstr "底层传输配置是必填项。"
 
@@ -1080,7 +1088,7 @@ msgstr "类型"
 msgid "UDP"
 msgstr ""
 
-#: luasrc/view/v2ray/import_outbound.htm:69
+#: luasrc/view/v2ray/import_outbound.htm:74
 msgid "Unsupported Link"
 msgstr "不支持的链接"
 
@@ -1109,7 +1117,7 @@ msgstr "下行连接关闭等待时间"
 msgid "Use TProxy"
 msgstr "使用 TProxy"
 
-#: luasrc/model/cbi/v2ray/main.lua:62
+#: luasrc/model/cbi/v2ray/main.lua:67
 msgid "Use custom config file."
 msgstr "使用自定义配置文件。"
 
@@ -1169,7 +1177,7 @@ msgstr "V2Ray 文件"
 msgid "Version: %s"
 msgstr "版本：%s"
 
-#: luasrc/model/cbi/v2ray/main.lua:75
+#: luasrc/model/cbi/v2ray/main.lua:80
 msgid "Warning"
 msgstr "警告"
 
