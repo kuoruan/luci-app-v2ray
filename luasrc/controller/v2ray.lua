@@ -262,6 +262,7 @@ function import_outbound()
 
 			if next(hosts) then
 				uci:set_list("v2ray", section_name, "ss_http_host", hosts)
+				uci:set("v2ray", section_name, "ss_tls_server_name", hosts[1])
 			end
 		elseif network == "quic" then
 			uci:set("v2ray", section_name, "ss_network", "quic")
