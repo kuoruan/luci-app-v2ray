@@ -61,7 +61,7 @@ o.placeholder = "/usr/bin"
 o = s:option(Value, "mem_percentage", translate("Memory percentage"),
 	translate("The maximum percentage of memory used by V2Ray."))
 o.datatype = "and(uinteger, max(100))"
-o.placeholder = "50"
+o.placeholder = "80"
 
 o = s:option(Value, "config_file", translate("Config file"),
 	translate("Use custom config file."))

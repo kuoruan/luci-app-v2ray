@@ -144,7 +144,7 @@ v2ray_section_validate() {
 		'enabled:bool:0' \
 		'v2ray_file:string' \
 		'asset_location:directory' \
-		'mem_percentage:and(uinteger, max(100)):50' \
+		'mem_percentage:and(uinteger, max(100)):80' \
 		'config_file:file' \
 		'loglevel:or("debug", "info", "warning", "error", "none")' \
 		'access_log:string' \

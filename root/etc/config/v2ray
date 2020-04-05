@@ -1,6 +1,7 @@
 config v2ray 'main'
 	option enabled '0'
 	option v2ray_file '/usr/bin/v2ray'
+	option mem_percentage '0'
 	option config_file ''
 	option loglevel 'warning'
 	option access_log '/dev/null'
