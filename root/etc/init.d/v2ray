@@ -2136,11 +2136,11 @@ start_instance() {
 
 	# cat /proc/PID/limits to see if limits works
 	procd_set_param limits nofile="102400 102400"
-	procd_append_param limits core="unlimited"
+	procd_append_param limits core="0 0"
 
 	if [ "$mem_percentage" -gt "0" ] ; then
 		local mem_total="$(awk '/MemTotal/ {print $2}' /proc/meminfo)"
-		if [ -z "$mem_total" ] ; then
+		if [ -n "$mem_total" ] ; then
 			local use_mem="$(expr $mem_total \* $mem_percentage \* 10)"
 			procd_append_param limits as="$use_mem $use_mem"
 		fi
