@@ -1,0 +1,30 @@
+{
+	"admin/services/v2ray": {
+		"title": "V2ray",
+		"action": {
+			"type": "alias",
+			"path": "admin/services/v2ray/main"
+		},
+		"depends": {
+			"uci": { "v2ray": true }
+		}
+	},
+
+	"admin/services/v2ray/main": {
+		"title": "Global Settings",
+		"order": 10,
+		"action": {
+			"type": "view",
+			"path": "v2ray/main"
+		}
+	},
+
+	"admin/services/v2ray/inbound-list": {
+		"title": "Global Settings",
+		"order": 20,
+		"action": {
+			"type": "view",
+			"path": "v2ray/inbound-list"
+		}
+	}
+}

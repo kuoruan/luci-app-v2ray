@@ -1,0 +1,22 @@
+{
+  "name": "luci-app-v2ray",
+  "version": "2.0.0",
+  "description": "LuCI support for v2ray",
+  "repository": "git@github.com:kuoruan/luci-app-v2ray.git",
+  "author": "Xingwang Liao <kuoruan@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "build": "tsc && node copy.js"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.26.0",
+    "@typescript-eslint/parser": "^2.26.0",
+    "copyfiles": "^2.2.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.1",
+    "eslint-plugin-prettier": "^3.1.2",
+    "prettier": "^2.0.3",
+    "typescript": "^3.8.3"
+  }
+}

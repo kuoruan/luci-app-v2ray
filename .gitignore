@@ -1,0 +1,6 @@
+.DS_Store
+*.po~
+.idea
+src/**/*.js
+node_modules
+dist
