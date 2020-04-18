@@ -16,8 +16,8 @@ git:
 env:
   global:
     - PACKAGE=luci-app-v2ray
-    - SDK_PATH=https://downloads.openwrt.org/releases/18.06.4/targets/x86/64
-    - SDK=-sdk-18.06.4-x86-64_
+    - SDK_PATH=https://downloads.openwrt.org/releases/18.06.8/targets/x86/64
+    - SDK=-sdk-18.06.8-x86-64_
     - CONFIG_CCACHE=y
 install:
   - test -d "$HOME/files" || mkdir -p "$HOME/files"
@@ -70,7 +70,7 @@ deploy:
   file: "$TRAVIS_BUILD_DIR/*.ipk"
   cleanup: false
   edge: true
+  token: $GITHUB_TOKEN
   on:
     tags: true
     all_branches: true
-  token: $GITHUB_TOKEN
