@@ -56,7 +56,7 @@ Depends:
 
 - jshn
 - luci-lib-jsonc
-- ip
+- ip (ip-tiny or ip-full)
 - ipset
 - iptables
 - iptables-mod-tproxy
