@@ -62,6 +62,7 @@ Depends:
 - iptables-mod-tproxy
 - resolveip
 - dnsmasq-full (dnsmasq ipset is required)
+- luci-compat (for OpenWrt 19.07 and later)
 
 For translations, please install ```luci-i18n-v2ray-*```.
 
