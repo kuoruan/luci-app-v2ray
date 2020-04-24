@@ -88,7 +88,7 @@ get_file_content() {
 	test -n "$filename" || return
 	test -r "/etc/v2ray/${filename}.txt" || return
 
-	cat "/etc/v2ray/${filename}.txt" | grep -v "^$"
+	cat "/etc/v2ray/${filename}.txt" | grep -v "^$" | grep -v "^#"
 }
 
 append_server_ipv4() {
@@ -623,52 +623,56 @@ init_rules_for_listfile() {
 	local direct_content
 	direct_content="$(get_file_content "directlist")"
 
-	echo "$direct_content" | \
-		grep -oE "[0-9]{1,3}(\.[0-9]{1,3}){3}(/[0-9]{1,2})?" | \
-		sed "s/.*/add $IPSET_DST_DIRECT_V4 & timeout 0/" | \
-		ipset -! restore 2>/dev/null
-
-	echo "$direct_content" | \
-		grep -oE "([0-9a-fA-F]{0,4}:){1,7}([0-9a-fA-F]){0,4}(/[0-9]{1,2})?" | \
-		sed "s/.*/add $IPSET_DST_DIRECT_V6 & timeout 0/" | \
-		ipset -! restore 2>/dev/null
-
-	if [ -n "$direct_list_dns" ] ; then
+	if [ -n "$direct_content" ] ; then
 		echo "$direct_content" | \
-			grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" | \
-			sed "s|.*|server=/&/$direct_list_dns\nipset=/&/$IPSET_DST_DIRECT_V4,$IPSET_DST_DIRECT_V6|" \
-			>>"$FILE_V2RAY_DNSMASQ_CACHE"
-	else
+			grep -oE "[0-9]{1,3}(\.[0-9]{1,3}){3}(/[0-9]{1,2})?" | \
+			sed "s/.*/add $IPSET_DST_DIRECT_V4 & timeout 0/" | \
+			ipset -! restore 2>/dev/null
+
 		echo "$direct_content" | \
-			grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" | \
-			sed "s|.*|ipset=/&/$IPSET_DST_DIRECT_V4,$IPSET_DST_DIRECT_V6|" \
-			>>"$FILE_V2RAY_DNSMASQ_CACHE"
+			grep -oE "([0-9a-fA-F]{0,4}:){1,7}([0-9a-fA-F]){0,4}(/[0-9]{1,2})?" | \
+			sed "s/.*/add $IPSET_DST_DIRECT_V6 & timeout 0/" | \
+			ipset -! restore 2>/dev/null
+
+		if [ -n "$direct_list_dns" ] ; then
+			echo "$direct_content" | \
+				grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" | \
+				sed "s|.*|server=/&/$direct_list_dns\nipset=/&/$IPSET_DST_DIRECT_V4,$IPSET_DST_DIRECT_V6|" \
+				>>"$FILE_V2RAY_DNSMASQ_CACHE"
+		else
+			echo "$direct_content" | \
+				grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" | \
+				sed "s|.*|ipset=/&/$IPSET_DST_DIRECT_V4,$IPSET_DST_DIRECT_V6|" \
+				>>"$FILE_V2RAY_DNSMASQ_CACHE"
+		fi
 	fi
 
 	# For proxy list
 	local proxy_content
 	proxy_content="$(get_file_content "proxylist")"
 
-	echo "$proxy_content" | \
-		grep -oE "[0-9]{1,3}(\.[0-9]{1,3}){3}(/[0-9]{1,2})?" | \
-		sed "s/.*/add $IPSET_DST_PROXY_V4 & timeout 0/" | \
-		ipset -! restore 2>/dev/null
-
-	echo "$proxy_content" | \
-		grep -oE "([0-9a-fA-F]{0,4}:){1,7}([0-9a-fA-F]){0,4}(/[0-9]{1,2})?" | \
-		sed "s/.*/add $IPSET_DST_PROXY_V6 & timeout 0/" | \
-		ipset -! restore 2>/dev/null
-
-	if [ -n "$proxy_list_dns" ] ; then
+	if [ -n "$proxy_content" ] ; then
 		echo "$proxy_content" | \
-			grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" | \
-			sed "s|.*|server=/&/$proxy_list_dns\nipset=/&/$IPSET_DST_PROXY_V4,$IPSET_DST_PROXY_V6|" \
-			>>"$FILE_V2RAY_DNSMASQ_CACHE"
-	else
+			grep -oE "[0-9]{1,3}(\.[0-9]{1,3}){3}(/[0-9]{1,2})?" | \
+			sed "s/.*/add $IPSET_DST_PROXY_V4 & timeout 0/" | \
+			ipset -! restore 2>/dev/null
+
 		echo "$proxy_content" | \
-			grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" | \
-			sed "s|.*|ipset=/&/$IPSET_DST_PROXY_V4,$IPSET_DST_PROXY_V6|" \
-			>>"$FILE_V2RAY_DNSMASQ_CACHE"
+			grep -oE "([0-9a-fA-F]{0,4}:){1,7}([0-9a-fA-F]){0,4}(/[0-9]{1,2})?" | \
+			sed "s/.*/add $IPSET_DST_PROXY_V6 & timeout 0/" | \
+			ipset -! restore 2>/dev/null
+
+		if [ -n "$proxy_list_dns" ] ; then
+			echo "$proxy_content" | \
+				grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" | \
+				sed "s|.*|server=/&/$proxy_list_dns\nipset=/&/$IPSET_DST_PROXY_V4,$IPSET_DST_PROXY_V6|" \
+				>>"$FILE_V2RAY_DNSMASQ_CACHE"
+		else
+			echo "$proxy_content" | \
+				grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" | \
+				sed "s|.*|ipset=/&/$IPSET_DST_PROXY_V4,$IPSET_DST_PROXY_V6|" \
+				>>"$FILE_V2RAY_DNSMASQ_CACHE"
+		fi
 	fi
 }
 
@@ -1919,30 +1923,56 @@ setup_transparent_proxy() {
 	local ext_args
 	case "${proxy_mode:-default}" in
 		"cn_direct")
-			ipset -! restore <<-EOF 2>/dev/null
-				$(get_file_content "chnroute" | sed "s/.*/add $IPSET_DST_DIRECT_V4 & timeout 0/")
-				$(get_file_content "chnroute6" | sed "s/.*/add $IPSET_DST_DIRECT_V6 & timeout 0/")
-			EOF
+			local chnroute="$(get_file_content "chnroute")"
+			local chnroute6="$(get_file_content "chnroute6")"
+
+			if [ -n "$chnroute" ] ; then
+				ipset -! restore <<-EOF 2>/dev/null
+					$(echo "$chnroute" | sed "s/.*/add $IPSET_DST_DIRECT_V4 & timeout 0/")
+				EOF
+			fi
+
+			if [ -n "$chnroute6" ] ; then
+				ipset -! restore <<-EOF 2>/dev/null
+					$(echo "$chnroute6" | sed "s/.*/add $IPSET_DST_DIRECT_V6 & timeout 0/")
+				EOF
+			fi
+
 			ext_args=
 			;;
 		"cn_proxy")
-			ipset -! restore <<-EOF 2>/dev/null
-				$(get_file_content "chnroute" | sed "s/.*/add $IPSET_DST_PROXY_V4 & timeout 0/")
-				$(get_file_content "chnroute6" | sed "s/.*/add $IPSET_DST_PROXY_V6 & timeout 0/")
-			EOF
+			local chnroute="$(get_file_content "chnroute")"
+			local chnroute6="$(get_file_content "chnroute6")"
+
+			if [ -n "$chnroute" ] ; then
+				ipset -! restore <<-EOF 2>/dev/null
+					$(echo "$chnroute" | sed "s/.*/add $IPSET_DST_PROXY_V4 & timeout 0/")
+				EOF
+			fi
+
+			if [ -n "$chnroute6" ] ; then
+				ipset -! restore <<-EOF 2>/dev/null
+					$(echo "$chnroute6" | sed "s/.*/add $IPSET_DST_PROXY_V6 & timeout 0/")
+				EOF
+			fi
+
 			ext_args="-m set --match-set $IPSET_DST_PROXY_V4 dst"
 			;;
 		"gfwlist_proxy")
 			local gfwlist="$(get_file_content "gfwlist")"
-			if [ -n "$proxy_list_dns" ] ; then
-				echo "$gfwlist" | \
-					sed "s|.*|server=/&/$proxy_list_dns\nipset=/&/$IPSET_DST_PROXY_V4,$IPSET_DST_PROXY_V6|" \
-					>> "$FILE_V2RAY_DNSMASQ_CACHE"
-			else
-				echo "$gfwlist" | \
-					sed "s|.*|ipset=/&/$IPSET_DST_PROXY_V4,$IPSET_DST_PROXY_V6|" \
-					>> "$FILE_V2RAY_DNSMASQ_CACHE"
+
+			if [ -n "$gfwlist" ] ; then
+				if [ -n "$proxy_list_dns" ] ; then
+					echo "$gfwlist" | \
+						sed "s|.*|server=/&/$proxy_list_dns\nipset=/&/$IPSET_DST_PROXY_V4,$IPSET_DST_PROXY_V6|" \
+						>> "$FILE_V2RAY_DNSMASQ_CACHE"
+				else
+					echo "$gfwlist" | \
+						sed "s|.*|ipset=/&/$IPSET_DST_PROXY_V4,$IPSET_DST_PROXY_V6|" \
+						>> "$FILE_V2RAY_DNSMASQ_CACHE"
+				fi
 			fi
+
 			ext_args="-m set --match-set $IPSET_DST_PROXY_V4 dst"
 			;;
 		*)
