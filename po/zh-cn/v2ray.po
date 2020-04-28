@@ -1201,3 +1201,8 @@ msgstr "当 UDP 启用时，V2Ray 需要知道当前服务器的 IP 地址。"
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:307
 msgid "Write buffer size"
 msgstr "读取缓冲区大小"
+
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:155
+msgid "Local devices direct outbound list"
+msgstr "本地设备直接连出列表"
+
