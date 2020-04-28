@@ -153,7 +153,7 @@ o = s:option(Value, "direct_list_dns", translate("Direct list DNS"),
 	translatef("DNS used for domains in direct list, format: <code>ip#port</code>. eg: %s", "114.114.114.114#53"))
 
 o = s:option(TextValue, "_src_direct_list", translate("Local devices direct outbound list"),
-	translatef("One address per line. Allow types: DOMAIN, IP, CIDR. eg: %s, %s, %s", "mphonex1", "192.168.0.19", "192.168.0.0/16"))
+	translatef("One address per line. Allow types: IP, CIDR. eg: %s, %s", "192.168.0.19", "192.168.0.0/16"))
 o.wrap = "off"
 o.rows = 3
 o.datatype = "string"

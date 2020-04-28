@@ -710,6 +710,10 @@ msgstr "一次性认证（OTA）"
 msgid "One address per line. Allow types: DOMAIN, IP, CIDR. eg: %s, %s, %s"
 msgstr "每行一个地址，支持的类型：域名、IP、CIDR。例如：%s、%s、%s"
 
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:168
+msgid "One address per line. Allow types: IP, CIDR. eg: %s, %s"
+msgstr "每行一个地址，支持的类型：IP、CIDR。例如：%s、%s"
+
 #: luasrc/model/cbi/v2ray/transparent-proxy.lua:85
 msgid "Only privileged ports"
 msgstr "仅特权端口"
