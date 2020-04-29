@@ -152,4 +152,17 @@ o = s:option(Value, "proxy_list_dns", translate("Proxy list DNS"),
 o = s:option(Value, "direct_list_dns", translate("Direct list DNS"),
 	translatef("DNS used for domains in direct list, format: <code>ip#port</code>. eg: %s", "114.114.114.114#53"))
 
+o = s:option(TextValue, "_src_direct_list", translate("Local devices direct outbound list"),
+	translatef("One address per line. Allow types: IP, CIDR. eg: %s, %s", "192.168.0.19", "192.168.0.0/16"))
+o.wrap = "off"
+o.rows = 3
+o.datatype = "string"
+o.filepath = "/etc/v2ray/srcdirectlist.txt"
+o.cfgvalue = v2ray.textarea_cfgvalue
+o.write = v2ray.textarea_write
+o.remove = v2ray.textarea_remove
+o.parse = function(...)
+	list_changed = v2ray.textarea_parse(...)
+end
+
 return m

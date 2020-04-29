@@ -710,6 +710,10 @@ msgstr "一次性认证（OTA）"
 msgid "One address per line. Allow types: DOMAIN, IP, CIDR. eg: %s, %s, %s"
 msgstr "每行一个地址，支持的类型：域名、IP、CIDR。例如：%s、%s、%s"
 
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:168
+msgid "One address per line. Allow types: IP, CIDR. eg: %s, %s"
+msgstr "每行一个地址，支持的类型：IP、CIDR。例如：%s、%s"
+
 #: luasrc/model/cbi/v2ray/transparent-proxy.lua:85
 msgid "Only privileged ports"
 msgstr "仅特权端口"
@@ -1197,3 +1201,8 @@ msgstr "当 UDP 启用时，V2Ray 需要知道当前服务器的 IP 地址。"
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:307
 msgid "Write buffer size"
 msgstr "读取缓冲区大小"
+
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:155
+msgid "Local devices direct outbound list"
+msgstr "本地设备直接连出列表"
+

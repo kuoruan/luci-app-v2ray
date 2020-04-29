@@ -6,7 +6,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-v2ray
-PKG_VERSION:=1.5.5
+PKG_VERSION:=1.5.6
 PKG_RELEASE:=1
 
 PKG_LICENSE:=MIT
@@ -20,6 +20,7 @@ LUCI_PKGARCH:=all
 define Package/$(PKG_NAME)/conffiles
 /etc/config/v2ray
 /etc/v2ray/transport.json
+/etc/v2ray/srcdirectlist.txt
 /etc/v2ray/directlist.txt
 /etc/v2ray/proxylist.txt
 endef
