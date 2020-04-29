@@ -420,7 +420,7 @@ msgstr "创建新配置项失败"
 msgid "Failed to open file."
 msgstr "无法打开文件"
 
-#: luasrc/controller/v2ray.lua:287
+#: luasrc/controller/v2ray.lua:288
 msgid "Failed to save section"
 msgstr "保存配置项失败"
 
@@ -627,6 +627,10 @@ msgstr "列表已更新，刷新页面查看详情。"
 msgid "Listen"
 msgstr "监听地址"
 
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:155
+msgid "Local devices direct outbound list"
+msgstr "本地设备直接连出列表"
+
 #: luasrc/model/cbi/v2ray/main.lua:76
 msgid "Log level"
 msgstr "日志等级"
@@ -710,7 +714,7 @@ msgstr "一次性认证（OTA）"
 msgid "One address per line. Allow types: DOMAIN, IP, CIDR. eg: %s, %s, %s"
 msgstr "每行一个地址，支持的类型：域名、IP、CIDR。例如：%s、%s、%s"
 
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:168
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:156
 msgid "One address per line. Allow types: IP, CIDR. eg: %s, %s"
 msgstr "每行一个地址，支持的类型：IP、CIDR。例如：%s、%s"
 
@@ -1200,9 +1204,4 @@ msgstr "当 UDP 启用时，V2Ray 需要知道当前服务器的 IP 地址。"
 #: luasrc/model/cbi/v2ray/inbound-detail.lua:342
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:307
 msgid "Write buffer size"
-msgstr "读取缓冲区大小"
-
-#: luasrc/model/cbi/v2ray/transparent-proxy.lua:155
-msgid "Local devices direct outbound list"
-msgstr "本地设备直接连出列表"
-
+msgstr "写入缓冲区大小"

@@ -420,7 +420,7 @@ msgstr ""
 msgid "Failed to open file."
 msgstr ""
 
-#: luasrc/controller/v2ray.lua:287
+#: luasrc/controller/v2ray.lua:288
 msgid "Failed to save section"
 msgstr ""
 
@@ -627,6 +627,10 @@ msgstr ""
 msgid "Listen"
 msgstr ""
 
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:155
+msgid "Local devices direct outbound list"
+msgstr ""
+
 #: luasrc/model/cbi/v2ray/main.lua:76
 msgid "Log level"
 msgstr ""
@@ -708,6 +712,10 @@ msgstr ""
 #: luasrc/model/cbi/v2ray/transparent-proxy.lua:124
 #: luasrc/model/cbi/v2ray/transparent-proxy.lua:137
 msgid "One address per line. Allow types: DOMAIN, IP, CIDR. eg: %s, %s, %s"
+msgstr ""
+
+#: luasrc/model/cbi/v2ray/transparent-proxy.lua:156
+msgid "One address per line. Allow types: IP, CIDR. eg: %s, %s"
 msgstr ""
 
 #: luasrc/model/cbi/v2ray/transparent-proxy.lua:85
