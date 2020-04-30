@@ -6,6 +6,7 @@
 			"path": "admin/services/v2ray/main"
 		},
 		"depends": {
+      "acl": [ "luci-app-v2ray" ],
 			"uci": { "v2ray": true }
 		}
 	},

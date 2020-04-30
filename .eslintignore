@@ -1,3 +1,6 @@
 src/**/*.js
 **/*.d.ts
 !.*.js
+output/
+package/
+*.po~

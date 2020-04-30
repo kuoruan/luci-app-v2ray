@@ -59,6 +59,10 @@ return view.extend({
   render: function (data: SectionItem[][]) {
     const [inboundSections, outBoundSections] = data;
 
+    for (const d of data) {
+      console.log(d);
+    }
+
     let m, s, o;
 
     m = new form.Map(
