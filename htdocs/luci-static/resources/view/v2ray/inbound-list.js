@@ -1,3 +1,1 @@
-"use strict";
-"require view";
-return view.extend({});
+"use strict";"require view";return view.extend({});
