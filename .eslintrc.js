@@ -8,6 +8,10 @@ module.exports = {
   extends: ["eslint:recommended", "plugin:prettier/recommended"],
   parser: "@typescript-eslint/parser",
   plugins: ["@typescript-eslint", "prettier"],
+  rules: {
+    "no-var": "error",
+    "prefer-const": "warn",
+  },
   globals: {
     E: "readonly",
     L: "readonly",

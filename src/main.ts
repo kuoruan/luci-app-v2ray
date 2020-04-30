@@ -63,9 +63,9 @@ return view.extend({
       console.log(d);
     }
 
-    let m, s, o;
+    let o;
 
-    m = new form.Map(
+    const m = new form.Map(
       "v2ray",
       "%s - %s".format(_("V2ray"), _("Global Settings")),
       "<p>%s</p><p>%s</p>".format(
@@ -76,7 +76,7 @@ return view.extend({
       )
     );
 
-    s = m.section(form.NamedSection, "main", "v2ray");
+    const s = m.section(form.NamedSection, "main", "v2ray");
     s.addremove = false;
     s.anonymous = true;
 
