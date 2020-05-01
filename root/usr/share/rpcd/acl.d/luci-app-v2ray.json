@@ -1,11 +1,20 @@
 {
 	"luci-app-v2ray": {
-		"description": "Grant UCI access for luci-app-v2ray",
+		"description": "Grant access for luci-app-v2ray",
 		"read": {
-			"uci": [ "dhcp", "v2ray" ]
+			"file": {
+				"/etc/firewall.v2ray": ["read"],
+				"/etc/v2ray/*": ["read"]
+			},
+			"uci": ["dhcp", "firewall", "v2ray"]
 		},
 		"write": {
-			"uci": [ "dhcp", "v2ray" ]
+			"file": {
+				"/etc/v2ray/*": ["write"],
+				"/etc/init.d/firewall": ["exec"],
+				"/etc/init.d/v2ray": ["exec"]
+			},
+			"uci": ["dhcp", "firewall", "v2ray"]
 		}
 	}
 }
