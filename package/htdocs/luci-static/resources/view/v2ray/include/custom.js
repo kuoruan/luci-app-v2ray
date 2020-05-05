@@ -1,1 +1,34 @@
-"use strict";"require form";"require fs";"require baseclass";var CUSTOMTextValue=form.TextValue.extend({filepath:null,cfgvalue:function(){return this.filepath?L.resolveDefault(fs.read(this.filepath),""):this.super("cfgvalue",arguments)},write:function(e,t){if(!this.filepath)return this.super("write",arguments);var r=t.trim().replace(/\r\n/g,"\n")+"\n";return fs.write(this.filepath,r)},validate:function(e,t){if(!t)return _("%s is required.").format(this.title);try{JSON.parse(t)}catch(e){return _("Invalid JSON content.")}return!0}});return baseclass.extend({TextValue:CUSTOMTextValue});
+"use strict";
+"require form";
+"require fs";
+var CUSTOMTextValue = form.TextValue.extend({
+    filepath: null,
+    cfgvalue: function () {
+        if (!this.filepath) {
+            return this.super("cfgvalue", arguments);
+        }
+        return L.resolveDefault(fs.read(this.filepath), "");
+    },
+    write: function (__, value) {
+        if (!this.filepath) {
+            return this.super("write", arguments);
+        }
+        var trimmed = value.trim().replace(/\r\n/g, "\n") + "\n";
+        return fs.write(this.filepath, trimmed);
+    },
+    validate: function (__, value) {
+        if (!value) {
+            return _("%s is required.").format(this.title);
+        }
+        try {
+            JSON.parse(value);
+        }
+        catch (e) {
+            return _("Invalid JSON content.");
+        }
+        return true;
+    },
+});
+return L.Class.extend({
+    TextValue: CUSTOMTextValue,
+});

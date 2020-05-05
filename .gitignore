@@ -3,4 +3,5 @@
 .idea
 src/**/*.js
 node_modules
-dist
+output
+package

@@ -3,7 +3,9 @@ const ts = require("gulp-typescript");
 const terser = require("gulp-terser");
 const rimraf = require("rimraf");
 
-const outputDest = "package/htdocs/luci-static/resources/view/v2ray";
+const resDest = "package/htdocs/luci-static/resources";
+
+const tsProject = ts.createProject("tsconfig.json");
 
 gulp.task("clean-package", function (cb) {
   rimraf("package", cb);
@@ -14,8 +16,6 @@ gulp.task("clean-output", function (cb) {
 });
 
 gulp.task("compile", function () {
-  const tsProject = ts.createProject("tsconfig.json");
-
   return tsProject
     .src()
     .pipe(tsProject())
@@ -33,15 +33,29 @@ gulp.task("compile", function () {
     .pipe(gulp.dest("output"));
 });
 
+gulp.task("compile:test", function () {
+  return tsProject.src().pipe(tsProject()).js.pipe(gulp.dest("output"));
+});
+
 gulp.task("copy-output", function () {
-  return gulp.src("output/**").pipe(gulp.dest(outputDest));
+  return gulp.src("output/**").pipe(gulp.dest(resDest));
 });
 
 gulp.task("build", gulp.series("clean-output", "compile", "copy-output"));
 
+gulp.task(
+  "build:test",
+  gulp.series("clean-output", "compile:test", "copy-output")
+);
+
 gulp.task("copy-public", function () {
   return gulp.src("public/**").pipe(gulp.dest("package"));
 });
+
+gulp.task(
+  "test",
+  gulp.series("clean-package", gulp.parallel("build:test", "copy-public"))
+);
 
 gulp.task(
   "default",

@@ -1,33 +1,15 @@
 "use strict";
-"require uci";
-"require ui";
-"require view";
+
+"require form";
 "require fs";
+"require ui";
+"require v2ray";
+// "require view";
+
 "require view/v2ray/include/custom as custom";
 
-type SectionItem = {
-  alias: string;
-  name: string;
-};
-
-const getSections = function (type: string): Promise<SectionItem[]> {
-  const sections: SectionItem[] = [];
-
-  uci.sections("v2ray", type, function (s: any) {
-    const alias: string = s[".alias"];
-    if (alias) {
-      sections.push({
-        name: s[".name"],
-        alias: s[".alias"],
-      });
-    }
-  });
-
-  return Promise.resolve(sections);
-};
-
 // @ts-ignore
-return view.extend({
+return L.view.extend({
   handleServiceReload: function (btn: HTMLElement, ev: Event) {
     return fs
       .exec("/etc/init.d/v2ray", ["reload"])
@@ -54,17 +36,14 @@ return view.extend({
       });
   },
   load: function (): Promise<any> {
-    return Promise.all([getSections("inbound"), getSections("outbound")]);
+    return Promise.all([
+      v2ray.getSections("inbound"),
+      v2ray.getSections("outbound"),
+    ]);
   },
-  render: function (data: SectionItem[][]) {
-    const [inboundSections, outBoundSections] = data;
-
-    for (const d of data) {
-      console.log(d);
-    }
-
-    let o;
-
+  render: function ([inboundSections = [], outBoundSections = []]: ReturnType<
+    typeof v2ray.getSections
+  >[] = []) {
     const m = new form.Map(
       "v2ray",
       "%s - %s".format(_("V2ray"), _("Global Settings")),
@@ -79,6 +58,8 @@ return view.extend({
     const s = m.section(form.NamedSection, "main", "v2ray");
     s.addremove = false;
     s.anonymous = true;
+
+    let o;
 
     o = s.option(form.Flag, "enabled", _("Enabled"));
     o.rmempty = false;
@@ -156,15 +137,15 @@ return view.extend({
 
     o = s.option(form.MultiValue, "inbounds", _("Inbounds enabled"));
     o.depends("config_file", "");
-    inboundSections.forEach(function (s: SectionItem) {
-      o.value(s.name, s.alias);
-    });
+    for (const s of inboundSections) {
+      o.value(s.value, s.caption);
+    }
 
     o = s.option(form.MultiValue, "outbounds", _("Outbounds enabled"));
     o.depends("config_file", "");
-    outBoundSections.forEach(function (s: SectionItem) {
-      o.value(s.name, s.alias);
-    });
+    for (const s of outBoundSections) {
+      o.value(s.value, s.caption);
+    }
 
     o = s.option(
       form.Flag,
@@ -191,6 +172,8 @@ return view.extend({
     o.rows = 5;
     o.datatype = "string";
     o.filepath = "/etc/v2ray/transport.json";
+    o.required = true;
+    o.isjson = true;
 
     return m.render();
   },
