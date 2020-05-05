@@ -20,12 +20,75 @@
 		}
 	},
 
-	"admin/services/v2ray/inbound-list": {
-		"title": "Global Settings",
+	"admin/services/v2ray/inbound": {
+		"title": "Inbound",
 		"order": 20,
 		"action": {
 			"type": "view",
-			"path": "v2ray/inbound-list"
+			"path": "v2ray/inbound"
+		}
+	},
+
+	"admin/services/v2ray/outbound": {
+		"title": "Outbound",
+		"order": 30,
+		"action":{
+			"type": "view",
+			"path": "v2ray/outbound"
+		}
+	},
+
+	"admin/services/v2ray/dns": {
+		"title": "DNS",
+		"order": 40,
+		"action":{
+			"type": "view",
+			"path": "v2ray/dns"
+		}
+	},
+
+	"admin/services/v2ray/routing": {
+		"title": "Routing",
+		"order": 50,
+		"action":{
+			"type": "view",
+			"path": "v2ray/routing"
+		}
+	},
+
+	"admin/services/v2ray/policy": {
+		"title": "Policy",
+		"order": 60,
+		"action":{
+			"type": "view",
+			"path": "v2ray/policy"
+		}
+	},
+
+	"admin/services/v2ray/reverse": {
+		"title": "Reverse",
+		"order": 70,
+		"action":{
+			"type": "view",
+			"path": "v2ray/reverse"
+		}
+	},
+
+	"admin/services/v2ray/transparent-proxy": {
+		"title": "Transparent Proxy",
+		"order": 80,
+		"action":{
+			"type": "view",
+			"path": "v2ray/transparent-proxy"
+		}
+	},
+
+	"admin/services/v2ray/about": {
+		"title": "About",
+		"order": 90,
+		"action":{
+			"type": "view",
+			"path": "v2ray/about"
 		}
 	}
 }

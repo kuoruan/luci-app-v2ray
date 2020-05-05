@@ -1,0 +1,2243 @@
+#!/bin/sh /etc/rc.common
+#
+# Copyright 2019-2020 Xingwang Liao <kuoruan@gmail.com>
+# Licensed to the public under the MIT License.
+#
+
+START=99
+USE_PROCD=1
+
+NAME=v2ray
+CONFIG_FOLDER=/var/etc/$NAME
+
+FILE_V2RAY_DNSMASQ=/tmp/dnsmasq.d/$NAME
+FILE_V2RAY_DNSMASQ_CACHE=/tmp/$NAME.dnsmasq.cache
+
+IPSET_SRC_IGNORE_V4=v2ray_src_ignore_v4
+IPSET_SRC_IGNORE_V6=v2ray_src_ignore_v6
+IPSET_DST_PROXY_V4=v2ray_dst_proxy_v4
+IPSET_DST_PROXY_V6=v2ray_dst_proxy_v6
+IPSET_SRC_DIRECT_V4=v2ray_src_direct_v4
+IPSET_DST_DIRECT_V4=v2ray_dst_direct_v4
+IPSET_DST_DIRECT_V6=v2ray_dst_direct_v6
+
+OUTBOUND_SERVERS_V4=
+OUTBOUND_SERVERS_V6=
+
+TRANSPARENT_PROXY_EXPECTED=0
+TRANSPARENT_PROXY_PORT=
+TRANSPARENT_PROXY_USE_TPROXY=
+TRANSPARENT_PROXY_ADDITION=
+
+DNSMASQ_RESTART_EXPECTED=0
+
+if [ -r /usr/share/libubox/jshn.sh ] ; then
+	. /usr/share/libubox/jshn.sh
+elif [ -r /lib/functions/jshn.sh ] ; then
+	. /lib/functions/jshn.sh
+else
+	logger -p daemon.err -t "$NAME" "Package required: jshn."
+	echo "[err] Package required: jshn." >&2
+	exit 1
+fi
+
+_log() {
+	local level="$1" ; shift
+	local msg="$@"
+	logger -p "daemon.$level" -t "$NAME" "$msg"
+
+	echo "[$level] $msg" >&2
+}
+
+_info() {
+	_log "info" $@
+}
+
+_err() {
+	_log "err" $@
+}
+
+get_value_from_json() {
+	local json="$1"
+	local key="$2"
+
+	test -n "$json" || return
+
+	local value=""
+
+	local old_ns
+	json_set_namespace "json_key" old_ns
+	json_load "$json"
+	json_get_var "$key" value
+	json_cleanup
+	json_set_namespace "$old_ns"
+
+	echo "$value"
+}
+
+get_commands_from_json() {
+	local json="$1"
+
+	test -n "$json" || return
+
+	jshn -r "$json" 2>/dev/null | grep -v "json_init"
+}
+
+get_file_content() {
+	local filename="$1"
+
+	test -n "$filename" || return
+	test -r "/etc/v2ray/${filename}.txt" || return
+
+	cat "/etc/v2ray/${filename}.txt" | grep -v "^$" | grep -v "^#"
+}
+
+append_server_ipv4() {
+	local addr="$1"
+
+	test -n "$addr" || return
+
+	if [ -z "$OUTBOUND_SERVERS_V4" ] ; then
+		OUTBOUND_SERVERS_V4="$addr"
+	else
+		OUTBOUND_SERVERS_V4="$(cat >&1 <<-EOF
+			$OUTBOUND_SERVERS_V4
+			$addr
+		EOF
+		)"
+	fi
+}
+
+append_server_ipv6() {
+	local addr="$1"
+
+	test -n "$addr" || return
+
+	if [ -z "$OUTBOUND_SERVERS_V6" ] ; then
+		OUTBOUND_SERVERS_V6="$addr"
+	else
+		OUTBOUND_SERVERS_V6="$(cat >&1 <<-EOF
+			$OUTBOUND_SERVERS_V6
+			$addr
+		EOF
+		)"
+	fi
+}
+
+append_server_address() {
+	local addr="$1"
+
+	test -n "$addr" || return
+
+	local ipv4
+	for ipv4 in $(resolveip -4 -t 5 "$addr") ; do
+		append_server_ipv4 "$ipv4"
+	done
+
+	local ipv6
+	for ipv6 in $(resolveip -6 -t 5 "$addr") ; do
+		append_server_ipv6 "$ipv6"
+	done
+}
+
+v2ray_section_validate() {
+	uci_validate_section "$NAME" "v2ray" "$1" \
+		'enabled:bool:0' \
+		'v2ray_file:string' \
+		'asset_location:directory' \
+		'mem_percentage:and(uinteger, max(100)):80' \
+		'config_file:file' \
+		'loglevel:or("debug", "info", "warning", "error", "none")' \
+		'access_log:string' \
+		'error_log:string' \
+		'stats_enabled:bool:0' \
+		'transport_enabled:bool:0' \
+		'inbounds:list(uci("v2ray", "@inbound"))' \
+		'outbounds:list(uci("v2ray", "@outbound"))'
+}
+
+dns_section_validate() {
+	uci_validate_section "$NAME" "dns" "$1" \
+		'enabled:bool:0' \
+		'tag:string' \
+		'client_ip:ipaddr' \
+		'hosts:list(string)' \
+		'servers:list(uci("v2ray", "@dns_server"))'
+}
+
+dns_server_section_validate() {
+	uci_validate_section "$NAME" "dns_server" "$1" \
+		'address:string' \
+		'port:port' \
+		'domains:list(string)'
+}
+
+routing_section_validate() {
+	uci_validate_section "$NAME" "routing" "$1" \
+		'enabled:bool:0' \
+		'domain_strategy:or("AsIs", "IPIfNonMatch", "IPOnDemand")' \
+		'rules:list(uci("v2ray", "@routing_rule"))' \
+		'balancers:list(uci("v2ray", "@routing_balancer"))'
+}
+
+routing_rule_section_validate() {
+	uci_validate_section "$NAME" "routing_rule" "$1" \
+		'type:"field"' \
+		'domain:list(string)' \
+		'ip:list(string)' \
+		'port:or(port, portrange)' \
+		'network:list(or("tcp", "udp"))' \
+		'source:list(string)' \
+		'user:list(string)' \
+		'inbound_tag:list(string)' \
+		'protocol:list(or("http", "tls", "bittorrent"))' \
+		'attrs:string' \
+		'outbound_tag:string' \
+		'balancer_tag:string'
+}
+
+routing_balancer_section_validate() {
+	uci_validate_section "$NAME" "routing_balancer" "$1" \
+		'tag:string' \
+		'selector:list(string)'
+}
+
+policy_section_validate() {
+	uci_validate_section "$NAME" "policy" "$1" \
+		'enabled:bool:0' \
+		'levels:list(uci("v2ray", "@policy_level"))' \
+		'system_stats_inbound_uplink:bool:0' \
+		'system_stats_inbound_downlink:bool:0'
+}
+
+policy_level_section_validate() {
+	uci_validate_section "$NAME" "policy_level" "$1" \
+		'level:uinteger' \
+		'handshake:uinteger:4' \
+		'conn_idle:uinteger:300' \
+		'uplink_only:uinteger:2' \
+		'downlink_only:uinteger:5' \
+		'stats_user_uplink:bool:0' \
+		'stats_user_downlink:bool:0' \
+		'buffer_size:uinteger'
+}
+
+reverse_section_validate() {
+	uci_validate_section "$NAME" "reverse" "$1" \
+		'enabled:bool:0' \
+		'bridges:list(string)' \
+		'portals:list(string)'
+}
+
+inbound_section_validate() {
+	uci_validate_section "$NAME" "inbound" "$1" \
+		'port:or(port, portrange, string)' \
+		'listen:ipaddr' \
+		'protocol:string' \
+		's_dokodemo_door_address:host' \
+		's_dokodemo_door_port:port' \
+		's_dokodemo_door_network:list(or("tcp", "udp"))' \
+		's_dokodemo_door_timeout:uinteger' \
+		's_dokodemo_door_follow_redirect:bool:0' \
+		's_dokodemo_door_user_level:uiterger' \
+		's_http_account_user:string' \
+		's_http_account_pass:string' \
+		's_http_allow_transparent:bool:0' \
+		's_http_timeout:uinteger' \
+		's_http_user_level:uinteger' \
+		's_mtproto_user_email:string' \
+		's_mtproto_user_secret:string' \
+		's_mtproto_user_level:uinteger' \
+		's_shadowsocks_email:string' \
+		's_shadowsocks_method:string' \
+		's_shadowsocks_password:string' \
+		's_shadowsocks_level:uinteger' \
+		's_shadowsocks_ota:bool:0' \
+		's_shadowsocks_network:list(or("tcp", "udp")):tcp' \
+		's_socks_auth:or("noauth", "password")' \
+		's_socks_account_user:string' \
+		's_socks_account_pass:string' \
+		's_socks_udp:bool:0' \
+		's_socks_ip:host' \
+		's_socks_user_level:uinteger' \
+		's_vmess_client_id:string' \
+		's_vmess_client_alter_id:and(uinteger, max(65535))' \
+		's_vmess_client_email:string' \
+		's_vmess_client_user_level:uinteger' \
+		's_vmess_default_alter_id:and(uinteger, max(65535))' \
+		's_vmess_default_user_level:uinteger' \
+		's_vmess_detour_to:string' \
+		's_vmess_disable_insecure_encryption:bool:0' \
+		'ss_network:or("tcp", "kcp", "ws", "http", "domainsocket", "quic")' \
+		'ss_security:or("none", "tls")' \
+		'ss_tls_server_name:host' \
+		'ss_tls_alpn:string' \
+		'ss_tls_allow_insecure:bool:0' \
+		'ss_tls_allow_insecure_ciphers:bool:0' \
+		'ss_tls_disable_system_root:bool:0' \
+		'ss_tls_cert_usage:or("encipherment", "verify", "issue")' \
+		'ss_tls_cert_fiile:string' \
+		'ss_tls_key_file:string' \
+		'ss_tcp_header_type:or("none", "http")' \
+		'ss_tcp_header_request_version:string' \
+		'ss_tcp_header_request_method:string:GET' \
+		'ss_tcp_header_request_path:string' \
+		'ss_tcp_header_request_headers:list(string)' \
+		'ss_tcp_header_response_version:string' \
+		'ss_tcp_header_response_status:string' \
+		'ss_tcp_header_response_reason:string' \
+		'ss_tcp_header_response_headers:list(string)' \
+		'ss_kcp_mtu:and(min(576), max(1460))' \
+		'ss_kcp_tti:and(min(10), max(100))' \
+		'ss_kcp_uplink_capacity:uinteger' \
+		'ss_kcp_downlink_capacity:uinteger' \
+		'ss_kcp_congestion:bool:0' \
+		'ss_kcp_read_buffer_size:uinteger' \
+		'ss_kcp_write_buffer_size:uinteger' \
+		'ss_kcp_header_type:or("none", "srtp", "utp", "wechat-video", "dtls", "wireguard")' \
+		'ss_websocket_path:string' \
+		'ss_websocket_headers:list(string)' \
+		'ss_http_host:list(host)' \
+		'ss_http_path:string' \
+		'ss_domainsocket_path:string' \
+		'ss_quic_security:or("aes-128-gcm", "chacha20-poly1305", "none")' \
+		'ss_quic_key:string' \
+		'ss_quic_header_type:or("none", "srtp", "utp", "wechat-video", "dtls", "wireguard")' \
+		'ss_sockopt_tcp_fast_open:or("0", "1")' \
+		'ss_sockopt_tproxy:or("redirect", "tproxy", "off")' \
+		'tag:string' \
+		'sniffing_enabled:bool:0' \
+		'sniffing_dest_override:list(or("http", "tls"))' \
+		'allocate_strategy:or("always", "random")' \
+		'allocate_refresh:uinteger' \
+		'allocate_concurrency:uinteger'
+}
+
+outbound_section_validate() {
+	uci_validate_section "$NAME" "outbound" "$1" \
+		'send_through:ipaddr' \
+		'protocol:string' \
+		'tag:string' \
+		's_blackhole_reponse_type:or("none", "http")' \
+		's_dns_network:or("tcp", "udp")' \
+		's_dns_address:string' \
+		's_dns_port:port' \
+		's_freedom_domain_strategy:or("AsIs", "UseIP", "UseIPv4", "UseIPv6")' \
+		's_freedom_redirect:string' \
+		's_freedom_user_level:uinteger' \
+		's_http_server_address:host' \
+		's_http_server_port:port' \
+		's_http_account_user:string' \
+		's_http_account_pass:string' \
+		's_shadowsocks_email:string' \
+		's_shadowsocks_address:host' \
+		's_shadowsocks_port:port' \
+		's_shadowsocks_method:string' \
+		's_shadowsocks_password:string' \
+		's_shadowsocks_level:uinteger' \
+		's_shadowsocks_ota:bool:0' \
+		's_socks_server_address:host' \
+		's_socks_server_port:port' \
+		's_socks_account_user:string' \
+		's_socks_account_pass:string' \
+		's_socks_user_level:uinteger' \
+		's_vmess_address:host' \
+		's_vmess_port:port' \
+		's_vmess_user_id:string' \
+		's_vmess_user_alter_id:and(uinteger, max(65535))' \
+		's_vmess_user_security:or("auto", "aes-128-gcm", "chacha20-poly1305", "none")' \
+		's_vmess_user_level:uinteger' \
+		'ss_network:or("tcp", "kcp", "ws", "http", "domainsocket", "quic")' \
+		'ss_security:or("none", "tls")' \
+		'ss_tls_server_name:host' \
+		'ss_tls_alpn:string' \
+		'ss_tls_allow_insecure:bool:0' \
+		'ss_tls_allow_insecure_ciphers:bool:0' \
+		'ss_tls_disable_system_root:bool:0' \
+		'ss_tls_cert_usage:or("encipherment", "verify", "issue")' \
+		'ss_tls_cert_fiile:string' \
+		'ss_tls_key_file:string' \
+		'ss_tcp_header_type:or("none", "http")' \
+		'ss_tcp_header_request_version:string' \
+		'ss_tcp_header_request_method:string' \
+		'ss_tcp_header_request_path:string' \
+		'ss_tcp_header_request_headers:list(string)' \
+		'ss_tcp_header_response_version:string' \
+		'ss_tcp_header_response_status:string' \
+		'ss_tcp_header_response_reason:string' \
+		'ss_tcp_header_response_headers:list(string)' \
+		'ss_kcp_mtu:and(min(576), max(1460))' \
+		'ss_kcp_tti:and(min(10), max(100))' \
+		'ss_kcp_uplink_capacity:uinteger' \
+		'ss_kcp_downlink_capacity:uinteger' \
+		'ss_kcp_congestion:bool:0' \
+		'ss_kcp_read_buffer_size:uinteger' \
+		'ss_kcp_write_buffer_size:uinteger' \
+		'ss_kcp_header_type:or("none", "srtp", "utp", "wechat-video", "dtls", "wireguard")' \
+		'ss_websocket_path:string' \
+		'ss_websocket_headers:list(string)' \
+		'ss_http_host:list(host)' \
+		'ss_http_path:string' \
+		'ss_domainsocket_path:string' \
+		'ss_quic_security:or("aes-128-gcm", "chacha20-poly1305", "none")' \
+		'ss_quic_key:string' \
+		'ss_quic_header_type:or("none", "srtp", "utp", "wechat-video", "dtls", "wireguard")' \
+		'ss_sockopt_mark:uinteger' \
+		'ss_sockopt_tcp_fast_open:or("0", "1")' \
+		'stream_settings:string' \
+		'proxy_settings_tag:string' \
+		'mux_enabled:bool:0' \
+		'mux_concurrency:uinteger:8'
+}
+
+add_v2ray_redirect_rules() {
+	local ext_args="$1"
+	local lan_devices="$2"
+	local lan_ipaddrs="$3"
+
+	local port="$TRANSPARENT_PROXY_PORT"
+	local addition="$TRANSPARENT_PROXY_ADDITION"
+	local ipset_src_direct="$IPSET_SRC_DIRECT_V4"
+	local ipset_dst_direct="$IPSET_DST_DIRECT_V4"
+
+	test -n "$port" || return
+
+	iptables-restore --noflush <<-EOF 2>/dev/null
+		*nat
+		:V2RAY -
+		-A V2RAY -p tcp -j RETURN -m mark --mark 0xff
+		-A V2RAY -p tcp -j RETURN -m set --match-set $ipset_src_direct src
+		-A V2RAY -p tcp -j RETURN -m set --match-set $ipset_dst_direct dst
+		-A V2RAY -p tcp $ext_args -j REDIRECT --to-ports $port
+		$(
+			if [ -n "$lan_devices" ] ; then
+				local device
+				for device in $lan_devices ; do
+					echo "-A PREROUTING -p tcp -i $device -j V2RAY"
+				done
+			else
+				echo "-A PREROUTING -p tcp -j V2RAY"
+			fi
+		)
+		-A OUTPUT -p tcp -j V2RAY
+		COMMIT
+	EOF
+
+	if [ -n "$addition" ] ; then
+		ip rule add fwmark 1 lookup 100
+		ip route add local 0.0.0.0/0 dev lo table 100 2>/dev/null
+
+		iptables-restore --noflush <<-EOF 2>/dev/null
+			*mangle
+			:V2RAY -
+			-A V2RAY -p udp -j RETURN -m mark --mark 0xff
+			$(
+				if [ -n "$lan_ipaddrs" ] ; then
+					local ipaddr
+					for ipaddr in $lan_ipaddrs ; do
+						echo "-A V2RAY -p udp --dport 53 -d $ipaddr -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
+					done
+				fi
+			)
+			-A V2RAY -p udp -j RETURN -m set --match-set $ipset_dst_direct dst
+			$(
+				if [ "$addition" = "dns" ] ; then
+					echo "-A V2RAY -p udp --dport 53 -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
+				else
+					echo "-A V2RAY -p udp -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
+				fi
+
+				if [ -n "$lan_devices" ] ; then
+					local device
+					for device in $lan_devices ; do
+						echo "-A PREROUTING -p udp -i $device -j V2RAY"
+					done
+
+					echo "-A PREROUTING -p udp -j V2RAY -m mark --mark 0x1"
+				else
+					echo "-A PREROUTING -p udp -j V2RAY"
+				fi
+			)
+
+			:V2RAY_MARK -
+			-A V2RAY_MARK -p udp -j RETURN -m mark --mark 0xff
+			-A V2RAY_MARK -p udp -j RETURN -m set --match-set $ipset_src_direct src
+			-A V2RAY_MARK -p udp -j RETURN -m set --match-set $ipset_dst_direct dst
+			$(
+				if [ "$addition" = "dns" ] ; then
+					echo "-A V2RAY_MARK -p udp --dport 53 -j MARK --set-mark 1"
+				else
+					echo "-A V2RAY_MARK -p udp -j MARK --set-mark 1"
+				fi
+			)
+			-A OUTPUT -p udp -j V2RAY_MARK
+			COMMIT
+		EOF
+	fi
+}
+
+add_v2ray_tproxy_rules() {
+	local ext_args="$1"
+	local lan_devices="$2"
+	local lan_ipaddrs="$3"
+
+	local port="$TRANSPARENT_PROXY_PORT"
+	local addition="$TRANSPARENT_PROXY_ADDITION"
+	local ipset_src_direct="$IPSET_SRC_DIRECT_V4"
+	local ipset_dst_direct="$IPSET_DST_DIRECT_V4"
+
+	test -n "$port" || return
+
+	# https://www.kernel.org/doc/Documentation/networking/tproxy.txt
+
+	ip rule add fwmark 1 lookup 100
+	ip route add local 0.0.0.0/0 dev lo table 100 2>/dev/null
+
+	iptables-restore --noflush <<-EOF 2>/dev/null
+		*mangle
+		:V2RAY -
+		-A V2RAY -j RETURN -m mark --mark 0xff
+		$(
+			if [ -n "$addition" ] && [ -n "$lan_ipaddrs" ] ; then
+				local ipaddr
+				for ipaddr in $lan_ipaddrs ; do
+					echo "-A V2RAY -p udp --dport 53 -d $ipaddr -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
+				done
+			fi
+		)
+		-A V2RAY -j RETURN -m set --match-set $ipset_src_direct src
+		-A V2RAY -j RETURN -m set --match-set $ipset_dst_direct dst
+		-A V2RAY -p tcp $ext_args -j TPROXY --on-port $port --tproxy-mark 0x1/0x1
+		$(
+			if [ -n "$addition" ] ; then
+				if [ "$addition" = "dns" ] ; then
+					echo "-A V2RAY -p udp --dport 53 -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
+				else
+					echo "-A V2RAY -p udp -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
+				fi
+			fi
+
+			if [ -n "$lan_devices" ] ; then
+				local device
+				for device in $lan_devices ; do
+					echo "-A PREROUTING -i $device -j V2RAY"
+				done
+
+				echo "-A PREROUTING -j V2RAY -m mark --mark 0x1"
+			else
+				echo "-A PREROUTING -j V2RAY"
+			fi
+		)
+
+		:V2RAY_MASK -
+		-A V2RAY_MASK -j RETURN -m mark --mark 0xff
+		-A V2RAY_MASK -j RETURN -m set --match-set $ipset_src_direct src
+		-A V2RAY_MASK -j RETURN -m set --match-set $ipset_dst_direct dst
+		-A V2RAY_MASK -p tcp $ext_args -j MARK --set-mark 1
+		$(
+			if [ -n "$addition" ] ; then
+				if [ "$addition" = "dns" ] ; then
+					echo "-A V2RAY_MASK -p udp --dport 53 -j MARK --set-mark 1"
+				else
+					echo "-A V2RAY_MASK -p udp -j MARK --set-mark 1"
+				fi
+			fi
+		)
+		-A OUTPUT -j V2RAY_MASK
+		COMMIT
+	EOF
+}
+
+clear_v2ray_rules() {
+	iptables-save --counters | grep -v "V2RAY" | iptables-restore --counters
+
+	while ip rule del fwmark 1 lookup 100 2>/dev/null ; do true ; done
+
+	ip route flush table 100
+	ip route del local 0.0.0.0/0 dev lo table 100 2>/dev/null
+}
+
+create_v2ray_ipset() {
+	# https://en.wikipedia.org/wiki/Reserved_IP_addresses
+	local reserved_v4="$(cat >&1 <<-EOF
+		0.0.0.0/8
+		10.0.0.0/8
+		100.64.0.0/10
+		127.0.0.0/8
+		169.254.0.0/16
+		172.16.0.0/12
+		192.0.0.0/24
+		192.0.2.0/24
+		192.88.99.0/24
+		192.168.0.0/16
+		198.18.0.0/15
+		198.51.100.0/24
+		203.0.113.0/24
+		224.0.0.0/4
+		240.0.0.0/4
+		255.255.255.255
+	EOF
+	)"
+
+	local reserved_v6="$(cat >&1 <<-EOF
+		::
+		::/128
+		::1/128
+		::ffff:0:0/96
+		::ffff:0:0:0/96
+		64:ff9b::/96
+		100::/64
+		2001::/32
+		2001:20::/28
+		2001:db8::/32
+		2002::/16
+		fc00::/7
+		fe80::/10
+		ff00::/8
+	EOF
+	)"
+
+	local outbound_v4="$OUTBOUND_SERVERS_V4"
+	local outbound_v6="$OUTBOUND_SERVERS_V6"
+
+	ipset -! restore <<-EOF 2>/dev/null
+		create $IPSET_SRC_IGNORE_V4 hash:ip hashsize 64 family inet timeout 0
+		create $IPSET_SRC_IGNORE_V6 hash:ip hashsize 64 family inet6 timeout 0
+		create $IPSET_DST_PROXY_V4 hash:net hashsize 64 family inet timeout 604800
+		create $IPSET_DST_PROXY_V6 hash:net hashsize 64 family inet6 timeout 604800
+		create $IPSET_SRC_DIRECT_V4 hash:net hashsize 64 family inet timeout 0
+		create $IPSET_DST_DIRECT_V4 hash:net hashsize 64 family inet timeout 604800
+		create $IPSET_DST_DIRECT_V6 hash:net hashsize 64 family inet6 timeout 604800
+		$(echo "$reserved_v4" | sed "s/.*/add $IPSET_DST_DIRECT_V4 & timeout 0/")
+		$(echo "$reserved_v6" | sed "s/.*/add $IPSET_DST_DIRECT_V6 & timeout 0/")
+		$(echo "$outbound_v4" | grep -v "^$" | sed "s/.*/add $IPSET_DST_DIRECT_V4 & timeout 0/")
+		$(echo "$outbound_v6" | grep -v "^$" | sed "s/.*/add $IPSET_DST_DIRECT_V6 & timeout 0/")
+	EOF
+}
+
+destroy_v2ray_ipset() {
+	ipset -! restore <<-EOF 2>/dev/null
+		$(ipset -n list | grep "^v2ray" | sed "s/^/destroy /")
+	EOF
+}
+
+init_rules_for_listfile() {
+	local direct_list_dns="$1"
+	local proxy_list_dns="$2"
+
+	echo "# AUTO-GENERATED FILE. DO NOT MODIFY." >"$FILE_V2RAY_DNSMASQ_CACHE"
+
+	# For direct list
+	local direct_content
+	direct_content="$(get_file_content "directlist")"
+
+	if [ -n "$direct_content" ] ; then
+		echo "$direct_content" | \
+			grep -oE "[0-9]{1,3}(\.[0-9]{1,3}){3}(/[0-9]{1,2})?" | \
+			sed "s/.*/add $IPSET_DST_DIRECT_V4 & timeout 0/" | \
+			ipset -! restore 2>/dev/null
+
+		echo "$direct_content" | \
+			grep -oE "([0-9a-fA-F]{0,4}:){1,7}([0-9a-fA-F]){0,4}(/[0-9]{1,2})?" | \
+			sed "s/.*/add $IPSET_DST_DIRECT_V6 & timeout 0/" | \
+			ipset -! restore 2>/dev/null
+
+		if [ -n "$direct_list_dns" ] ; then
+			echo "$direct_content" | \
+				grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" | \
+				sed "s|.*|server=/&/$direct_list_dns\nipset=/&/$IPSET_DST_DIRECT_V4,$IPSET_DST_DIRECT_V6|" \
+				>>"$FILE_V2RAY_DNSMASQ_CACHE"
+		else
+			echo "$direct_content" | \
+				grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" | \
+				sed "s|.*|ipset=/&/$IPSET_DST_DIRECT_V4,$IPSET_DST_DIRECT_V6|" \
+				>>"$FILE_V2RAY_DNSMASQ_CACHE"
+		fi
+	fi
+
+	# For proxy list
+	local proxy_content
+	proxy_content="$(get_file_content "proxylist")"
+
+	if [ -n "$proxy_content" ] ; then
+		echo "$proxy_content" | \
+			grep -oE "[0-9]{1,3}(\.[0-9]{1,3}){3}(/[0-9]{1,2})?" | \
+			sed "s/.*/add $IPSET_DST_PROXY_V4 & timeout 0/" | \
+			ipset -! restore 2>/dev/null
+
+		echo "$proxy_content" | \
+			grep -oE "([0-9a-fA-F]{0,4}:){1,7}([0-9a-fA-F]){0,4}(/[0-9]{1,2})?" | \
+			sed "s/.*/add $IPSET_DST_PROXY_V6 & timeout 0/" | \
+			ipset -! restore 2>/dev/null
+
+		if [ -n "$proxy_list_dns" ] ; then
+			echo "$proxy_content" | \
+				grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" | \
+				sed "s|.*|server=/&/$proxy_list_dns\nipset=/&/$IPSET_DST_PROXY_V4,$IPSET_DST_PROXY_V6|" \
+				>>"$FILE_V2RAY_DNSMASQ_CACHE"
+		else
+			echo "$proxy_content" | \
+				grep -oE "([0-9a-zA-Z_-]+\.)+[a-zA-Z]{2,}$" | \
+				sed "s|.*|ipset=/&/$IPSET_DST_PROXY_V4,$IPSET_DST_PROXY_V6|" \
+				>>"$FILE_V2RAY_DNSMASQ_CACHE"
+		fi
+	fi
+
+  # For local devices outbound list
+	local src_content
+	src_content="$(get_file_content "srcdirectlist")"
+
+	if [ -n "$src_content" ] ; then
+		echo "$src_content" | \
+			grep -oE "[0-9]{1,3}(\.[0-9]{1,3}){3}(/[0-9]{1,2})?" | \
+			sed "s/.*/add $IPSET_SRC_DIRECT_V4 & timeout 0/" | \
+			ipset -! restore 2>/dev/null
+	fi
+
+}
+
+gracefully_restart_dnsmasq() {
+	if [ "x$DNSMASQ_RESTART_EXPECTED" = "x1" ] && [ -x "/etc/init.d/dnsmasq" ] ; then
+		_info "Restarting dnsmasq..."
+		/etc/init.d/dnsmasq restart >/dev/null 2>&1
+		DNSMASQ_RESTART_EXPECTED=0
+	fi
+}
+
+add_dns_settings() {
+	local section="${1}_dns"
+
+	if ! dns_section_validate "$section" ; then
+		_err "Invalid DNS config: $section, skip"
+		return 1
+	fi
+
+	if [ "x$enabled" != "x1" ] ; then
+		_info "DNS disabled: $section"
+		return 0
+	fi
+
+	json_add_object "dns"
+
+	test -n "$tag" && \
+		json_add_string "tag" "$tag"
+	test -n "$client_ip" && \
+		json_add_string "clientIp" "$client_ip"
+
+	if [ -n "$hosts" ] ; then
+		json_add_object "hosts"
+
+		local h
+		for h in $hosts ; do
+			local domain="$(echo "$h" | cut -d'|' -f1)"
+			local ip="$(echo "$h" | cut -d'|' -f2)"
+
+			if [ -n "$domain" ] && [ -n "$ip" ] ; then
+				json_add_string "$domain" "$ip"
+			fi
+		done
+
+		json_close_object # hosts
+	fi
+
+	if [ -n "$servers" ] ; then
+		json_add_array "servers"
+
+		for ss in $servers ; do
+			if dns_server_section_validate "$ss" ; then
+				if [ -z "$address" ] ; then
+					continue
+				fi
+
+				if [ -z "$port" ] && [ -z "$domains" ] ; then
+					json_add_string "" "$address"
+				else
+					json_add_object ""
+					json_add_string "address" "$address"
+
+					if [ -n "$port" ] ; then
+						json_add_int "port" "$port"
+					else
+						json_add_int "port" "53"
+					fi
+
+					if [ -n "$domains" ] ; then
+						json_add_array "domains"
+
+						local d
+						for d in $domains ; do
+							json_add_string "" "$d"
+						done
+
+						json_close_array # domains
+					fi
+
+					json_close_object
+				fi
+			fi
+		done
+
+		json_close_array # servers
+	fi
+
+	json_close_object # dns
+}
+
+add_routing_settings() {
+	local section="${1}_routing"
+
+	if ! routing_section_validate "$section" ; then
+		_err "Invalid routing config: $section, skip"
+		return 1
+	fi
+
+	if [ "x$enabled" != "x1" ] ; then
+		_info "Routing disabled: $section"
+		return 0
+	fi
+
+	json_add_object "routing"
+
+	test -n "$domain_strategy" && \
+		json_add_string "domainStrategy" "$domain_strategy"
+
+	if [ -n "$rules" ] ; then
+		json_add_array "rules"
+
+		local rs
+		for rs in $rules ; do
+			if routing_rule_section_validate "$rs" ; then
+				json_add_object ""
+
+				json_add_string "type" "$type"
+
+				if [ -n "$domain" ] ; then
+					json_add_array "domain"
+
+					local d
+					for d in $domain ; do
+						json_add_string "" "$d"
+					done
+
+					json_close_array # domain
+				fi
+
+				if [ -n "$ip" ] ; then
+					json_add_array "ip"
+
+					local i
+					for i in $ip ; do
+						json_add_string "" "$i"
+					done
+
+					json_close_array # ip
+				fi
+
+				if [ -n "$port" ] ; then
+					json_add_string "port" "$(echo "$port" | tr -s ' ' ',')"
+				fi
+
+				if [ -n "$network" ] ; then
+					json_add_string "network" "$(echo "$network" | tr -s ' ' ',')"
+				fi
+
+				if [ -n "$source" ] ; then
+					json_add_array "source"
+
+					local s
+					for s in $source ; do
+						json_add_string "" "$s"
+					done
+
+					json_close_array # source
+				fi
+
+				if [ -n "$user" ] ; then
+					json_add_array "user"
+
+					local u
+					for u in $user ; do
+						json_add_string "" "$u"
+					done
+
+					json_close_array # user
+				fi
+
+				if [ -n "$inbound_tag" ] ; then
+					json_add_array "inboundTag"
+
+					local it
+					for it in $inbound_tag ; do
+						json_add_string "" "$it"
+					done
+
+					json_close_array # inboundTag
+				fi
+
+				if [ -n "$protocol" ] ; then
+					json_add_array "protocol"
+					local p
+					for p in $protocol ; do
+						json_add_string "" "$p"
+					done
+					json_close_array # protocol
+				fi
+
+				test -n "$attrs" && \
+					json_add_string "attrs" "$attrs"
+				test -n "$outbound_tag" && \
+					json_add_string "outboundTag" "$outbound_tag"
+				test -n "$balancer_tag" && \
+					json_add_string "balancerTag" "$balancer_tag"
+
+				json_close_object
+			fi
+		done
+
+		json_close_array # rules
+	fi
+
+	if [ -n "$balancers" ] ; then
+		json_add_array "balancers"
+
+		local bs
+		for bs in $balancers ; do
+			if routing_balancer_section_validate "$bs" ; then
+				json_add_object ""
+				json_add_string "tag" "$tag"
+
+				json_add_array "selector"
+
+				local s
+				for s in $selector ; do
+					json_add_string "" "$s"
+				done
+
+				json_close_array # selector
+				json_close_object
+			fi
+		done
+
+		json_close_array # balancers
+	fi
+
+	json_close_object
+}
+
+add_policy_settings() {
+	local section="${1}_policy"
+
+	if ! policy_section_validate "$section" ; then
+		_err "Invalid policy config: $section, skip"
+		return 1
+	fi
+
+	if [ "x$enabled" != "x1" ] ; then
+		_info "Policy disabled: $section"
+		return 0
+	fi
+
+	json_add_object "policy"
+
+	if [ -n "$levels" ] ; then
+		json_add_object "levels"
+
+		local l_s
+		for l_s in $levels ; do
+			if policy_level_section_validate "$l_s" ; then
+				json_add_object "$level"
+				json_add_int "handshake" "$handshake"
+				json_add_int "connIdle" "$conn_idle"
+				json_add_int "uplinkOnly" "$uplink_only"
+				json_add_int "downlinkOnly" "$downlink_only"
+				json_add_boolean "statsUserUplink" "$stats_user_uplink"
+				json_add_boolean "statsUserDownlink" "$stats_user_downlink"
+				test -n "$buffer_size" && \
+					json_add_int "bufferSize" "$buffer_size"
+				json_close_object
+			fi
+		done
+
+		json_close_object # levels
+	fi
+
+	json_add_object "system"
+	json_add_boolean "statsInboundUplink" "$system_stats_inbound_uplink"
+	json_add_boolean "statsInboundDownlink" "$system_stats_inbound_downlink"
+	json_close_object # system
+
+	json_close_object # policy
+}
+
+add_reverse_settings() {
+	local section="${1}_reverse"
+
+	if ! reverse_section_validate "$section" ; then
+		_err "Invalid reverse config: $section, skip"
+		return 1
+	fi
+
+	if [ "x$enabled" != "x1" ] ; then
+		_info "Reverse disabled: $section"
+		return 0
+	fi
+
+	json_add_object "reverse"
+
+	if [ -n "$bridges" ] ; then
+		json_add_array "bridges"
+
+		local b
+		for b in $bridges ; do
+			local tag="$(echo "$b" | cut -d'|' -f1)"
+			local domain="$(echo "$b" | cut -d'|' -f2)"
+			if [ -n "$tag" ] && [ -n "$domain" ] ; then
+				json_add_object ""
+				json_add_string "tag" "$tag"
+				json_add_string "domain" "$domain"
+				json_close_object
+			fi
+		done
+
+		json_close_array # bridges
+	fi
+
+	if [ -n "$portals" ] ; then
+		json_add_array "portals"
+
+		local p
+		for p in $portals ; do
+			local tag="$(echo "$p" | cut -d'|' -f1)"
+			local domain="$(echo "$p" | cut -d'|' -f2)"
+			if [ -n "$tag" ] && [ -n "$domain" ] ; then
+				json_add_object ""
+				json_add_string "tag" "$tag"
+				json_add_string "domain" "$domain"
+				json_close_object
+			fi
+		done
+
+		json_close_array # portals
+	fi
+
+	json_close_object # reverse
+}
+
+add_transport_settings() {
+	local json
+	json="$(get_file_content "transport")"
+
+	if [ -z "$json" ] ; then
+		_err "Invalid transport config: $key"
+		return 1
+	fi
+
+	json_add_object "transport"
+	eval "$(get_commands_from_json "$json")"
+	json_close_object # transport
+}
+
+add_inbound_setting() {
+	local section="$1"
+
+	if ! inbound_section_validate "$section" ; then
+		_err "Invalid inbound section: $section"
+		return 1
+	fi
+
+	json_add_object ""
+
+	test -n "$listen" && \
+		json_add_string "listen" "$listen"
+	json_add_int "port" "$port"
+	json_add_string "protocol" "$protocol"
+
+	case "${protocol:-x}" in
+		"dokodemo-door")
+			json_add_object "settings"
+
+			if [ -n "$port" ] && [ "x$port" = "x$TRANSPARENT_PROXY_PORT" ] ; then
+				local settings_network="tcp"
+
+				test -n "$TRANSPARENT_PROXY_ADDITION" && \
+					settings_network="$settings_network,udp"
+
+				json_add_boolean "followRedirect" "1"
+				json_add_string "network" "$settings_network"
+			else
+				test -n "$s_dokodemo_door_address" && \
+					json_add_string "address" "$s_dokodemo_door_address"
+
+				test -n "$s_dokodemo_door_port" && \
+					json_add_int "port" "$s_dokodemo_door_port"
+
+				test -n "$s_dokodemo_door_follow_redirect" && \
+					json_add_boolean "followRedirect" "$s_dokodemo_door_follow_redirect"
+
+				test -n "$s_dokodemo_door_network" && \
+					json_add_string "network" "$(echo "$s_dokodemo_door_network" | tr -s ' ' ',')"
+			fi
+
+			test -n "$s_dokodemo_door_timeout" && \
+				json_add_int "timeout" "$s_dokodemo_door_timeout"
+
+			test -n "$s_dokodemo_door_user_level" && \
+				json_add_int "userLevel" "$s_dokodemo_door_user_level"
+
+			json_close_object # settings
+			;;
+		"http")
+			json_add_object "settings"
+
+			if [ -n "$s_http_account_user" ] ; then
+				json_add_array "accounts"
+
+				json_add_object ""
+				json_add_string "user" "$s_http_account_user"
+				json_add_string "pass" "$s_http_account_pass"
+				json_close_object
+
+				json_close_array # accounts
+			fi
+
+			json_add_boolean "allowTransparent" "$s_http_allow_transparent"
+
+			test -n "$s_http_timeout" && \
+				json_add_int "timeout" "$s_http_timeout"
+			test -n "$s_http_user_level" && \
+				json_add_int "userLevel" "$s_http_user_level"
+
+			json_close_object # settings
+			;;
+		"mtproto")
+			json_add_object "settings"
+
+			if [ -n "$s_mtproto_user_email" ] ; then
+				json_add_array "users"
+				json_add_object ""
+
+				json_add_string "email" "$s_mtproto_user_email"
+				json_add_string "secret" "$s_mtproto_user_secret"
+
+				test -n "$s_mtproto_user_level" && \
+					json_add_int "level" "$s_mtproto_user_level"
+
+				json_close_object
+				json_close_array # users
+			fi
+
+			json_close_object # settings
+			;;
+		"shadowsocks")
+			json_add_object "settings"
+
+			json_add_string "method" "$s_shadowsocks_method"
+			json_add_string "password" "$s_shadowsocks_password"
+
+			test -n "$s_shadowsocks_email" && \
+				json_add_string "email" "$s_shadowsocks_email"
+			test -n "$s_shadowsocks_level" && \
+				json_add_int "level" "$s_shadowsocks_level"
+
+			json_add_boolean "ota" "$s_shadowsocks_ota"
+			json_add_string "network" "$(echo "$s_shadowsocks_network" | tr -s ' ' ',')"
+
+			json_close_object # settings
+			;;
+		"socks")
+			json_add_object "settings"
+
+			json_add_string "auth" "$s_socks_auth"
+
+			if [ -n "$s_socks_account_user" ] ; then
+				json_add_array "accounts"
+				json_add_object ""
+				json_add_string "user" "$s_socks_account_user"
+				json_add_string "pass" "$s_socks_account_pass"
+				json_close_object
+				json_close_array # accounts
+			fi
+
+			json_add_boolean "udp" "$s_socks_udp"
+
+			test -n "$s_socks_ip" && \
+				json_add_string "ip" "$s_socks_ip"
+			test -n "$s_socks_user_level" && \
+				json_add_int "userLevel" "$s_socks_user_level"
+
+			json_close_object # settings
+			;;
+		"vmess")
+			json_add_object "settings"
+
+			if [ -n "$s_vmess_client_id" ] ; then
+				json_add_array "clients"
+				json_add_object ""
+
+				json_add_string "id" "$s_vmess_client_id"
+
+				test -n "$s_vmess_client_alter_id" && \
+					json_add_int "alterId" "$s_vmess_client_alter_id"
+				test -n "$s_vmess_client_email" && \
+					json_add_string "email" "$s_vmess_client_email"
+				test -n "$s_vmess_client_user_level" && \
+					json_add_int "level" "$s_vmess_client_user_level"
+
+				json_close_object
+				json_close_array # clients
+			fi
+
+			json_add_object "default"
+
+			test -n "$s_vmess_default_alter_id" && \
+				json_add_int "alterId" "$s_vmess_default_alter_id"
+			test -n "$s_vmess_default_user_level" && \
+				json_add_int "level" "$s_vmess_default_user_level"
+
+			json_close_object # default
+
+			if [ -n "$s_vmess_detour_to" ] ; then
+				json_add_object "detour"
+				json_add_string "to" "$s_vmess_detour_to"
+				json_close_object # detour
+			fi
+
+			json_add_boolean "disableInsecureEncryption" "$s_vmess_disable_insecure_encryption"
+
+			json_close_object # settings
+			;;
+	esac
+
+	json_add_object "streamSettings"
+
+	test -n "$ss_network" && \
+		json_add_string "network" "$ss_network"
+
+	test -n "$ss_security" && \
+		json_add_string "security" "$ss_security"
+
+	if [ "x$ss_security" = "xtls" ] ; then
+		json_add_object "tlsSettings"
+
+		test -n "$ss_tls_server_name" && \
+			json_add_string "serverName" "$ss_tls_server_name"
+
+		if [ -n "$ss_tls_alpn" ] ; then
+			json_add_array "alpn"
+			json_add_string "" "$ss_tls_alpn"
+			json_close_array # alpn
+		fi
+
+		json_add_boolean "allowInsecure" "$ss_tls_allow_insecure"
+		json_add_boolean "allowInsecureCiphers" "$ss_tls_allow_insecure_ciphers"
+		json_add_boolean "disableSystemRoot" "$ss_tls_disable_system_root"
+
+		json_add_array "certificates"
+		if [ -n "$ss_tls_cert_fiile" ] ; then
+			json_add_object ""
+
+			json_add_string "certificateFile" "$ss_tls_cert_fiile"
+			json_add_string "keyFile" "$ss_tls_key_file"
+			test -n "$ss_tls_cert_usage" && \
+				json_add_string "usage" "$ss_tls_cert_usage"
+
+			json_close_object
+		fi
+		json_close_array # certificates
+
+		json_close_object # tlsSettings
+	fi
+
+	case "${ss_network:-x}" in
+		"tcp")
+			json_add_object "tcpSettings"
+
+			if [ -n "$ss_tcp_header_type" ] ; then
+				json_add_object "header"
+				json_add_string "type" "$ss_tcp_header_type"
+
+				if [ "$ss_tcp_header_type" = "http" ] ; then
+					json_add_object "request"
+					test -n "$ss_tcp_header_request_version" && \
+						json_add_string "version" "$ss_tcp_header_request_version"
+					json_add_string "method" "$ss_tcp_header_request_method"
+
+					if [ -n "$ss_tcp_header_request_path" ] ; then
+						json_add_array "path"
+						json_add_string "" "$ss_tcp_header_request_path"
+						json_close_array # path
+					fi
+
+					if [ -n "$ss_tcp_header_request_headers" ] ; then
+						json_add_object "headers"
+
+						handle_request_header() {
+							local h="$1"
+
+							local name="$(echo "$h" | cut -d'=' -f1)"
+							local value="$(echo "$h" | cut -d'=' -f2)"
+
+							if [ -n "$name" ] && [ -n "$value" ] ; then
+								json_add_array "$name"
+								json_add_string "" "$value"
+								json_close_array
+							fi
+						}
+						config_list_foreach "$section" "ss_tcp_header_request_headers" handle_request_header
+
+						json_close_object # headers
+					fi
+
+					json_close_object # request
+
+					json_add_object "response"
+
+					test -n "$ss_tcp_header_response_version" && \
+						json_add_string "version" "$ss_tcp_header_response_version"
+					test -n "$ss_tcp_header_response_status" && \
+						json_add_string "status" "$ss_tcp_header_response_status"
+					test -n "$ss_tcp_header_response_reason" && \
+						json_add_string "reason" "$ss_tcp_header_response_reason"
+
+					if [ -n "$ss_tcp_header_response_headers" ] ; then
+						json_add_object "headers"
+
+						handle_response_header() {
+							local h="$1"
+
+							local name="$(echo "$h" | cut -d'=' -f1)"
+							local value="$(echo "$h" | cut -d'=' -f2)"
+
+							if [ -n "$name" ] && [ -n "$value" ] ; then
+								json_add_array "$name"
+								json_add_string "" "$value"
+								json_close_array
+							fi
+						}
+						config_list_foreach "$section" "ss_tcp_header_response_headers" handle_response_header
+
+						json_close_object # headers
+					fi
+
+					json_close_object # response
+				fi
+				json_close_object # header
+			fi
+
+			json_close_object # tcpSettings
+			;;
+		"kcp")
+			json_add_object "kcpSettings"
+
+			test -n "$ss_kcp_mtu" && \
+				json_add_int "mtu" "$ss_kcp_mtu"
+			test -n "$ss_kcp_tti" && \
+				json_add_int "tti" "$ss_kcp_tti"
+			test -n "$ss_kcp_uplink_capacity" && \
+				json_add_int "uplinkCapacity" "$ss_kcp_uplink_capacity"
+			test -n "$ss_kcp_downlink_capacity" && \
+				json_add_int "downlinkCapacity" "$ss_kcp_downlink_capacity"
+			json_add_boolean "congestion" "$ss_kcp_congestion"
+			test -n "$ss_kcp_read_buffer_size" && \
+				json_add_int "readBufferSize" "$ss_kcp_read_buffer_size"
+			test -n "$ss_kcp_write_buffer_size" && \
+				json_add_int "writeBufferSize" "$ss_kcp_write_buffer_size"
+
+			if [ -n "$ss_kcp_header_type" ] ; then
+				json_add_object "header"
+				json_add_string "type" "$ss_kcp_header_type"
+				json_close_object # header
+			fi
+
+			json_close_object # kcpSettings
+			;;
+		"ws")
+			json_add_object "wsSettings"
+
+			test -n "$ss_websocket_path" && \
+				json_add_string "path" "$ss_websocket_path"
+
+			if [ -n "$ss_websocket_headers" ] ; then
+				json_add_object "headers"
+
+				handle_websocket_header() {
+					local h="$1"
+
+					local name="$(echo "$h" | cut -d'=' -f1)"
+					local value="$(echo "$h" | cut -d'=' -f2)"
+
+					if [ -n "$name" ] && [ -n "$value" ] ; then
+						json_add_string "$name" "$value"
+					fi
+				}
+				config_list_foreach "$section" "ss_websocket_headers" handle_websocket_header
+
+				json_close_object # headers
+			fi
+
+			json_close_object # wsSettings
+			;;
+		"http")
+			json_add_object "httpSettings"
+
+			if [ -n "$ss_http_host" ] ; then
+				json_add_array "host"
+
+				local h
+				for h in $ss_http_host ; do
+					json_add_string "" "$h"
+				done
+
+				json_close_array # host
+			fi
+
+			test -n "$ss_http_path" && \
+				json_add_string "path" "$ss_http_path"
+
+			json_close_object # httpSettings
+			;;
+		"domainsocket")
+			json_add_object "dsSettings"
+
+			test -n "$ss_domainsocket_path" && \
+				json_add_string "path" "$ss_domainsocket_path"
+
+			json_close_object # dsSettings
+			;;
+		"quic")
+			json_add_object "quicSettings"
+
+			test -n "$ss_quic_security" && \
+				json_add_string "security" "$ss_quic_security"
+			test -n "$ss_quic_key" && \
+				json_add_string "key" "$ss_quic_key"
+
+			if [ -n "$ss_quic_header_type" ] ; then
+				json_add_object "header"
+				json_add_string "type" "$ss_quic_header_type"
+				json_close_object # header
+			fi
+
+			json_close_object # quicSettings
+			;;
+	esac
+
+	json_add_object "sockopt"
+
+	if [ -n "$port" ] && [ "x$port" = "x$TRANSPARENT_PROXY_PORT" ] ; then
+		if [ "x$TRANSPARENT_PROXY_USE_TPROXY" = "x1" ] ; then
+			json_add_string "tproxy" "tproxy"
+		else
+			json_add_string "tproxy" "redirect"
+		fi
+	else
+		test -n "$ss_sockopt_tcp_fast_open" && \
+			json_add_boolean "tcpFastOpen" "$ss_sockopt_tcp_fast_open"
+		test -n "$ss_sockopt_tproxy" && \
+			json_add_string "tproxy" "$ss_sockopt_tproxy"
+	fi
+
+	json_close_object # sockopt
+
+	json_close_object # streamSettings
+
+	test -n "$tag" && \
+		json_add_string "tag" "$tag"
+
+	json_add_object "sniffing"
+
+	json_add_boolean "enabled" "$sniffing_enabled"
+
+	if [ -n "$sniffing_dest_override" ] ; then
+		json_add_array "destOverride"
+		local d
+		for d in $sniffing_dest_override ; do
+			json_add_string "" "$d"
+		done
+		json_close_array # destOverride
+	fi
+
+	json_close_object # sniffing
+
+	if [ -n "$allocate_strategy" ] ; then
+		json_add_object "allocate"
+		json_add_string "strategy" "$allocate_strategy"
+		test -n "$allocate_refresh" && \
+			json_add_int "refresh" "$allocate_refresh"
+		test -n "$allocate_concurrency" &&	\
+			json_add_int "concurrency" "$allocate_concurrency"
+		json_close_object # allocate
+	fi
+
+	json_close_object
+}
+
+add_outbound_setting() {
+	local section="$1"
+
+	if ! outbound_section_validate "$section" ; then
+		_err "Invalid outbound section: $section"
+		return 1
+	fi
+
+	json_add_object ""
+
+	test -n "$send_through" && \
+		json_add_string "sendThrough" "$send_through"
+	json_add_string "protocol" "$protocol"
+
+	case "${protocol:-x}" in
+		"blackhole")
+			json_add_object "settings"
+
+			if [ -n "$s_blackhole_reponse_type" ] ; then
+				json_add_object "response"
+				json_add_string "type" "$s_blackhole_reponse_type"
+				json_close_object # response
+			fi
+
+			json_close_object # settings
+			;;
+		"dns")
+			json_add_object "settings"
+
+			test -n "$s_dns_network" && \
+				json_add_string "network" "$s_dns_network"
+
+			if [ -n "$s_dns_address" ] ; then
+				json_add_string "address" "$s_dns_address"
+				append_server_address "$s_dns_address"
+			fi
+
+			test -n "$s_dns_port" && \
+				json_add_int "port" "$s_dns_port"
+
+			json_close_object # settings
+			;;
+		"freedom")
+			json_add_object "settings"
+
+			test -n "$s_freedom_domain_strategy" && \
+				json_add_string "domainStrategy" "$s_freedom_domain_strategy"
+			test -n "$s_freedom_redirect" && \
+				json_add_string "redirect" "$s_freedom_redirect"
+			test -n "$s_freedom_user_level" && \
+				json_add_int "userLevel" "$s_freedom_user_level"
+
+			json_close_object # settings
+			;;
+		"http")
+			json_add_object "settings"
+			json_add_array "servers"
+
+			json_add_object ""
+
+			json_add_string "address" "$s_http_server_address"
+			append_server_address "$s_http_server_address"
+
+			test -n "$s_http_server_port" && \
+				json_add_int "port" "$s_http_server_port"
+
+			if [ -n "$s_http_account_user" ] ; then
+				json_add_array "users"
+				json_add_object ""
+
+				json_add_string "user" "$s_http_account_user"
+				json_add_string "pass" "$s_http_account_pass"
+
+				json_close_object
+				json_close_array # users
+			fi
+			json_close_object
+
+			json_close_array # servers
+			json_close_object # settings
+			;;
+		"mtproto")
+			json_add_object "settings"
+			json_close_object
+			;;
+		"shadowsocks")
+			json_add_object "settings"
+			json_add_array "servers"
+
+			json_add_object ""
+			test -n "$s_shadowsocks_email" && \
+				json_add_string "email" "$s_shadowsocks_email"
+			json_add_string "address" "$s_shadowsocks_address"
+			append_server_address "$s_shadowsocks_address"
+
+			json_add_int "port" "$s_shadowsocks_port"
+			json_add_string "method" "$s_shadowsocks_method"
+			json_add_string "password" "$s_shadowsocks_password"
+
+			test -n "$s_shadowsocks_level" && \
+				json_add_int "level" "$s_shadowsocks_level"
+			json_add_boolean "ota" "$s_shadowsocks_ota"
+			json_close_object
+
+			json_close_array # servers
+			json_close_object # settings
+			;;
+		"socks")
+			json_add_object "settings"
+			json_add_array "servers"
+
+			json_add_object ""
+
+			json_add_string "address" "$s_socks_server_address"
+			append_server_address "$s_socks_server_address"
+
+			json_add_int "port" "$s_socks_server_port"
+
+			if [ -n "$s_socks_account_user" ] ; then
+				json_add_array "users"
+				json_add_object ""
+
+				json_add_string "user" "$s_socks_account_user"
+				json_add_string "pass" "$s_socks_account_pass"
+
+				test -n "$s_socks_user_level" && \
+					json_add_int "level" "$s_socks_user_level"
+
+				json_close_object
+				json_close_array # users
+			fi
+
+			json_close_object
+
+			json_close_array # servers
+			json_close_object # settings
+			;;
+		"vmess")
+			json_add_object "settings"
+
+			json_add_array "vnext"
+			json_add_object ""
+
+			json_add_string "address" "$s_vmess_address"
+			append_server_address "$s_vmess_address"
+
+			json_add_int "port" "$s_vmess_port"
+
+			json_add_array "users"
+			json_add_object ""
+			json_add_string "id" "$s_vmess_user_id"
+			json_add_int "alterId" "$s_vmess_user_alter_id"
+			test -n "$s_vmess_user_security" && \
+				json_add_string "security" "$s_vmess_user_security"
+			test -n "$s_vmess_user_level" && \
+				json_add_int "level" "$s_vmess_user_level"
+			json_close_object
+			json_close_array # users
+
+			json_close_object
+
+			json_close_array # vnext
+			json_close_object # settings
+			;;
+	esac
+
+	json_add_object "streamSettings"
+	test -n "$ss_network" && \
+		json_add_string "network" "$ss_network"
+
+	test -n "$ss_security" && \
+		json_add_string "security" "$ss_security"
+
+	if [ "x$ss_security" = "xtls" ] ; then
+		json_add_object "tlsSettings"
+
+		test -n "$ss_tls_server_name" && \
+			json_add_string "serverName" "$ss_tls_server_name"
+
+		if [ -n "$ss_tls_alpn" ] ; then
+			json_add_array "alpn"
+			json_add_string "" "$ss_tls_alpn"
+			json_close_array
+		fi
+
+		json_add_boolean "allowInsecure" "$ss_tls_allow_insecure"
+		json_add_boolean "allowInsecureCiphers" "$ss_tls_allow_insecure_ciphers"
+		json_add_boolean "disableSystemRoot" "$ss_tls_disable_system_root"
+
+		json_add_array "certificates"
+		if [ -n "$ss_tls_cert_fiile" ] ; then
+			json_add_object ""
+			json_add_string "certificateFile" "$ss_tls_cert_fiile"
+			json_add_string "keyFile" "$ss_tls_key_file"
+			test -n "$ss_tls_cert_usage" && \
+				json_add_string "usage" "$ss_tls_cert_usage"
+			json_close_object
+		fi
+		json_close_array # certificates
+
+		json_close_object # tlsSettings
+	fi
+
+	case "${ss_network:-x}" in
+		"tcp")
+			json_add_object "tcpSettings"
+
+			if [ -n "$ss_tcp_header_type" ] ; then
+				json_add_object "header"
+				json_add_string "type" "$ss_tcp_header_type"
+
+				if [ "$ss_tcp_header_type" = "http" ] ; then
+					json_add_object "request"
+					test -n "$ss_tcp_header_request_version" && \
+						json_add_string "version" "$ss_tcp_header_request_version"
+					json_add_string "method" "$ss_tcp_header_request_method"
+
+					if [ -n "$ss_tcp_header_request_path" ] ; then
+						json_add_array "path"
+						json_add_string "" "$ss_tcp_header_request_path"
+						json_close_array
+					fi
+
+					if [ -n "$ss_tcp_header_request_headers" ] ; then
+						json_add_object "headers"
+
+						handle_request_header() {
+							local h="$1"
+
+							local name="$(echo "$h" | cut -d'=' -f1)"
+							local value="$(echo "$h" | cut -d'=' -f2)"
+
+							if [ -n "$name" ] && [ -n "$value" ] ; then
+								json_add_array "$name"
+								json_add_string "" "$value"
+								json_close_array
+							fi
+						}
+						config_list_foreach "$section" "ss_tcp_header_request_headers" handle_request_header
+
+						json_close_object # headers
+					fi
+
+					json_close_object # request
+
+					json_add_object "response"
+					test -n "$ss_tcp_header_response_version" && \
+						json_add_string "version" "$ss_tcp_header_response_version"
+					test -n "$ss_tcp_header_response_status" && \
+						json_add_string "status" "$ss_tcp_header_response_status"
+					test -n "$ss_tcp_header_response_reason" && \
+						json_add_string "reason" "$ss_tcp_header_response_reason"
+
+					if [ -n "$ss_tcp_header_response_headers" ] ; then
+						json_add_object "headers"
+
+						handle_response_header() {
+							local h="$1"
+
+							local name="$(echo "$h" | cut -d'=' -f1)"
+							local value="$(echo "$h" | cut -d'=' -f2)"
+
+							if [ -n "$name" ] && [ -n "$value" ] ; then
+								json_add_array "$name"
+								json_add_string "" "$value"
+								json_close_array
+							fi
+						}
+						config_list_foreach "$section" "ss_tcp_header_response_headers" handle_response_header
+
+						json_close_object # headers
+					fi
+
+					json_close_object # response
+				fi
+
+				json_close_object # header
+			fi
+
+			json_close_object # tcpSettings
+			;;
+		"kcp")
+			json_add_object "kcpSettings"
+
+			test -n "$ss_kcp_mtu" && \
+				json_add_int "mtu" "$ss_kcp_mtu"
+			test -n "$ss_kcp_tti" && \
+				json_add_int "tti" "$ss_kcp_tti"
+			test -n "$ss_kcp_uplink_capacity" && \
+				json_add_int "uplinkCapacity" "$ss_kcp_uplink_capacity"
+			test -n "$ss_kcp_downlink_capacity" && \
+				json_add_int "downlinkCapacity" "$ss_kcp_downlink_capacity"
+
+			json_add_boolean "congestion" "$ss_kcp_congestion"
+
+			test -n "$ss_kcp_read_buffer_size" && \
+				json_add_int "readBufferSize" "$ss_kcp_read_buffer_size"
+			test -n "$ss_kcp_write_buffer_size" && \
+				json_add_int "writeBufferSize" "$ss_kcp_write_buffer_size"
+
+			if [ -n "$ss_kcp_header_type" ] ; then
+				json_add_object "header"
+				json_add_string "type" "$ss_kcp_header_type"
+				json_close_object
+			fi
+
+			json_close_object # kcpSettings
+			;;
+		"ws")
+			json_add_object "wsSettings"
+
+			test -n "$ss_websocket_path" && \
+				json_add_string "path" "$ss_websocket_path"
+
+			if [ -n "$ss_websocket_headers" ] ; then
+				json_add_object "headers"
+
+				handle_websocket_header() {
+					local h="$1"
+
+					local name="$(echo "$h" | cut -d'=' -f1)"
+					local value="$(echo "$h" | cut -d'=' -f2)"
+
+					if [ -n "$name" ] && [ -n "$value" ] ; then
+						json_add_string "$name" "$value"
+					fi
+				}
+				config_list_foreach "$section" "ss_websocket_headers" handle_websocket_header
+
+				json_close_object # headers
+			fi
+
+			json_close_object # wsSettings
+			;;
+		"http")
+			json_add_object "httpSettings"
+
+			if [ -n "$ss_http_host" ] ; then
+				json_add_array "host"
+
+				local h
+				for h in $ss_http_host ; do
+					json_add_string "" "$h"
+				done
+
+				json_close_array # host
+			fi
+
+			test -n "$ss_http_path" && \
+				json_add_string "path" "$ss_http_path"
+
+			json_close_object # httpSettings
+			;;
+		"domainsocket")
+			json_add_object "dsSettings"
+
+			test -n "$ss_domainsocket_path" && \
+				json_add_string "path" "$ss_domainsocket_path"
+
+			json_close_object # dsSettings
+			;;
+		"quic")
+			json_add_object "quicSettings"
+
+			test -n "$ss_quic_security" && \
+				json_add_string "security" "$ss_quic_security"
+			test -n "$ss_quic_key" && \
+				json_add_string "key" "$ss_quic_key"
+
+			if [ -n "$ss_quic_header_type" ] ; then
+				json_add_object "header"
+				json_add_string "type" "$ss_quic_header_type"
+				json_close_object # header
+			fi
+
+			json_close_object # quicSettings
+			;;
+	esac
+
+	json_add_object "sockopt"
+
+	if [ -n "$TRANSPARENT_PROXY_PORT" ] ; then
+		json_add_int "mark" "255"
+	else
+		test -n "$ss_sockopt_mark" && \
+			json_add_int "mark" "$ss_sockopt_mark"
+	fi
+
+	test -n "$ss_sockopt_tcp_fast_open" && \
+		json_add_boolean "tcpFastOpen" "$ss_sockopt_tcp_fast_open"
+
+	json_close_object # sockopt
+
+	json_close_object # streamSettings
+
+	test -n "$tag" && \
+		json_add_string "tag" "$tag"
+
+	if [ -n "$proxy_settings_tag" ] ; then
+		json_add_object "proxySettings"
+		json_add_string "tag" "$proxy_settings_tag"
+		json_close_object # proxySettings
+	fi
+
+	if [ "x$mux_enabled" = "x1" ] ; then
+		json_add_object "mux"
+		json_add_boolean "enabled" "1"
+		json_add_int "concurrency" "$mux_concurrency"
+		json_close_object # mux
+	fi
+
+	json_close_object
+}
+
+init_transparent_proxy() {
+	local tp_cfg="main_transparent_proxy"
+	local redirect_port use_tproxy redirect_udp redirect_dns
+
+	config_get redirect_port "$tp_cfg" "redirect_port"
+	config_get_bool use_tproxy "$tp_cfg" "use_tproxy" "0"
+	config_get_bool redirect_udp "$tp_cfg" "redirect_udp" "0"
+	config_get_bool redirect_dns "$tp_cfg" "redirect_dns" "0"
+
+	if [ -n "$redirect_port" ] && \
+		! validate_data "port" "$redirect_port" 2>/dev/null ; then
+		_err "Transparent proxy redirect port is invalid: $redirect_port"
+		return 1
+	fi
+
+	TRANSPARENT_PROXY_PORT="$redirect_port"
+	TRANSPARENT_PROXY_USE_TPROXY="$use_tproxy"
+
+	if [ "x$redirect_udp" = "x1" ] ; then
+		TRANSPARENT_PROXY_ADDITION="udp"
+	elif [ "x$redirect_dns" = "x1" ] ; then
+		TRANSPARENT_PROXY_ADDITION="dns"
+	else
+		TRANSPARENT_PROXY_ADDITION=
+	fi
+}
+
+setup_transparent_proxy() {
+	if [ -z "$TRANSPARENT_PROXY_PORT" ] ; then
+		_info "Transparent proxy disabled."
+		return 0
+	fi
+
+	if [ "x$TRANSPARENT_PROXY_EXPECTED" != "x1" ] ; then
+		_info "No v2ray instance enabled, skip transparent proxy."
+		return 0
+	fi
+
+	_info "Setting transparent proxy on port: $TRANSPARENT_PROXY_PORT"
+
+	local tp_cfg="main_transparent_proxy"
+	local lan_ifaces only_privileged_ports proxy_mode direct_list_dns proxy_list_dns
+
+	config_get lan_ifaces "$tp_cfg" "lan_ifaces"
+	config_get_bool only_privileged_ports "$tp_cfg" "only_privileged_ports" "0"
+	config_get proxy_mode "$tp_cfg" "proxy_mode"
+	config_get direct_list_dns "$tp_cfg" "direct_list_dns"
+	config_get proxy_list_dns "$tp_cfg" "proxy_list_dns"
+
+	_info "Transparent proxy mode: $proxy_mode"
+
+	create_v2ray_ipset
+	init_rules_for_listfile "$direct_list_dns" "$proxy_list_dns"
+
+	local ext_args
+	case "${proxy_mode:-default}" in
+		"cn_direct")
+			local chnroute="$(get_file_content "chnroute")"
+			local chnroute6="$(get_file_content "chnroute6")"
+
+			if [ -n "$chnroute" ] ; then
+				ipset -! restore <<-EOF 2>/dev/null
+					$(echo "$chnroute" | sed "s/.*/add $IPSET_DST_DIRECT_V4 & timeout 0/")
+				EOF
+			fi
+
+			if [ -n "$chnroute6" ] ; then
+				ipset -! restore <<-EOF 2>/dev/null
+					$(echo "$chnroute6" | sed "s/.*/add $IPSET_DST_DIRECT_V6 & timeout 0/")
+				EOF
+			fi
+
+			ext_args=
+			;;
+		"cn_proxy")
+			local chnroute="$(get_file_content "chnroute")"
+			local chnroute6="$(get_file_content "chnroute6")"
+
+			if [ -n "$chnroute" ] ; then
+				ipset -! restore <<-EOF 2>/dev/null
+					$(echo "$chnroute" | sed "s/.*/add $IPSET_DST_PROXY_V4 & timeout 0/")
+				EOF
+			fi
+
+			if [ -n "$chnroute6" ] ; then
+				ipset -! restore <<-EOF 2>/dev/null
+					$(echo "$chnroute6" | sed "s/.*/add $IPSET_DST_PROXY_V6 & timeout 0/")
+				EOF
+			fi
+
+			ext_args="-m set --match-set $IPSET_DST_PROXY_V4 dst"
+			;;
+		"gfwlist_proxy")
+			local gfwlist="$(get_file_content "gfwlist")"
+
+			if [ -n "$gfwlist" ] ; then
+				if [ -n "$proxy_list_dns" ] ; then
+					echo "$gfwlist" | \
+						sed "s|.*|server=/&/$proxy_list_dns\nipset=/&/$IPSET_DST_PROXY_V4,$IPSET_DST_PROXY_V6|" \
+						>> "$FILE_V2RAY_DNSMASQ_CACHE"
+				else
+					echo "$gfwlist" | \
+						sed "s|.*|ipset=/&/$IPSET_DST_PROXY_V4,$IPSET_DST_PROXY_V6|" \
+						>> "$FILE_V2RAY_DNSMASQ_CACHE"
+				fi
+			fi
+
+			ext_args="-m set --match-set $IPSET_DST_PROXY_V4 dst"
+			;;
+		*)
+			ext_args=
+			;;
+	esac
+
+	if [ "x$only_privileged_ports" = "x1" ] ; then
+		ext_args="--dport 0:1023 $ext_args"
+	fi
+
+	if [ -n "$(cat "$FILE_V2RAY_DNSMASQ_CACHE" | grep -v "^$" | grep -v "^#")" ] ; then
+		local dir="$(dirname "$FILE_V2RAY_DNSMASQ")"
+		test -d "$dir" || mkdir -p "$dir"
+		cat "$FILE_V2RAY_DNSMASQ_CACHE" >"$FILE_V2RAY_DNSMASQ" 2>/dev/null
+		DNSMASQ_RESTART_EXPECTED=1
+	fi
+
+	rm -f "$FILE_V2RAY_DNSMASQ_CACHE"
+
+	local lan_devices lan_ipaddrs
+
+	if [ -n "$lan_ifaces" ] ; then
+		. /lib/functions/network.sh
+
+		local lan
+		for lan in $lan_ifaces ; do
+			local device ipaddrs ipaddr
+			network_get_device device "$lan"
+			network_get_ipaddrs ipaddrs "$lan"
+
+			if [ -n "$device" ] ; then
+				if [ -n "$lan_devices" ] ; then
+					lan_devices="$lan_devices $device"
+				else
+					lan_devices="$device"
+				fi
+			fi
+
+			if [ -n "$ipaddrs" ] ; then
+				for ipaddr in $ipaddrs ; do
+					if [ -n "$lan_ipaddrs" ] ; then
+						lan_ipaddrs="$ipaddr"
+					else
+						lan_ipaddrs="$lan_ipaddrs $ipaddr"
+					fi
+				done
+			fi
+		done
+	fi
+
+	if [ "x$TRANSPARENT_PROXY_USE_TPROXY" = "x1" ] ; then
+		_info "Use TProxy to setup iptables"
+		add_v2ray_tproxy_rules "$ext_args" "$lan_devices" "$lan_ipaddrs"
+	else
+		add_v2ray_redirect_rules "$ext_args" "$lan_devices" "$lan_ipaddrs"
+	fi
+}
+
+clear_transparent_proxy() {
+	clear_v2ray_rules
+	destroy_v2ray_ipset
+
+	if [ -s "$FILE_V2RAY_DNSMASQ" ] ; then
+		rm -f "$FILE_V2RAY_DNSMASQ"
+		DNSMASQ_RESTART_EXPECTED=1
+	fi
+}
+
+start_instance() {
+	local section="$1"
+
+	if ! v2ray_section_validate "$section" ; then
+		_err "Invalid config."
+		return 1
+	fi
+
+	if [ "x$enabled" != "x1" ] ; then
+		_info "Service disabled: $section"
+		return 0
+	fi
+
+	if [ -z "$v2ray_file" ] || [ ! -s "$v2ray_file" ] ; then
+		_err "Invalid V2Ray file."
+		return 1
+	fi
+
+	test -x "$v2ray_file" || chmod 755 "$v2ray_file"
+
+	local temp_config
+
+	if [ -n "$config_file" ] ; then
+		if [ ! -s "$config_file" ] ; then
+			_err "Config file not found: $config_file"
+			return 1
+		fi
+
+		if ! ( eval "$v2ray_file --test --config=\"$config_file\" >/dev/null 2>&1" ) ; then
+			_err "Validate config file failed: $config_file"
+			return 1
+		fi
+
+		local file_content="$(cat "$config_file")"
+		local config_commands="$(get_commands_from_json "$file_content")"
+
+		local addr
+
+		for addr in $(echo "$config_commands" | sed -n "s/^json.*'address'[[:space:]]'\([^']*\)'.*/\1/p") ; do
+			append_server_address "$addr"
+		done
+
+		temp_config="$config_file"
+	else
+		test -d "$CONFIG_FOLDER" || mkdir -p "$CONFIG_FOLDER"
+
+		temp_config="$CONFIG_FOLDER/v2ray.${section}.json"
+
+		local old_ns
+		json_set_namespace "$section" old_ns
+		json_init
+
+		json_add_object "log"
+
+		test -n "$access_log" && \
+			json_add_string "access" "$access_log"
+
+		if [ -n "$loglevel" ] && [ "$loglevel" != "none" ] ; then
+			json_add_string "loglevel" "$loglevel"
+			json_add_string "error" "$error_log"
+		fi
+
+		json_close_object # log
+
+		if [ "x$stats_enabled" = "x1" ] ; then
+			json_add_object "stats"
+			json_close_object # stats
+		fi
+
+		add_dns_settings "$section"
+		add_routing_settings "$section"
+		add_policy_settings "$section"
+		add_reverse_settings "$section"
+
+		if [ "x$transport_enabled" = "x1" ] ; then
+			add_transport_settings
+		fi
+
+		if [ -n "$inbounds" ] ; then
+			json_add_array "inbounds"
+
+			local is
+			for is in $inbounds ; do
+				add_inbound_setting "$is"
+			done
+
+			json_close_array # inbounds
+		fi
+
+		if [ -n "$outbounds" ] ; then
+			json_add_array "outbounds"
+
+			local os
+			for os in $outbounds ; do
+				add_outbound_setting "$os"
+			done
+
+			json_close_array # outbounds
+		fi
+
+		json_dump -i >"$temp_config"
+
+		json_cleanup
+		json_set_namespace "$old_ns"
+
+		if [ ! -s "$temp_config" ] ; then
+			_err "Error when create config file: $temp_config"
+			return 1
+		fi
+	fi
+
+	TRANSPARENT_PROXY_EXPECTED=1
+
+	procd_open_instance "$NAME.$section"
+	procd_set_param command "$v2ray_file"
+	procd_append_param command "--config=$temp_config"
+	procd_set_param respawn
+
+	if [ -n "$asset_location" ] && [ -d "$asset_location" ] ; then
+		procd_set_param env V2RAY_LOCATION_ASSET="$asset_location"
+	fi
+
+	# cat /proc/PID/limits to see if limits works
+	procd_set_param limits nofile="102400 102400"
+	procd_append_param limits core="0 0"
+
+	if [ "$mem_percentage" -gt "0" ] ; then
+		local mem_total="$(awk '/MemTotal/ {print $2}' /proc/meminfo)"
+		if [ -n "$mem_total" ] ; then
+			local use_mem="$(expr $mem_total \* $mem_percentage \* 10)"
+			procd_append_param limits as="$use_mem $use_mem"
+		fi
+	fi
+
+	procd_set_param file "$temp_config"
+	procd_set_param stderr 1 # forward stderr of the command to logd
+	procd_set_param stdout 1
+	procd_set_param pidfile "/var/run/${NAME}.${section}.pid"
+	procd_close_instance
+}
+
+start_service() {
+	clear_transparent_proxy
+
+	config_load "$NAME"
+
+	if ! init_transparent_proxy ; then
+		gracefully_restart_dnsmasq
+		return 1
+	fi
+
+	config_foreach start_instance "v2ray"
+
+	setup_transparent_proxy
+	gracefully_restart_dnsmasq
+
+	unset OUTBOUND_SERVERS_V4 \
+		OUTBOUND_SERVERS_V6 \
+		TRANSPARENT_PROXY_EXPECTED \
+		TRANSPARENT_PROXY_PORT \
+		TRANSPARENT_PROXY_ADDITION \
+		DNSMASQ_RESTART_EXPECTED
+}
+
+stop_service() {
+	if [ "x$action" = "xrestart" ] ; then
+		# skip when restarting, start_service will do this
+		return 0
+	fi
+
+	clear_transparent_proxy
+	gracefully_restart_dnsmasq
+
+	test -d "$CONFIG_FOLDER" && rm -rf "$CONFIG_FOLDER"
+}
+
+service_triggers() {
+	procd_add_reload_trigger "$NAME"
+}

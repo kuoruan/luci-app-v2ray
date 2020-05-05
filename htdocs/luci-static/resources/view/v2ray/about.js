@@ -1,0 +1,1 @@
+"use strict";"require form";"require ui";return L.view.extend({render:function(){var e=new ui.Textarea;return E([e.render()])},handleReset:null,handleSave:null,handleSaveApply:null});
