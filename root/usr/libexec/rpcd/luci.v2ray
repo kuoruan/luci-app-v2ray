@@ -1,0 +1,98 @@
+#!/bin/sh
+
+# . /usr/share/libubox/jshn.sh
+
+running_status() {
+	local pid="$(cat /var/run/v2ray.main.pid 2>/dev/null)"
+
+	if [ -z "$pid" ] ; then
+		return 1
+	fi
+
+	local file="$(uci -q get v2ray.main.v2ray_file)"
+
+	if [ -z "$file" ] ; then
+		return 1
+	fi
+
+	local file_name="$(basename "$file")"
+
+	pidof "$file_name" 2>/dev/null | grep -q "$pid"
+}
+
+get_version() {
+	local file="$(uci -q get v2ray.main.v2ray_file)"
+
+	if [ ! -s "$file" ] ; then
+		return
+	fi
+
+	test -x "$file" || chmod +x "$file"
+
+	sh -c "$file --version 2>/dev/null | head -n1" || true
+}
+
+list_status() {
+	true
+}
+
+case "$1" in
+	list)
+		json_set_namespace "luci.v2ray.list" old_ns
+
+		json_init
+
+		json_add_object "running_status"
+		json_close_object
+
+		json_add_object "file_version"
+		json_close_object
+
+		json_add_object "list_status"
+		json_add_string "name" "String"
+		json_close_object
+
+		json_dump -i
+
+		json_cleanup
+
+		json_set_namespace "$old_ns"
+	;;
+	call)
+		case "$2" in
+			running_status)
+				running_status
+			;;
+			file_version)
+				version="$(get_version)"
+
+				json_set_namespace "luci.v2ray.file_version" old_ns
+
+				json_init
+
+				json_add_string "version" "$version"
+
+				json_dump -i
+
+				json_cleanup
+
+				json_set_namespace "$old_ns"
+			;;
+			list_status)
+				read input;
+
+				json_set_namespace "luci.v2ray.list_status" old_ns
+
+				json_load "$input"
+
+				json_get_var "name" list_name
+
+				json_cleanup
+
+				json_set_namespace "$old_ns"
+			;;
+			list_update)
+			;;
+		esac
+	;;
+esac
