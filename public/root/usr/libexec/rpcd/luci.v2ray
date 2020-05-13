@@ -1,39 +1,40 @@
 #!/bin/sh
 
-# . /usr/share/libubox/jshn.sh
+. /usr/share/libubox/jshn.sh
 
-running_status() {
+check_running_status() {
 	local pid="$(cat /var/run/v2ray.main.pid 2>/dev/null)"
 
-	if [ -z "$pid" ] ; then
-		return 1
-	fi
+	test -n "$pid" || return 1
 
 	local file="$(uci -q get v2ray.main.v2ray_file)"
 
-	if [ -z "$file" ] ; then
-		return 1
-	fi
+	test -n "$file" || return 1
 
 	local file_name="$(basename "$file")"
 
 	pidof "$file_name" 2>/dev/null | grep -q "$pid"
 }
 
-get_version() {
+get_v2ray_version() {
 	local file="$(uci -q get v2ray.main.v2ray_file)"
 
-	if [ ! -s "$file" ] ; then
-		return
-	fi
-
+	test -s "$file" || return 1
 	test -x "$file" || chmod +x "$file"
 
-	sh -c "$file --version 2>/dev/null | head -n1" || true
+	sh -c "$file --version 2>/dev/null | head -n1"
 }
 
-list_status() {
-	true
+get_list_count() {
+	local name="$1"
+
+	test -n "$name" || return 1
+
+	local file="/etc/v2ray/${name}.txt"
+
+	test -r "$file" || return 1
+
+	grep -v '^$' "$file" | wc -l
 }
 
 case "$1" in
@@ -45,10 +46,14 @@ case "$1" in
 		json_add_object "running_status"
 		json_close_object
 
-		json_add_object "file_version"
+		json_add_object "v2ray_version"
 		json_close_object
 
-		json_add_object "list_status"
+		json_add_object "list_count"
+		json_add_string "name" "String"
+		json_close_object
+
+		json_add_object "list_datetime"
 		json_add_string "name" "String"
 		json_close_object
 
@@ -61,15 +66,36 @@ case "$1" in
 	call)
 		case "$2" in
 			running_status)
-				running_status
+				check_running_status
+				code="$?"
+
+				json_set_namespace "luci.v2ray.running_status" old_ns
+
+				json_init
+
+				json_add_int "code" "$code"
+
+				if [ "$code" = "0" ]; then
+					json_add_boolean "running" "1"
+				else
+					json_add_boolean "running" "0"
+				fi
+
+				json_dump -i
+
+				json_cleanup
+
+				json_set_namespace "$old_ns"
 			;;
-			file_version)
-				version="$(get_version)"
+			v2ray_version)
+				version="$(get_v2ray_version)"
+				code="$?"
 
 				json_set_namespace "luci.v2ray.file_version" old_ns
 
 				json_init
 
+				json_add_int "code" "$code"
 				json_add_string "version" "$version"
 
 				json_dump -i
@@ -78,10 +104,10 @@ case "$1" in
 
 				json_set_namespace "$old_ns"
 			;;
-			list_status)
+			list_count)
 				read input;
 
-				json_set_namespace "luci.v2ray.list_status" old_ns
+				json_set_namespace "luci.v2ray.list_count" old_ns
 
 				json_load "$input"
 
@@ -89,9 +115,19 @@ case "$1" in
 
 				json_cleanup
 
+				count="$(get_list_count "$list_name")"
+				code="$?"
+
+				json_init
+
+				json_add_int "code" "$code"
+				json_add_string "count" "$count"
+
+				json_dump -i
+
+				json_cleanup
+
 				json_set_namespace "$old_ns"
-			;;
-			list_update)
 			;;
 		esac
 	;;
