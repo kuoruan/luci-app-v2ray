@@ -6,7 +6,7 @@
 "require fs";
 "require ui";
 
-const CUSTOMTextValue = form.TextValue.extend({
+const CUSTOMTextValue = form.TextValue.extend<typeof form.TextValue>({
   __name__: "CUSTOM.TextValue",
   filepath: null,
   isjson: false,
@@ -51,11 +51,12 @@ type ListStatus = {
   data: string;
 };
 
-const CUSTOMListStatusValue = form.Value.extend({
+const CUSTOMListStatusValue = form.Value.extend<typeof form.Value>({
   __name__: "CUSTOM.ListStatusValue",
   listtype: null,
   updatebtn: false,
   inputstyle: "button",
+  onclick: null,
   renderWidget: function (
     section_id: string,
     option_index: number,

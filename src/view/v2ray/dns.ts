@@ -18,7 +18,11 @@ return L.view.extend({
       )
     );
 
-    const s1 = m.section(form.NamedSection, "main_dns", "dns");
+    const s1 = m.section<form.NamedSection>(
+      form.NamedSection,
+      "main_dns",
+      "dns"
+    );
     s1.anonymous = true;
     s1.addremove = false;
 

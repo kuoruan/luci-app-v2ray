@@ -5,19 +5,6 @@
 "require network";
 "require uci";
 
-type SectionItem = {
-  caption: string;
-  value: string;
-};
-
-export default interface V2Ray {
-  getLocalIPs(): Promise<string[]>;
-  getSections(type: string): Promise<SectionItem[]>;
-  fileExist(path: string): Promise<boolean>;
-  base64Decode(encoded: string): string;
-  base64Encode(str: string): string;
-}
-
 const b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 const b64re = /^(?:[A-Za-z\d+\\/]{4})*?(?:[A-Za-z\d+\\/]{2}(?:==)?|[A-Za-z\d+\\/]{3}=?)?$/;
 

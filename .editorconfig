@@ -10,3 +10,7 @@ indent_size = 2
 [Makefile,*.md]
 indent_style = tab
 indent_size = 2
+
+[*v2ray]
+indent_style = tab
+indent_size = 2
