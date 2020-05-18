@@ -6,11 +6,11 @@
 // "require view";
 
 // @ts-ignore
-return L.view.extend({
+return L.view.extend<SectionItem[]>({
   load: function () {
     return v2ray.getSections("policy_level", "level");
   },
-  render: function (policyLevels: ReturnType<typeof v2ray.getSections> = []) {
+  render: function (policyLevels = []) {
     const m = new form.Map(
       "v2ray",
       "%s - %s".format(_("V2Ray"), _("Policy")),

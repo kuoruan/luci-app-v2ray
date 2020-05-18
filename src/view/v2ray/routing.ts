@@ -6,16 +6,14 @@
 // "require view";
 
 // @ts-ignore
-return L.view.extend({
+return L.view.extend<SectionItem[][]>({
   load: function () {
     return Promise.all([
       v2ray.getSections("routing_rule"),
       v2ray.getSections("routing_balancer", "tag"),
     ]);
   },
-  render: function ([routingRules = [], routingBalancers = []]: ReturnType<
-    typeof v2ray.getSections
-  >[] = []) {
+  render: function ([routingRules = [], routingBalancers = []] = []) {
     const m = new form.Map(
       "v2ray",
       "%s - %s".format(_("V2Ray"), _("Routing")),
@@ -149,6 +147,19 @@ return L.view.extend({
     o = s2.option(form.Value, "balancer_tag", _("Balancer tag"));
     o.modalonly = true;
     o.depends("outbound_tag", "");
+
+    const s3 = m.section(
+      form.TypedSection,
+      "routing_balancer",
+      _("Routing Balancer", _("Add routing balancers here"))
+    );
+    s3.anonymous = true;
+    s3.addremove = true;
+
+    o = s3.option(form.Value, "tag", _("Tag"));
+    o.rmempty = false;
+
+    o = s3.option(form.DynamicList, "selector", _("Selector"));
 
     return m.render();
   },

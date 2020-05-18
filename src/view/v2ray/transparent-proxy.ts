@@ -7,11 +7,18 @@
 "require view/v2ray/include/custom as custom";
 
 // @ts-ignore
-return L.view.extend({
+return L.view.extend<boolean>({
   load: function () {
-    return Promise.all([v2ray.fileExist("/lib/libustream-ssl.so")]);
+    return v2ray.fileExist("/lib/libustream-ssl.so");
   },
-  render: function ([sslSupported = false]: [boolean]) {
+  render: function (sslSupported) {
+    const ssl_note = sslSupported
+      ? ""
+      : _("Please install %s or %s to enable list update.").format(
+          "libustream-openssl",
+          "libustream-mbedtls"
+        );
+
     const m = new form.Map(
       "v2ray",
       "%s - %s".format(_("V2Ray"), _("Transparent Proxy"))
@@ -94,10 +101,16 @@ return L.view.extend({
     o.value("ripe", "RIPE");
     o.value("iana", "IANA");
 
-    o = s.option(form.DummyValue, "_chnroutelist", _("CHNRoute"), ssl_note);
+    o = s.option(
+      custom.ListStatusValue,
+      "_chnroutelist",
+      _("CHNRoute"),
+      ssl_note
+    );
     o.template = "v2ray/list_status";
     o.listtype = "chnroute";
     o.updatebtn = sslSupported;
+    o.btntitle = _("Update");
 
     o = s.option(form.ListValue, "gfwlist_mirror", _("GFWList mirror"));
     o.value("github", "GitHub");
@@ -105,10 +118,11 @@ return L.view.extend({
     o.value("bitbucket", "Bitbucket");
     o.value("pagure", "Pagure");
 
-    o = s.option(form.DummyValue, "_gfwlist", _("GFWList"), ssl_note);
+    o = s.option(custom.ListStatusValue, "_gfwlist", _("GFWList"), ssl_note);
     o.template = "v2ray/list_status";
     o.listtype = "gfwlist";
     o.updatebtn = sslSupported;
+    o.btntitle = _("Update");
 
     o = s.option(
       custom.TextValue,

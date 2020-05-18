@@ -7,11 +7,11 @@
 // "require view";
 
 // @ts-ignore
-return L.view.extend({
-  load: function (): Promise<string[]> {
+return L.view.extend<string[]>({
+  load: function () {
     return v2ray.getLocalIPs();
   },
-  render: function (localIPs: string[] = []) {
+  render: function (localIPs = []) {
     const m = new form.Map("v2ray", "%s - %s".format(_("V2Ray"), _("Inbound")));
 
     const s = m.section(form.GridSection, "inbound");

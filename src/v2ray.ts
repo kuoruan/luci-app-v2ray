@@ -5,29 +5,26 @@
 "require network";
 "require uci";
 
-const b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-const b64re = /^(?:[A-Za-z\d+\\/]{4})*?(?:[A-Za-z\d+\\/]{2}(?:==)?|[A-Za-z\d+\\/]{3}=?)?$/;
-
-const v: V2Ray = {
+// @ts-ignore
+return L.Class.extend({
   getLocalIPs: function (): Promise<string[]> {
-    return network.getNetworks().then(function (networks: any[]) {
+    return network.getDevices().then(function (devices: network.Device[]) {
       const localIPs: string[] = ["127.0.0.1", "0.0.0.0", "::"];
 
-      for (const n of networks) {
-        const IPv4 = n.getIPAddr();
-        const IPv6CIDR = n.getIP6Addr();
+      for (const d of devices) {
+        const IPv4s = d.getIPAddrs();
+        const IPv6s = d.getIP6Addrs();
 
-        if (IPv4 && localIPs.indexOf(IPv4) < 0) {
-          localIPs.push(IPv4);
+        for (const IPv4 of IPv4s) {
+          if (IPv4 && localIPs.indexOf(IPv4) < 0) {
+            localIPs.push(IPv4);
+          }
         }
 
-        let IPv6: string;
-        if (
-          IPv6CIDR &&
-          (IPv6 = IPv6CIDR.split("/")[0]) &&
-          localIPs.indexOf(IPv6) < 0
-        ) {
-          localIPs.push(IPv6);
+        for (const IPv6 of IPv6s) {
+          if (IPv6 && localIPs.indexOf(IPv6) < 0) {
+            localIPs.push(IPv6);
+          }
         }
       }
 
@@ -60,7 +57,7 @@ const v: V2Ray = {
       });
   },
 
-  fileExist: function (path: string) {
+  fileExist: function (path: string): Promise<boolean> {
     return fs
       .stat(path)
       .then(function () {
@@ -70,80 +67,4 @@ const v: V2Ray = {
         return false;
       });
   },
-
-  base64Decode:
-    window.atob ||
-    function (encoded: string) {
-      // atob can work with strings with whitespaces, even inside the encoded part,
-      // but only \t, \n, \f, \r and ' ', which can be stripped.
-      encoded = String(encoded).replace(/[\t\n\f\r ]+/g, "");
-      if (!b64re.test(encoded))
-        throw new TypeError(
-          "Failed to execute 'atob' on 'Window': The string to be decoded is not correctly encoded."
-        );
-
-      // Adding the padding if missing, for semplicity
-      encoded += "==".slice(2 - (encoded.length & 3));
-      let bitmap,
-        result = "",
-        r1,
-        r2,
-        i = 0;
-      for (; i < encoded.length; ) {
-        bitmap =
-          (b64.indexOf(encoded.charAt(i++)) << 18) |
-          (b64.indexOf(encoded.charAt(i++)) << 12) |
-          ((r1 = b64.indexOf(encoded.charAt(i++))) << 6) |
-          (r2 = b64.indexOf(encoded.charAt(i++)));
-
-        result +=
-          r1 === 64
-            ? String.fromCharCode((bitmap >> 16) & 255)
-            : r2 === 64
-            ? String.fromCharCode((bitmap >> 16) & 255, (bitmap >> 8) & 255)
-            : String.fromCharCode(
-                (bitmap >> 16) & 255,
-                (bitmap >> 8) & 255,
-                bitmap & 255
-              );
-      }
-      return result;
-    },
-
-  base64Encode:
-    window.btoa ||
-    function (str: string) {
-      str = String(str);
-      let bitmap,
-        a,
-        b,
-        c,
-        result = "",
-        i = 0;
-      const rest = str.length % 3; // To determine the final padding
-
-      for (; i < str.length; ) {
-        if (
-          (a = str.charCodeAt(i++)) > 255 ||
-          (b = str.charCodeAt(i++)) > 255 ||
-          (c = str.charCodeAt(i++)) > 255
-        )
-          throw new TypeError(
-            "Failed to execute 'btoa' on 'Window': The string to be encoded contains characters outside of the Latin1 range."
-          );
-
-        bitmap = (a << 16) | (b << 8) | c;
-        result +=
-          b64.charAt((bitmap >> 18) & 63) +
-          b64.charAt((bitmap >> 12) & 63) +
-          b64.charAt((bitmap >> 6) & 63) +
-          b64.charAt(bitmap & 63);
-      }
-
-      // If there's need of padding, replace the last 'A's with equal signs
-      return rest ? result.slice(0, rest - 3) + "===".substring(rest) : result;
-    },
-};
-
-// @ts-ignore
-return L.Class.extend(v);
+});

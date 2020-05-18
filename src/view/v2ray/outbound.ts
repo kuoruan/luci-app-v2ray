@@ -6,7 +6,7 @@
 // "require view";
 
 // @ts-ignore
-return L.view.extend({
+return L.view.extend<string[]>({
   load: function () {
     return v2ray.getLocalIPs();
   },

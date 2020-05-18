@@ -43,13 +43,13 @@ case "$1" in
 
 		json_init
 
-		json_add_object "running_status"
+		json_add_object "runningStatus"
 		json_close_object
 
-		json_add_object "v2ray_version"
+		json_add_object "v2rayVersion"
 		json_close_object
 
-		json_add_object "list_count"
+		json_add_object "countList"
 		json_add_string "name" "String"
 		json_close_object
 
@@ -65,21 +65,15 @@ case "$1" in
 	;;
 	call)
 		case "$2" in
-			running_status)
+			runningStatus)
 				check_running_status
 				code="$?"
 
-				json_set_namespace "luci.v2ray.running_status" old_ns
+				json_set_namespace "luci.v2ray.runningStatus" old_ns
 
 				json_init
 
 				json_add_int "code" "$code"
-
-				if [ "$code" = "0" ]; then
-					json_add_boolean "running" "1"
-				else
-					json_add_boolean "running" "0"
-				fi
 
 				json_dump -i
 
@@ -87,11 +81,11 @@ case "$1" in
 
 				json_set_namespace "$old_ns"
 			;;
-			v2ray_version)
+			v2rayVersion)
 				version="$(get_v2ray_version)"
 				code="$?"
 
-				json_set_namespace "luci.v2ray.file_version" old_ns
+				json_set_namespace "luci.v2ray.v2rayVersion" old_ns
 
 				json_init
 
@@ -104,10 +98,10 @@ case "$1" in
 
 				json_set_namespace "$old_ns"
 			;;
-			list_count)
+			countList)
 				read input;
 
-				json_set_namespace "luci.v2ray.list_count" old_ns
+				json_set_namespace "luci.v2ray.countList" old_ns
 
 				json_load "$input"
 
@@ -121,7 +115,7 @@ case "$1" in
 				json_init
 
 				json_add_int "code" "$code"
-				json_add_string "count" "$count"
+				json_add_int "count" "$count"
 
 				json_dump -i
 

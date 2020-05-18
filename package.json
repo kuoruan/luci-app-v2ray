@@ -9,10 +9,11 @@
   "scripts": {
     "package": "gulp",
     "package:test": "gulp test",
-    "lint": "eslint '**/*.{js,ts}'"
+    "lint": "eslint '**/*.{js,ts}'",
+    "i18n:sync": "gulp i18n:sync"
   },
   "devDependencies": {
-    "@kuoruan/luci-types": "^1.0.0",
+    "@kuoruan/luci-types": "^1.1.0",
     "@typescript-eslint/eslint-plugin": "^2.33.0",
     "@typescript-eslint/parser": "^2.33.0",
     "eslint": "^7.0.0",
@@ -24,7 +25,6 @@
     "gulp-terser": "^1.2.0",
     "gulp-typescript": "^6.0.0-alpha.1",
     "prettier": "^2.0.5",
-    "rimraf": "^3.0.2",
     "typescript": "^3.9.2"
   },
   "dependencies": {}

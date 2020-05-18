@@ -15,7 +15,6 @@ return L.view.extend({
     );
 
     const s = m.section(form.NamedSection, "main_reverse", "reverse");
-    s.anonymous = true;
     s.addremove = false;
 
     let o;

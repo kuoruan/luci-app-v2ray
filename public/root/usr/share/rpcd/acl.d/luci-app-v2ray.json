@@ -2,17 +2,36 @@
   "luci-app-v2ray": {
     "description": "Grant access to LuCI app V2ray",
     "read": {
-      "cgi-io": [ "exec" ],
-      "uci": [ "firewall", "v2ray" ],
+      "ubus": {
+        "file": [
+          "exec",
+          "stat"
+        ],
+        "luci.v2ray": [
+          "*"
+        ]
+      },
+      "uci": [
+        "firewall",
+        "v2ray"
+      ],
       "file": {
-        "/etc/v2ray/*": ["read"]
+        "/etc/v2ray/*": [
+          "read"
+        ],
+        "/etc/init.d/v2ray reload": ["exec"]
       }
-		},
-		"write": {
-      "uci": [ "firewall", "v2ray" ],
+    },
+    "write": {
+      "uci": [
+        "firewall",
+        "v2ray"
+      ],
       "file": {
-        "/etc/v2ray/*": ["write"]
+        "/etc/v2ray/*": [
+          "write"
+        ]
       }
-		}
+    }
   }
 }

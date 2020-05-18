@@ -5,11 +5,11 @@
 // "require view";
 
 // @ts-ignore
-return L.view.extend({
+return L.view.extend<SectionItem[]>({
   load: function () {
     return v2ray.getSections("dns_server");
   },
-  render: function (dnsServers: ReturnType<typeof v2ray.getSections> = []) {
+  render: function (dnsServers = []) {
     const m = new form.Map(
       "v2ray",
       "%s - %s".format(_("V2Ray"), _("DNS")),
@@ -18,11 +18,7 @@ return L.view.extend({
       )
     );
 
-    const s1 = m.section<form.NamedSection>(
-      form.NamedSection,
-      "main_dns",
-      "dns"
-    );
+    const s1 = m.section(form.NamedSection, "main_dns", "dns");
     s1.anonymous = true;
     s1.addremove = false;
 

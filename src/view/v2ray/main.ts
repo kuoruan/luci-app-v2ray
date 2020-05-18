@@ -9,7 +9,7 @@
 "require view/v2ray/include/custom as custom";
 
 // @ts-ignore
-return L.view.extend({
+return L.view.extend<SectionItem[][]>({
   handleServiceReload: function (btn: HTMLElement, ev: Event) {
     return fs
       .exec("/etc/init.d/v2ray", ["reload"])
@@ -35,15 +35,13 @@ return L.view.extend({
         ui.addNotification(null, E("p", e.message));
       });
   },
-  load: function (): Promise<any> {
+  load: function () {
     return Promise.all([
       v2ray.getSections("inbound"),
       v2ray.getSections("outbound"),
     ]);
   },
-  render: function ([inboundSections = [], outBoundSections = []]: ReturnType<
-    typeof v2ray.getSections
-  >[] = []) {
+  render: function ([inboundSections = [], outBoundSections = []] = []) {
     const m = new form.Map(
       "v2ray",
       "%s - %s".format(_("V2ray"), _("Global Settings")),

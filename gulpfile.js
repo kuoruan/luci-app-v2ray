@@ -1,18 +1,23 @@
+const child = require("child_process");
+const fs = require("fs");
 const gulp = require("gulp");
-const ts = require("gulp-typescript");
 const terser = require("gulp-terser");
-const rimraf = require("rimraf");
+const ts = require("gulp-typescript");
 
 const resDest = "package/htdocs/luci-static/resources";
 
 const tsProject = ts.createProject("tsconfig.json");
 
-gulp.task("clean-package", function (cb) {
-  rimraf("package", cb);
+function clean(...paths) {
+  return child.spawn("rm", ["-rf", ...paths]);
+}
+
+gulp.task("clean-package", function () {
+  return clean("package");
 });
 
-gulp.task("clean-output", function (cb) {
-  rimraf("output", cb);
+gulp.task("clean-output", function () {
+  return clean("output");
 });
 
 gulp.task("compile", function () {
@@ -56,6 +61,18 @@ gulp.task(
   "test",
   gulp.series("clean-package", gulp.parallel("build:test", "copy-public"))
 );
+
+gulp.task("i18n:scan", function () {
+  const scan = child.spawn("./scripts/i18n-scan.pl", ["package"]);
+  scan.stdout.pipe(fs.createWriteStream("public/po/templates/v2ray.pot"));
+  return scan;
+});
+
+gulp.task("i18n:update", function () {
+  return child.spawn("./scripts/i18n-update.pl", ["public/po"]);
+});
+
+gulp.task("i18n:sync", gulp.series("test", "i18n:scan", "i18n:update"));
 
 gulp.task(
   "default",
