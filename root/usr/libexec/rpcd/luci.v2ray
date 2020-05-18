@@ -9,7 +9,7 @@ check_running_status() {
 
 	local file="$(uci -q get v2ray.main.v2ray_file)"
 
-	test -n "$file" || return 1
+	test -n "$file" || return 2
 
 	local file_name="$(basename "$file")"
 
@@ -19,7 +19,7 @@ check_running_status() {
 get_v2ray_version() {
 	local file="$(uci -q get v2ray.main.v2ray_file)"
 
-	test -s "$file" || return 1
+	test -s "$file" || return 2
 	test -x "$file" || chmod +x "$file"
 
 	sh -c "$file --version 2>/dev/null | head -n1"
@@ -28,18 +28,18 @@ get_v2ray_version() {
 get_list_count() {
 	local name="$1"
 
-	test -n "$name" || return 1
+	test -n "$name" || return 128
 
 	local file="/etc/v2ray/${name}.txt"
 
-	test -r "$file" || return 1
+	test -r "$file" || return 2
 
 	grep -v '^$' "$file" | wc -l
 }
 
 case "$1" in
 	list)
-		json_set_namespace "luci.v2ray.list" old_ns
+		json_set_namespace "v2ray_list" old_ns
 
 		json_init
 
@@ -50,10 +50,6 @@ case "$1" in
 		json_close_object
 
 		json_add_object "countList"
-		json_add_string "name" "String"
-		json_close_object
-
-		json_add_object "list_datetime"
 		json_add_string "name" "String"
 		json_close_object
 
@@ -69,7 +65,7 @@ case "$1" in
 				check_running_status
 				code="$?"
 
-				json_set_namespace "luci.v2ray.runningStatus" old_ns
+				json_set_namespace "v2ray_runningStatus" old_ns
 
 				json_init
 
@@ -85,7 +81,7 @@ case "$1" in
 				version="$(get_v2ray_version)"
 				code="$?"
 
-				json_set_namespace "luci.v2ray.v2rayVersion" old_ns
+				json_set_namespace "v2ray_v2rayVersion" old_ns
 
 				json_init
 
@@ -101,11 +97,11 @@ case "$1" in
 			countList)
 				read input;
 
-				json_set_namespace "luci.v2ray.countList" old_ns
+				json_set_namespace "v2ray_countList" old_ns
 
 				json_load "$input"
 
-				json_get_var "name" list_name
+				json_get_var list_name "name"
 
 				json_cleanup
 
