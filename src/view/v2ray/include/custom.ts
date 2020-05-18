@@ -1,23 +1,24 @@
 "use strict";
 
 // "require baseclass";
-"require dom";
+// "require dom";
 "require form";
 "require fs";
+"require rpc";
 "require ui";
 
 const callRunningStatus = rpc.declare<{ code: number }>({
   object: "luci.v2ray",
   method: "runningStatus",
   params: [],
-  expect: { code: 1 },
+  expect: { "": { code: 1 } },
 });
 
 const callCountList = rpc.declare<number, [string]>({
   object: "luci.v2ray",
   method: "countList",
   params: ["name"],
-  expect: { code: 1, count: 0 },
+  expect: { "": { code: 1, count: 0 } },
   filter: function (data: any) {
     if (data.code === 0) {
       return data.count;
@@ -30,10 +31,10 @@ const callFileMTime = rpc.declare<string, [string]>({
   object: "file",
   method: "stat",
   params: ["path"],
-  expect: { "": {} },
+  expect: { "": { mtime: 0 } },
   filter: function (data: any) {
     if (data.mtime) {
-      return new Date(data.mtime).toUTCString();
+      return new Date(data.mtime * 1000).toUTCString();
     }
 
     return "Unknown";
@@ -106,14 +107,10 @@ const CUSTOMListStatusValue = form.Value.extend({
     const [count, modifyTime] = cfgvalue;
 
     const children: (Node | string)[] = [
-      `Total: ${count}`,
-      E<HTMLSpanElement>(
-        "span",
-        {
-          style: "color: #ff8c00;",
-        },
-        [modifyTime]
+      _("Total: %s").format(
+        `<span style="color: #ff8c00;margin: 0 5px;">${count}</span>`
       ),
+      _("Time: %s").format(modifyTime),
     ];
 
     if (this.updatebtn) {
@@ -148,7 +145,7 @@ const CUSTOMListStatusValue = form.Value.extend({
       );
     }
 
-    dom.content(outputEl, children);
+    L.dom.content(outputEl, children);
 
     return outputEl;
   },
