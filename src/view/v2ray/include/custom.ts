@@ -37,7 +37,7 @@ const callFileMTime = rpc.declare<string, [string]>({
       return new Date(data.mtime * 1000).toUTCString();
     }
 
-    return "Unknown";
+    return _("Unknown");
   },
 });
 
@@ -93,23 +93,30 @@ type ListStatus = {
 const CUSTOMListStatusValue = form.AbstractValue.extend({
   __name__: "CUSTOM.ListStatusValue",
   listtype: null,
-  updatebtn: false,
   btnstyle: "button",
   btntitle: null,
-  onclick: null,
+  handleUpdateClick: function (ev: MouseEvent) {},
   cfgvalue: function () {
     if (!this.listtype) {
       L.error("TypeError", "List type is required");
     }
 
     return Promise.all([
-      L.resolveDefault(callCountList(this.listtype), 0),
-      L.resolveDefault(callFileMTime(`/etc/v2ray/${this.listtype}.txt`), ""),
+      fs
+        .stat("/lib/libustream-ssl.so")
+        .then(() => true)
+        .catch(() => false),
+      callCountList(this.listtype),
+      callFileMTime(`/etc/v2ray/${this.listtype}.txt`),
     ]);
   },
   render: function (option_index: number, section_id: string) {
     return Promise.resolve(this.cfgvalue(section_id)).then(
-      L.bind(function ([count = 0, modifyTime = ""] = []) {
+      L.bind(function ([
+        sslSupported = false,
+        count = 0,
+        modifyTime = "",
+      ] = []) {
         const title = this.titleFn("title", section_id);
 
         const config_name =
@@ -129,7 +136,7 @@ const CUSTOMListStatusValue = form.AbstractValue.extend({
           _("Time: %s").format(modifyTime),
         ];
 
-        if (this.updatebtn) {
+        if (sslSupported) {
           const btn_title =
             this.titleFn("btntitle", section_id) ||
             this.titleFn("title", section_id);
@@ -141,22 +148,7 @@ const CUSTOMListStatusValue = form.AbstractValue.extend({
                 class: "cbi-button cbi-button-%s".format(
                   this.btnstyle || "button"
                 ),
-                click: ui.createHandlerFn(
-                  this,
-                  function (
-                    this: any,
-                    section_id: string,
-                    listtype: string,
-                    ev: MouseEvent
-                  ) {
-                    if (this.onclick) {
-                      return this.onclick(ev, section_id, listtype);
-                    }
-                    return false;
-                  },
-                  section_id,
-                  this.listtype
-                ),
+                click: L.bind(this.handleUpdateClick, this),
               },
               [btn_title]
             )
@@ -167,9 +159,21 @@ const CUSTOMListStatusValue = form.AbstractValue.extend({
 
         const fieldChildren: HTMLDivElement[] = [outputEl];
 
-        if (typeof this.description === "string" && this.description !== "") {
+        if (
+          !sslSupported ||
+          (typeof this.description === "string" && this.description !== "")
+        ) {
           fieldChildren.push(
-            E("div", { class: "cbi-value-description" }, this.description)
+            E(
+              "div",
+              { class: "cbi-value-description" },
+              sslSupported
+                ? this.description
+                : _("Please install %s or %s to enable list update.").format(
+                    "libustream-openssl",
+                    "libustream-mbedtls"
+                  )
+            )
           );
         }
 
@@ -213,7 +217,8 @@ const CUSTOMListStatusValue = form.AbstractValue.extend({
         L.dom.bindClassInstance(optionEl, this);
 
         return optionEl;
-      }, this)
+      },
+      this)
     );
   },
   remove: function () {},
