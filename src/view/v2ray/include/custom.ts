@@ -90,74 +90,131 @@ type ListStatus = {
   data: string;
 };
 
-const CUSTOMListStatusValue = form.Value.extend({
+const CUSTOMListStatusValue = form.AbstractValue.extend({
   __name__: "CUSTOM.ListStatusValue",
   listtype: null,
   updatebtn: false,
   btnstyle: "button",
   btntitle: null,
   onclick: null,
-  renderWidget: function (
-    section_id: string,
-    option_index: number,
-    cfgvalue: [string, string]
-  ) {
-    const outputEl = E("div");
-
-    const [count, modifyTime] = cfgvalue;
-
-    const children: (Node | string)[] = [
-      _("Total: %s").format(
-        `<span style="color: #ff8c00;margin: 0 5px;">${count}</span>`
-      ),
-      _("Time: %s").format(modifyTime),
-    ];
-
-    if (this.updatebtn) {
-      const btn_title =
-        this.titleFn("btntitle", section_id) ||
-        this.titleFn("title", section_id);
-
-      children.push(
-        E<HTMLButtonElement>(
-          "button",
-          {
-            class: "cbi-button cbi-button-%s".format(this.btnstyle || "button"),
-            click: ui.createHandlerFn(
-              this,
-              function (
-                this: any,
-                section_id: string,
-                listtype: string,
-                ev: MouseEvent
-              ) {
-                if (this.onclick) {
-                  return this.onclick(ev, section_id, listtype);
-                }
-                return false;
-              },
-              section_id,
-              this.listtype
-            ),
-          },
-          [btn_title]
-        )
-      );
-    }
-
-    L.dom.content(outputEl, children);
-
-    return outputEl;
-  },
   cfgvalue: function () {
     if (!this.listtype) {
       L.error("TypeError", "List type is required");
     }
 
     return Promise.all([
-      callCountList(this.listtype),
-      callFileMTime(`/etc/v2ray/${this.listtype}.txt`),
+      L.resolveDefault(callCountList(this.listtype), 0),
+      L.resolveDefault(callFileMTime(`/etc/v2ray/${this.listtype}.txt`), ""),
     ]);
+  },
+  render: function (option_index: number, section_id: string) {
+    return Promise.resolve(this.cfgvalue(section_id)).then(
+      L.bind(function ([count = 0, modifyTime = ""] = []) {
+        const title = this.titleFn("title", section_id);
+
+        const config_name =
+          this.uciconfig || this.section.uciconfig || this.map.config;
+        const depend_list = this.transformDepList(section_id);
+
+        const outputEl = E<HTMLDivElement>("div");
+
+        const children: (Node | string)[] = [
+          E(
+            "span",
+            {
+              style: "color: #ff8c00;margin-right: 5px;",
+            },
+            _("Total: %s").format(count)
+          ),
+          _("Time: %s").format(modifyTime),
+        ];
+
+        if (this.updatebtn) {
+          const btn_title =
+            this.titleFn("btntitle", section_id) ||
+            this.titleFn("title", section_id);
+
+          children.push(
+            E<HTMLButtonElement>(
+              "button",
+              {
+                class: "cbi-button cbi-button-%s".format(
+                  this.btnstyle || "button"
+                ),
+                click: ui.createHandlerFn(
+                  this,
+                  function (
+                    this: any,
+                    section_id: string,
+                    listtype: string,
+                    ev: MouseEvent
+                  ) {
+                    if (this.onclick) {
+                      return this.onclick(ev, section_id, listtype);
+                    }
+                    return false;
+                  },
+                  section_id,
+                  this.listtype
+                ),
+              },
+              [btn_title]
+            )
+          );
+        }
+
+        L.dom.content(outputEl, children);
+
+        const fieldChildren: HTMLDivElement[] = [outputEl];
+
+        if (typeof this.description === "string" && this.description !== "") {
+          fieldChildren.push(
+            E("div", { class: "cbi-value-description" }, this.description)
+          );
+        }
+
+        const optionEl = E<HTMLDivElement>(
+          "div",
+          {
+            class: "cbi-value",
+            id: "cbi-%s-%s-%s".format(config_name, section_id, this.option),
+            "data-index": option_index,
+            "data-depends": depend_list,
+            "data-field": this.cbid(section_id),
+            "data-name": this.option,
+            "data-widget": this.__name__,
+          },
+          [
+            E(
+              "label",
+              {
+                class: "cbi-value-title",
+                for: "widget.cbid.%s.%s.%s".format(
+                  config_name,
+                  section_id,
+                  this.option
+                ),
+              },
+              [title]
+            ),
+            E("div", { class: "cbi-value-field" }, fieldChildren),
+          ]
+        );
+
+        if (depend_list && depend_list.length) {
+          optionEl.classList.add("hidden");
+        }
+
+        optionEl.addEventListener(
+          "widget-change",
+          L.bind(this.map.checkDepends, this.map)
+        );
+
+        L.dom.bindClassInstance(optionEl, this);
+
+        return optionEl;
+      }, this)
+    );
   },
   remove: function () {},
   write: function () {},
@@ -166,17 +223,17 @@ const CUSTOMListStatusValue = form.Value.extend({
 const CUSTOMRunningStatus = form.Value.extend({
   __name__: "CUSTOM.RunningStatus",
   pollStatus: function () {
-    poll.add(async function () {
+    poll.add(function () {
       const statusElement = document.getElementById("v2ray_status");
       if (!statusElement) return;
 
-      const res = await callRunningStatus();
-
-      if (res.code === 0) {
-        statusElement.innerHTML = _("Running");
-      } else {
-        statusElement.innerHTML = _("Not Running");
-      }
+      callRunningStatus().then(function (res) {
+        if (res.code === 0) {
+          statusElement.innerHTML = _("Running");
+        } else {
+          statusElement.innerHTML = _("Not Running");
+        }
+      });
     }, 5);
   },
   renderWidget: function () {

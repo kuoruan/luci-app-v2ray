@@ -11,11 +11,13 @@ type CustomTextValueProperties = {
 
 declare interface Custom extends LuCI.baseclass {
   TextValue: form.TextValue & CustomTextValueProperties;
+  RunningStatus: form.Value;
 }
 
 declare interface V2Ray extends LuCI.baseclass {
   getLocalIPs(): Promise<string[]>;
   getSections(type: string): Promise<SectionItem[]>;
+  getLanInterfaces(): Promise<SectionItem[]>;
   fileExist(path: string): Promise<boolean>;
 }
 

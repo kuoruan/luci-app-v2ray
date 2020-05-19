@@ -7,11 +7,14 @@
 "require view/v2ray/include/custom as custom";
 
 // @ts-ignore
-return L.view.extend<boolean>({
+return L.view.extend<[boolean, SectionItem[]]>({
   load: function () {
-    return v2ray.fileExist("/lib/libustream-ssl.so");
+    return Promise.all([
+      v2ray.fileExist("/lib/libustream-ssl.so"),
+      v2ray.getLanInterfaces(),
+    ]);
   },
-  render: function (sslSupported) {
+  render: function ([sslSupported = false, lanIfaces = []] = []) {
     const ssl_note = sslSupported
       ? ""
       : _("Please install %s or %s to enable list update.").format(
@@ -47,6 +50,9 @@ return L.view.extend<boolean>({
       _("LAN interfaces"),
       _("Enable proxy on selected interfaces.")
     );
+    for (const i of lanIfaces) {
+      o.value(i.value, i.caption);
+    }
 
     o = s.option(
       form.Flag,
