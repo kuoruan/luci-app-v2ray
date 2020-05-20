@@ -52,3 +52,5 @@ fi
 
 exit 0
 endef
+
+# call BuildPackage - OpenWrt buildroot signature
