@@ -11,7 +11,7 @@ PKG_VERSION:=2.0.0
 PKG_LICENSE:=MIT
 PKG_MAINTAINER:=Xingwang Liao <kuoruan@gmail.com>
 
-LUCI_TITLE:=LuCI support for V2Ray
+LUCI_TITLE:=LuCI support for v2ray
 LUCI_DEPENDS:=+jshn +luci-lib-jsonc +ip +ipset +iptables +iptables-mod-tproxy \
 	+resolveip +dnsmasq-full
 LUCI_PKGARCH:=all

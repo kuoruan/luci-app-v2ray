@@ -5,36 +5,62 @@
 check_running_status() {
 	local pid="$(cat /var/run/v2ray.main.pid 2>/dev/null)"
 
-	test -n "$pid" || return 1
+	if [ -z "$pid" ] ; then
+		echo '{ "code": 1 }'
+		return
+	fi
 
 	local file="$(uci -q get v2ray.main.v2ray_file)"
 
-	test -n "$file" || return 2
+	if [ -z "$file" ] ; then
+		echo '{ "code": 2 }'
+		return
+	fi
 
 	local file_name="$(basename "$file")"
 
-	pidof "$file_name" 2>/dev/null | grep -q "$pid"
+	if ( pidof "$file_name" 2>/dev/null | grep -q "$pid" ) ; then
+		echo '{ "code": 0 }'
+	else
+		echo '{ "code": 1 }'
+	fi
 }
 
 get_v2ray_version() {
 	local file="$(uci -q get v2ray.main.v2ray_file)"
 
-	test -s "$file" || return 2
+	if [ ! -s "$file" ] ; then
+		echo '{ "code": 1 }'
+		return
+	fi
+
 	test -x "$file" || chmod +x "$file"
 
-	sh -c "$file --version 2>/dev/null | head -n1"
+	local version="$(sh -c "$file --version 2>/dev/null | head -n1")"
+
+	printf '{ "code": 0, "version": "%s" }\n' "$version"
 }
 
-get_list_count() {
+get_list_status() {
 	local name="$1"
 
-	test -n "$name" || return 128
+	if [ -z "$name" ] ; then
+		echo '{ "code": 128 }'
+		return
+	fi
 
 	local file="/etc/v2ray/${name}.txt"
 
-	test -r "$file" || return 2
+	if [ ! -r "$file" ] ; then
+		echo '{ "code": 2 }'
+		return
+	fi
 
-	grep -v '^$' "$file" | wc -l
+	local count="$(grep -v '^$' "$file" | wc -l)"
+
+	local lastModifyTime="$(date -r "$file" '+%Y/%m/%d %H:%M:%S %Z')"
+
+	printf '{ "code": 0, "count": %d, "datetime": "%s" }\n' "$count" "$lastModifyTime"
 }
 
 case "$1" in
@@ -49,7 +75,7 @@ case "$1" in
 		json_add_object "v2rayVersion"
 		json_close_object
 
-		json_add_object "countList"
+		json_add_object "listStatus"
 		json_add_string "name" "String"
 		json_close_object
 
@@ -63,61 +89,22 @@ case "$1" in
 		case "$2" in
 			runningStatus)
 				check_running_status
-				code="$?"
-
-				json_set_namespace "v2ray_runningStatus" old_ns
-
-				json_init
-
-				json_add_int "code" "$code"
-
-				json_dump -i
-
-				json_cleanup
-
-				json_set_namespace "$old_ns"
 			;;
 			v2rayVersion)
-				version="$(get_v2ray_version)"
-				code="$?"
-
-				json_set_namespace "v2ray_v2rayVersion" old_ns
-
-				json_init
-
-				json_add_int "code" "$code"
-				json_add_string "version" "$version"
-
-				json_dump -i
-
-				json_cleanup
-
-				json_set_namespace "$old_ns"
+				get_v2ray_version
 			;;
-			countList)
+			listStatus)
 				read input;
 
-				json_set_namespace "v2ray_countList" old_ns
+				json_set_namespace "v2ray_listStatus" old_ns
 
 				json_load "$input"
-
 				json_get_var list_name "name"
-
-				json_cleanup
-
-				count="$(get_list_count "$list_name")"
-				code="$?"
-
-				json_init
-
-				json_add_int "code" "$code"
-				json_add_int "count" "$count"
-
-				json_dump -i
-
 				json_cleanup
 
 				json_set_namespace "$old_ns"
+
+				get_list_status "$list_name"
 			;;
 		esac
 	;;
