@@ -1,8 +1,11 @@
-name: Build and Push Sources
+name: Build and Push Package Sources
 on:
   push:
     branches:
-      - next
+      - master
+    tags-ignore:
+      - '*'
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -17,6 +20,9 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
+
+    - name: Lint test
+      run: yarn lint
 
     - name: Build
       run: |

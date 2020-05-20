@@ -1,0 +1,25 @@
+name: Build Test for Pull Request
+on: [pull_request]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+        fetch-depth: 2
+
+    - name: Setup node
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+
+    - name: Test
+      run: yarn lint
+
+    - name: Build
+      run: |
+        yarn install
+        yarn package
