@@ -5,10 +5,10 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=luci-app-v2ray
+PKG_NAME:=#{name}
 PKG_VERSION:=#{version}
 
-PKG_LICENSE:=MIT
+PKG_LICENSE:=#{license}
 PKG_MAINTAINER:=#{author}
 
 LUCI_TITLE:=#{description}
