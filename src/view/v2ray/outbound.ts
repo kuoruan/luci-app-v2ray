@@ -24,6 +24,7 @@ return L.view.extend<string[]>({
       const alias = uci.get("v2ray", section_id, "alias");
       return `${_("Outbound")} » ${alias ?? _("Add")}`;
     };
+    s.nodescriptions = true;
 
     s.tab("general", _("General Settings"));
     s.tab("stream", _("Stream Settings"));
@@ -32,22 +33,10 @@ return L.view.extend<string[]>({
     let o;
 
     /** General Settings **/
-    o = s.taboption(
-      "general",
-      form.Value,
-      "alias",
-      _("Alias"),
-      _("Any custom string")
-    );
+    o = s.taboption("general", form.Value, "alias", _("Alias"));
     o.rmempty = false;
 
-    o = s.taboption(
-      "general",
-      form.Value,
-      "send_through",
-      _("Send through"),
-      _("An IP address for sending traffic out.")
-    );
+    o = s.taboption("general", form.Value, "send_through", _("Send through"));
     o.datatype = "ipaddr";
     for (const IP of localIPs) {
       o.value(IP);

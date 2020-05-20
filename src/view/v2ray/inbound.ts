@@ -22,6 +22,7 @@ return L.view.extend<string[]>({
       const alias = uci.get("v2ray", section_id, "alias");
       return `${_("Inbound")} » ${alias ?? _("Add")}`;
     };
+    s.nodescriptions = true;
 
     s.tab("general", _("General Settings"));
     s.tab("stream", _("Stream Settings"));
