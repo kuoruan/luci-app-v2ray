@@ -17,7 +17,9 @@ jobs:
         node-version: '12.x'
 
     - name: Test
-      run: yarn lint
+      run: |
+        yarn install
+        yarn lint
 
     - name: Build
       run: |
