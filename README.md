@@ -56,10 +56,9 @@ opkg upgrade luci-i18n-v2ray-zh-cn
 opkg install luci-app-v2ray_*.ipk
 ```
 
-Depends:
+Dependencies:
 
 - jshn
-- luci-lib-jsonc
 - ip (ip-tiny or ip-full)
 - ipset
 - iptables
