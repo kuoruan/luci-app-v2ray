@@ -8,7 +8,7 @@ return L.Class.extend({
     const domainList: { [key: string]: boolean } = Object.create(null);
 
     for (const line of gfwlistLines) {
-      if (!line || /^[![@]/.test(line) || /^\d+\.{3}\d+/.test(line)) {
+      if (!line || /^[![@]/.test(line) || /^(\d+\.){3}\d+/.test(line)) {
         continue;
       }
 
@@ -20,7 +20,7 @@ return L.Class.extend({
       }
     }
 
-    return Object.keys(domainList).join("\n");
+    return Object.keys(domainList).join("\n") + "\n";
   },
 
   extractCHNRoute: function (
@@ -55,6 +55,6 @@ return L.Class.extend({
       }
     }
 
-    return ipList.join("\n");
+    return ipList.join("\n") + "\n";
   },
 });

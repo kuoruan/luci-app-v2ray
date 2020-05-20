@@ -83,9 +83,11 @@ const CUSTOMTextValue = form.TextValue.extend<
       try {
         obj = JSON.parse(value);
       } catch (e) {
-        if (!obj || typeof obj !== "object") {
-          return _("Invalid JSON content.");
-        }
+        obj = null;
+      }
+
+      if (!obj || typeof obj !== "object") {
+        return _("Invalid JSON content.");
       }
     }
 
@@ -101,7 +103,7 @@ const CUSTOMListStatusValue = form.AbstractValue.extend({
   btntitle: null,
   cfgvalue: function () {
     if (!this.listtype) {
-      L.error("TypeError", "List type is required");
+      L.error("TypeError", _("Listtype is required"));
     }
 
     return L.resolveDefault(callListStatus(this.listtype), {
@@ -231,9 +233,7 @@ const CUSTOMRunningStatus = form.AbstractValue.extend({
     }, 5);
   },
   load: function () {},
-  cfgvalue: function () {
-    return;
-  },
+  cfgvalue: function () {},
   render: function () {
     const status = E<HTMLSpanElement>(
       "span",
