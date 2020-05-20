@@ -9,23 +9,29 @@ type CustomTextValueProperties = {
   required: boolean;
 };
 
-declare interface Custom extends LuCI.baseclass {
+interface Custom extends LuCI.baseclass {
   TextValue: form.TextValue & CustomTextValueProperties;
   RunningStatus: form.Value;
 }
 
-declare interface V2Ray extends LuCI.baseclass {
+interface V2Ray extends LuCI.baseclass {
   getLocalIPs(): Promise<string[]>;
   getSections(type: string): Promise<SectionItem[]>;
   getLanInterfaces(): Promise<SectionItem[]>;
-  fileExist(path: string): Promise<boolean>;
+  getDokodemoDoorPorts(): Promise<SectionItem[]>;
 }
 
-declare interface Base64 extends LuCI.baseclass {
+interface Base64 extends LuCI.baseclass {
   encode(str: string): string;
-  edcode(str: string): string;
+  decode(str: string): string;
 }
 
+interface Converters extends LuCI.baseclass {
+  extractGFWList(gfwlist: string): string;
+  extractCHNRoute(delegatedlist: string, ipv6?: boolean): string;
+}
+
+declare const base64: Base64;
+declare const converters: Converters;
 declare const custom: Custom;
 declare const v2ray: V2Ray;
-declare const base64: Base64;

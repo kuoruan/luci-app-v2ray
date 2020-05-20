@@ -6,12 +6,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-v2ray
-PKG_VERSION:=2.0.0
+PKG_VERSION:=#{version}
 
 PKG_LICENSE:=MIT
-PKG_MAINTAINER:=Xingwang Liao <kuoruan@gmail.com>
+PKG_MAINTAINER:=#{author}
 
-LUCI_TITLE:=LuCI support for V2Ray
+LUCI_TITLE:=#{description}
 LUCI_DEPENDS:=+jshn +luci-lib-jsonc +ip +ipset +iptables +iptables-mod-tproxy \
 	+resolveip +dnsmasq-full
 LUCI_PKGARCH:=all

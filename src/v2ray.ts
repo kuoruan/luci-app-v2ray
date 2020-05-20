@@ -52,35 +52,46 @@ return L.Class.extend({
     type: string,
     captionKey: string = "alias"
   ): Promise<SectionItem[]> {
-    return uci
-      .load("v2ray")
-      .then(function () {
-        const sections: SectionItem[] = [];
+    return uci.load("v2ray").then(function () {
+      const sections: SectionItem[] = [];
 
-        uci.sections("v2ray", type, function (s: any) {
-          let caption: string;
-          if ((caption = s[captionKey])) {
-            sections.push({
-              caption: caption,
-              value: s[".name"],
-            });
-          }
-        });
-        return sections;
-      })
-      .catch(function () {
-        return [];
+      uci.sections("v2ray", type, function (s: uci.SectionObject) {
+        let caption: string;
+        if ((caption = s[captionKey])) {
+          sections.push({
+            caption: caption,
+            value: s[".name"],
+          });
+        }
       });
+      return sections;
+    });
   },
 
-  fileExist: function (path: string): Promise<boolean> {
-    return fs
-      .stat(path)
-      .then(function () {
-        return true;
-      })
-      .catch(function () {
-        return false;
+  getDokodemoDoorPorts: function (): Promise<SectionItem[]> {
+    return uci.load("v2ray").then(function () {
+      const sections: SectionItem[] = [];
+
+      uci.sections("v2ray", "inbound", function (s: uci.SectionObject) {
+        let port: string;
+        if (s["protocol"] == "dokodemo-door" && (port = s["port"])) {
+          let alias: string;
+
+          if ((alias = s["alias"])) {
+            sections.push({
+              caption: "%s - %s".format(alias, port),
+              value: port,
+            });
+          } else {
+            sections.push({
+              caption: "%s:%s".format(s["listen"], port),
+              value: port,
+            });
+          }
+        }
       });
+
+      return sections;
+    });
   },
 });

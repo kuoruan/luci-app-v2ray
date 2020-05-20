@@ -28,6 +28,7 @@ return L.view.extend<[string, string]>({
       E("h2", "%s - %s".format(_("V2Ray"), _("About"))),
       E("p", _("LuCI support for V2Ray.")),
       E("p", _("Author: %s").format("Xingwang Liao")),
+      E("p", _("Version: %s").format(process.env.LUCI_VERSION)),
       E(
         "p",
         _("Source: %s").format(

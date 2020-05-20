@@ -7,6 +7,11 @@
 "require rpc";
 "require ui";
 
+type ListStatus = {
+  count: number;
+  datetime: string;
+};
+
 const callRunningStatus = rpc.declare<{ code: number }>({
   object: "luci.v2ray",
   method: "runningStatus",
@@ -14,30 +19,22 @@ const callRunningStatus = rpc.declare<{ code: number }>({
   expect: { "": { code: 1 } },
 });
 
-const callCountList = rpc.declare<number, [string]>({
+const callListStatus = rpc.declare<ListStatus, [string]>({
   object: "luci.v2ray",
-  method: "countList",
+  method: "listStatus",
   params: ["name"],
-  expect: { "": { code: 1, count: 0 } },
-  filter: function (data: any) {
+  expect: { "": { code: 1 } },
+  filter: function (data: any): ListStatus {
     if (data.code === 0) {
-      return data.count;
+      return {
+        count: data.count,
+        datetime: data.datetime,
+      };
     }
-    return 0;
-  },
-});
-
-const callFileMTime = rpc.declare<string, [string]>({
-  object: "file",
-  method: "stat",
-  params: ["path"],
-  expect: { "": { mtime: 0 } },
-  filter: function (data: any) {
-    if (data.mtime) {
-      return new Date(data.mtime * 1000).toUTCString();
-    }
-
-    return _("Unknown");
+    return {
+      count: 0,
+      datetime: _("Unknown"),
+    };
   },
 });
 
@@ -85,95 +82,71 @@ const CUSTOMTextValue = form.TextValue.extend<
   },
 });
 
-type ListStatus = {
-  lines: number;
-  data: string;
-};
-
 const CUSTOMListStatusValue = form.AbstractValue.extend({
   __name__: "CUSTOM.ListStatusValue",
   listtype: null,
+  onupdate: null,
   btnstyle: "button",
   btntitle: null,
-  handleUpdateClick: function (ev: MouseEvent) {},
   cfgvalue: function () {
     if (!this.listtype) {
       L.error("TypeError", "List type is required");
     }
 
-    return Promise.all([
-      fs
-        .stat("/lib/libustream-ssl.so")
-        .then(() => true)
-        .catch(() => false),
-      callCountList(this.listtype),
-      callFileMTime(`/etc/v2ray/${this.listtype}.txt`),
-    ]);
+    return L.resolveDefault(callListStatus(this.listtype), {
+      count: 0,
+      datetime: _("Unknown"),
+    });
   },
   render: function (option_index: number, section_id: string) {
     return Promise.resolve(this.cfgvalue(section_id)).then(
-      L.bind(function ([
-        sslSupported = false,
-        count = 0,
-        modifyTime = "",
-      ] = []) {
+      L.bind(function ({ count = 0, datetime = "" } = {}) {
         const title = this.titleFn("title", section_id);
 
         const config_name =
           this.uciconfig || this.section.uciconfig || this.map.config;
         const depend_list = this.transformDepList(section_id);
 
-        const outputEl = E<HTMLDivElement>("div");
-
-        const children: (Node | string)[] = [
-          E(
-            "span",
-            {
-              style: "color: #ff8c00;margin-right: 5px;",
-            },
-            _("Total: %s").format(count)
-          ),
-          _("Time: %s").format(modifyTime),
-        ];
-
-        if (sslSupported) {
-          const btn_title =
-            this.titleFn("btntitle", section_id) ||
-            this.titleFn("title", section_id);
-
-          children.push(
-            E<HTMLButtonElement>(
+        const fieldChildren: HTMLDivElement[] = [
+          E("div", {}, [
+            E(
+              "span",
+              {
+                style: "color: #ff8c00;margin-right: 5px;",
+              },
+              _("Total: %s").format(count)
+            ),
+            _("Time: %s").format(datetime),
+            E(
               "button",
               {
+                style: "margin-left: 10px;",
                 class: "cbi-button cbi-button-%s".format(
                   this.btnstyle || "button"
                 ),
-                click: L.bind(this.handleUpdateClick, this),
+                click: ui.createHandlerFn(
+                  this,
+                  function (
+                    section_id: string,
+                    listtype: string,
+                    ev: MouseEvent
+                  ) {
+                    if (typeof this.onupdate === "function") {
+                      this.onupdate(ev, section_id, listtype);
+                    }
+                  },
+                  section_id,
+                  this.listtype
+                ),
               },
-              [btn_title]
-            )
-          );
-        }
+              this.titleFn("btntitle", section_id) || title
+            ),
+          ]),
+        ];
 
-        L.dom.content(outputEl, children);
-
-        const fieldChildren: HTMLDivElement[] = [outputEl];
-
-        if (
-          !sslSupported ||
-          (typeof this.description === "string" && this.description !== "")
-        ) {
+        if (typeof this.description === "string" && this.description !== "") {
           fieldChildren.push(
-            E(
-              "div",
-              { class: "cbi-value-description" },
-              sslSupported
-                ? this.description
-                : _("Please install %s or %s to enable list update.").format(
-                    "libustream-openssl",
-                    "libustream-mbedtls"
-                  )
-            )
+            E("div", { class: "cbi-value-description" }, this.description)
           );
         }
 
@@ -217,8 +190,7 @@ const CUSTOMListStatusValue = form.AbstractValue.extend({
         L.dom.bindClassInstance(optionEl, this);
 
         return optionEl;
-      },
-      this)
+      }, this)
     );
   },
   remove: function () {},

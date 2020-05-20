@@ -48,6 +48,8 @@ module.exports = {
     view: "readonly",
     xhr: "readonly",
 
+    base64: "readonly",
+    converters: "readonly",
     custom: "readonly",
     v2ray: "readonly",
   },

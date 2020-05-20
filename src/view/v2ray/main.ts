@@ -10,7 +10,7 @@
 
 // @ts-ignore
 return L.view.extend<SectionItem[][]>({
-  handleServiceReload: function (btn: HTMLElement, ev: Event) {
+  handleServiceReload: function (ev: MouseEvent) {
     return fs
       .exec("/etc/init.d/v2ray", ["reload"])
       .then(
