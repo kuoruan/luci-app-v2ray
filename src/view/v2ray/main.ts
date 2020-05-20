@@ -57,6 +57,8 @@ return L.view.extend<SectionItem[][]>({
     s.addremove = false;
     s.anonymous = true;
 
+    s.option(custom.RunningStatus, "_status");
+
     let o;
 
     o = s.option(form.Flag, "enabled", _("Enabled"));
@@ -76,7 +78,7 @@ return L.view.extend<SectionItem[][]>({
       form.Value,
       "v2ray_file",
       _("V2Ray file"),
-      "<em>%s</em>".format(_("Collecting data..."))
+      _("Set the V2Ray executable file path.")
     );
     o.datatype = "file";
     o.placeholder = "/usr/bin/v2ray";

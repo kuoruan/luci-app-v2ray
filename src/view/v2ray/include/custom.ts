@@ -4,6 +4,7 @@
 // "require dom";
 "require form";
 "require fs";
+// "require poll";
 "require rpc";
 "require ui";
 
@@ -35,6 +36,16 @@ const callListStatus = rpc.declare<ListStatus, [string]>({
       count: 0,
       datetime: _("Unknown"),
     };
+  },
+});
+
+const callV2RayVersion = rpc.declare<string>({
+  object: "luci.v2ray",
+  method: "v2rayVersion",
+  params: [],
+  expect: { "": { code: 1 } },
+  filter: function (data: any): string {
+    return data.code ? "" : data.version;
   },
 });
 
@@ -197,32 +208,47 @@ const CUSTOMListStatusValue = form.AbstractValue.extend({
   write: function () {},
 });
 
-const CUSTOMRunningStatus = form.Value.extend({
+const CUSTOMRunningStatus = form.AbstractValue.extend({
   __name__: "CUSTOM.RunningStatus",
-  pollStatus: function () {
-    poll.add(function () {
-      const statusElement = document.getElementById("v2ray_status");
-      if (!statusElement) return;
+  fetchVersion: function (node: HTMLElement) {
+    L.resolveDefault(callV2RayVersion(), "").then(function (version: string) {
+      L.dom.content(
+        node,
+        version
+          ? _("Version: %s").format(version)
+          : E("em", { style: "color: red;" }, _("Unable to get V2Ray version."))
+      );
+    });
+  },
+  pollStatus: function (node: HTMLElement) {
+    const notRunning = E("span", { style: "color: red;" }, _("Not Running"));
+    const running = E("span", { style: "color: green;" }, _("Running"));
 
-      callRunningStatus().then(function (res) {
-        if (res.code === 0) {
-          statusElement.innerHTML = _("Running");
-        } else {
-          statusElement.innerHTML = _("Not Running");
-        }
+    L.Poll.add(function () {
+      L.resolveDefault(callRunningStatus(), { code: 0 }).then(function (res) {
+        L.dom.content(node, res.code ? notRunning : running);
       });
     }, 5);
   },
-  renderWidget: function () {
-    this.pollStatus();
-
-    return E(
-      "div",
-      {
-        id: "v2ray_status",
-      },
+  load: function () {},
+  cfgvalue: function () {
+    return;
+  },
+  render: function () {
+    const status = E<HTMLSpanElement>(
+      "span",
+      {},
       E("em", {}, _("Collecting data..."))
     );
+
+    const version = E<HTMLSpanElement>("span", {
+      style: "margin-left: 10px;",
+    });
+
+    this.pollStatus(status);
+    this.fetchVersion(version);
+
+    return E("div", {}, [status, version]);
   },
   remove: function () {},
   write: function () {},
