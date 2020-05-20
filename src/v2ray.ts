@@ -8,23 +8,19 @@
 // @ts-ignore
 return L.Class.extend({
   getLocalIPs: function (): Promise<string[]> {
-    return network.getDevices().then(function (devices: network.Device[]) {
+    return network.getNetworks().then(function (networks: network.Protocol[]) {
       const localIPs: string[] = ["127.0.0.1", "0.0.0.0", "::"];
 
-      for (const d of devices) {
-        const IPv4s = d.getIPAddrs();
-        const IPv6s = d.getIP6Addrs();
+      for (const n of networks) {
+        let IPv4 = n.getIPAddr();
+        let IPv6 = n.getIP6Addr();
 
-        for (const IPv4 of IPv4s) {
-          if (IPv4 && localIPs.indexOf(IPv4) < 0) {
-            localIPs.push(IPv4);
-          }
+        if (IPv4 && (IPv4 = IPv4.split("/")[0]) && localIPs.indexOf(IPv4) < 0) {
+          localIPs.push(IPv4);
         }
 
-        for (const IPv6 of IPv6s) {
-          if (IPv6 && localIPs.indexOf(IPv6) < 0) {
-            localIPs.push(IPv6);
-          }
+        if (IPv6 && (IPv6 = IPv6.split("/")[0]) && localIPs.indexOf(IPv6) < 0) {
+          localIPs.push(IPv6);
         }
       }
 
