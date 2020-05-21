@@ -223,8 +223,8 @@ const CUSTOMRunningStatus = form.AbstractValue.extend({
     });
   },
   pollStatus: function (node: HTMLElement) {
-    const notRunning = E("span", { style: "color: red;" }, _("Not Running"));
-    const running = E("span", { style: "color: green;" }, _("Running"));
+    const notRunning = E("em", { style: "color: red;" }, _("Not Running"));
+    const running = E("em", { style: "color: green;" }, _("Running"));
 
     L.Poll.add(function () {
       L.resolveDefault(callRunningStatus(), { code: 0 }).then(function (res) {
@@ -240,24 +240,17 @@ const CUSTOMRunningStatus = form.AbstractValue.extend({
     const status = E<HTMLSpanElement>(
       "span",
       {
-        style: "margin-left: 10px",
+        style: "margin-left: 5px",
       },
       E("em", {}, _("Collecting data..."))
     );
 
-    const version = E<HTMLSpanElement>("span", {
-      style: "margin-left: 10px;",
-    });
+    const version = E<HTMLSpanElement>("span", {}, _("Getting..."));
 
     this.pollStatus(status);
     this.fetchVersion(version);
 
-    return E("div", { style: "padding: 10px 0;" }, [
-      title,
-      status,
-      " / ",
-      version,
-    ]);
+    return E("div", { class: "cbi-value" }, [title, status, " / ", version]);
   },
   remove: function () {},
   write: function () {},
