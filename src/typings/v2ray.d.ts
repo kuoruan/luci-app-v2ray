@@ -12,6 +12,7 @@ type CustomTextValueProperties = {
 interface Custom extends LuCI.baseclass {
   TextValue: form.TextValue & CustomTextValueProperties;
   RunningStatus: form.AbstractValue;
+  OutboundImport: form.AbstractValue;
 }
 
 interface V2Ray extends LuCI.baseclass {

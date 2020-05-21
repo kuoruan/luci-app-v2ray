@@ -26,6 +26,8 @@ return L.view.extend<string[]>({
     };
     s.nodescriptions = true;
 
+    s.option(custom.OutboundImport, "_import", _("Import"));
+
     s.tab("general", _("General Settings"));
     s.tab("stream", _("Stream Settings"));
     s.tab("other", _("Other Settings"));

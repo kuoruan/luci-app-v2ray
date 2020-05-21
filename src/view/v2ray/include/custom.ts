@@ -235,9 +235,13 @@ const CUSTOMRunningStatus = form.AbstractValue.extend({
   load: function () {},
   cfgvalue: function () {},
   render: function () {
+    const title = this.titleFn("title");
+
     const status = E<HTMLSpanElement>(
       "span",
-      {},
+      {
+        style: "margin-left: 10px",
+      },
       E("em", {}, _("Collecting data..."))
     );
 
@@ -248,7 +252,81 @@ const CUSTOMRunningStatus = form.AbstractValue.extend({
     this.pollStatus(status);
     this.fetchVersion(version);
 
-    return E("div", {}, [status, version]);
+    return E("div", { style: "padding: 10px 0;" }, [
+      title,
+      status,
+      " / ",
+      version,
+    ]);
+  },
+  remove: function () {},
+  write: function () {},
+});
+
+const CUSTOMOutboundImport = form.AbstractValue.extend({
+  __name__: "CUSTOM.OutboundImport",
+  btnstyle: null,
+  handleModalSave: function (textarea: ui.Textarea) {
+    textarea.triggerValidation();
+
+    if (textarea.isValid()) {
+      console.log(textarea.getValue());
+    }
+  },
+  handleImportClick: function () {
+    const textarea = new ui.Textarea("", {
+      rows: 10,
+      validator: function () {
+        return true;
+      },
+    });
+
+    ui.showModal(
+      _("Import multiple vmess:// links at once. One link per line."),
+      [
+        E("div", {}, textarea.render()),
+        E("div", { class: "right" }, [
+          E(
+            "button",
+            {
+              class: "btn",
+              click: ui.hideModal,
+            },
+            _("Dismiss")
+          ),
+          " ",
+          E(
+            "button",
+            {
+              class: "cbi-button cbi-button-positive important",
+              click: ui.createHandlerFn(this, this.handleModalSave, textarea),
+            },
+            _("Save")
+          ),
+        ]),
+      ]
+    );
+  },
+  load: function () {},
+  cfgvalue: function () {},
+  render: function (__: number, section_id: string) {
+    const title = this.titleFn("title", section_id);
+
+    return E("div", {}, [
+      E(
+        "button",
+        {
+          class: "cbi-button cbi-button-%s".format(this.btnstyle || "button"),
+          click: L.bind(this.handleImportClick, this),
+        },
+        title
+      ),
+      E(
+        "span",
+        { style: "margin-left: 10px" },
+        _("Allowed link format: <code>%s</code>").format("vmess://xxxxx")
+      ),
+    ]);
   },
   remove: function () {},
   write: function () {},
@@ -259,4 +337,5 @@ return L.Class.extend({
   TextValue: CUSTOMTextValue,
   ListStatusValue: CUSTOMListStatusValue,
   RunningStatus: CUSTOMRunningStatus,
+  OutboundImport: CUSTOMOutboundImport,
 });
