@@ -270,6 +270,7 @@ const CUSTOMOutboundImport = form.AbstractValue.extend({
     const textarea = new ui.Textarea("", {
       rows: 10,
       validator: function () {
+        console.log(arguments);
         return true;
       },
     });
@@ -305,21 +306,27 @@ const CUSTOMOutboundImport = form.AbstractValue.extend({
   render: function (__: number, section_id: string) {
     const title = this.titleFn("title", section_id);
 
-    return E("div", {}, [
-      E(
-        "button",
-        {
-          class: "cbi-button cbi-button-%s".format(this.btnstyle || "button"),
-          click: L.bind(this.handleImportClick, this),
-        },
-        title
-      ),
-      E(
-        "span",
-        { style: "margin-left: 10px" },
-        _("Allowed link format: <code>%s</code>").format("vmess://xxxxx")
-      ),
-    ]);
+    return E(
+      "div",
+      {
+        class: "cbi-value",
+      },
+      [
+        E(
+          "button",
+          {
+            class: "cbi-button cbi-button-%s".format(this.btnstyle || "button"),
+            click: L.bind(this.handleImportClick, this),
+          },
+          title
+        ),
+        E(
+          "span",
+          { style: "margin-left: 10px" },
+          _("Allowed link format: <code>%s</code>").format("vmess://xxxxx")
+        ),
+      ]
+    );
   },
   remove: function () {},
   write: function () {},

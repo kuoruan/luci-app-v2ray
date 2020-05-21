@@ -5,6 +5,8 @@
 "require v2ray";
 // "require view";
 
+"require view/v2ray/include/custom as custom";
+
 // @ts-ignore
 return L.view.extend<string[]>({
   load: function () {
@@ -16,6 +18,15 @@ return L.view.extend<string[]>({
       "%s - %s".format(_("V2Ray"), _("Outbound"))
     );
 
+    const outboundImport = new custom.OutboundImport(
+      m,
+      Object.create(null),
+      "_import",
+      _("Import")
+    );
+
+    m.append(outboundImport);
+
     const s = m.section(form.GridSection, "outbound");
     s.anonymous = true;
     s.addremove = true;
@@ -25,8 +36,6 @@ return L.view.extend<string[]>({
       return `${_("Outbound")} » ${alias ?? _("Add")}`;
     };
     s.nodescriptions = true;
-
-    s.option(custom.OutboundImport, "_import", _("Import"));
 
     s.tab("general", _("General Settings"));
     s.tab("stream", _("Stream Settings"));
