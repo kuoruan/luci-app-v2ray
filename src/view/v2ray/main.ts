@@ -57,7 +57,7 @@ return L.view.extend<SectionItem[][]>({
     s.addremove = false;
     s.anonymous = true;
 
-    s.option(custom.RunningStatus, "_status", _("Status:"));
+    s.option(custom.RunningStatus, "_status");
 
     let o;
 

@@ -3,6 +3,7 @@
 "require form";
 "require fs";
 // "require request";
+"require rpc";
 "require uci";
 "require ui";
 "require v2ray";
@@ -36,31 +37,51 @@ return L.view.extend<[SectionItem[], SectionItem[]]>({
           uci.get<string>("v2ray", section_id, "gfwlist_mirror") || "github";
         const url = gfwlistUrls[gfwlistMirror];
 
-        L.Request.get(url).then(function (res: LuCI.response) {
-          if (res.status === 200) {
-            let content = res.text();
-            if (content && (content = content.replace(/\r?\n/g, ""))) {
-              let gfwlist: string;
-              try {
-                gfwlist = base64.decode(content);
-              } catch (e) {
-                console.log(e);
-                gfwlist = "";
-              }
-              const gfwlistDomains = converters.extractGFWList(gfwlist);
+        L.Request.request(L.url("admin/services/v2ray/request"), {
+          method: "post",
+          timeout: 50 * 1000,
+          query: {
+            url: url,
+            token: L.env.token,
+            sessionid: L.env.sessionid,
+          },
+        })
+          .then(function (res: LuCI.response) {
+            let data;
+            if (res.status === 200 && (data = res.json())) {
+              let content;
+              if (
+                !data.code &&
+                (content = data.content) &&
+                (content = content.replace(/\r?\n/g, ""))
+              ) {
+                let gfwlist: string;
+                try {
+                  gfwlist = base64.decode(content);
+                } catch (e) {
+                  gfwlist = "";
+                }
+                if (!gfwlist) {
+                  L.raise("Error", "Failed to decode GFWList.");
+                } else {
+                  const gfwlistDomains = converters.extractGFWList(gfwlist);
 
-              fs.write("/etc/v2ray/gfwlist.txt", gfwlistDomains)
-                .then(function () {
-                  ui.addNotification(null, E("p", _("List updated.")));
-                })
-                .catch(L.raise);
+                  fs.write("/etc/v2ray/gfwlist.txt", gfwlistDomains)
+                    .then(function () {
+                      ui.showModal(null, E("p", _("GFWList updated.")));
+                    })
+                    .catch(L.raise);
+                }
+              } else {
+                L.raise("Error", data.message || _("Failed to fetch GFWList."));
+              }
             } else {
-              L.raise("Error", _("Failed to fetch GFWList."));
+              L.raise("Error", res.statusText);
             }
-          } else {
-            ui.addNotification(null, E("p", res.statusText));
-          }
-        });
+          })
+          .catch(function (e) {
+            ui.addNotification(null, E("p", e.message));
+          });
 
         break;
       }
@@ -72,27 +93,43 @@ return L.view.extend<[SectionItem[], SectionItem[]]>({
 
         const url = apnicDelegatedUrls[delegatedMirror];
 
-        L.Request.get(url).then(function (res: LuCI.response) {
-          if (res.status === 200) {
-            let content: string;
-            if ((content = res.text())) {
-              const ipList = converters.extractCHNRoute(
-                content,
-                listtype === "chnroute6"
-              );
+        L.Request.request(L.url("admin/services/v2ray/request"), {
+          method: "post",
+          timeout: 50 * 1000,
+          query: {
+            url: url,
+            token: L.env.token,
+            sessionid: L.env.sessionid,
+          },
+        })
+          .then(function (res: LuCI.response) {
+            let data;
+            if (res.status === 200 && (data = res.json())) {
+              let content;
+              if ((content = data.content)) {
+                const ipList = converters.extractCHNRoute(
+                  content,
+                  listtype === "chnroute6"
+                );
 
-              fs.write(`/etc/v2ray/${listtype}.txt`, ipList)
-                .then(function () {
-                  ui.addNotification(null, E("p", _("List updated.")));
-                })
-                .catch(L.raise);
+                fs.write(`/etc/v2ray/${listtype}.txt`, ipList)
+                  .then(function () {
+                    ui.showModal(null, E("p", _("CHNRoute list updated.")));
+                  })
+                  .catch(L.raise);
+              } else {
+                L.raise(
+                  "Error",
+                  data.message || _("Failed to fetch CHNRoute list..")
+                );
+              }
             } else {
-              L.raise("Error", _("Failed to fetch CHNRoute list."));
+              L.raise("Error", res.statusText);
             }
-          } else {
-            ui.addNotification(null, E("p", res.statusText));
-          }
-        });
+          })
+          .catch(function (e) {
+            ui.addNotification(null, E("p", e.message));
+          });
         break;
       }
 

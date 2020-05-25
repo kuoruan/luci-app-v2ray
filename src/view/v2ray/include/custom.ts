@@ -235,8 +235,6 @@ const CUSTOMRunningStatus = form.AbstractValue.extend({
   load: function () {},
   cfgvalue: function () {},
   render: function () {
-    const title = this.titleFn("title");
-
     const status = E<HTMLSpanElement>(
       "span",
       {
@@ -250,7 +248,7 @@ const CUSTOMRunningStatus = form.AbstractValue.extend({
     this.pollStatus(status);
     this.fetchVersion(version);
 
-    return E("div", { class: "cbi-value" }, [title, status, " / ", version]);
+    return E("div", { class: "cbi-value" }, [status, " / ", version]);
   },
   remove: function () {},
   write: function () {},

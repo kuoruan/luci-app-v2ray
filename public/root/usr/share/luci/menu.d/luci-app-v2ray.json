@@ -85,5 +85,12 @@
       "type": "view",
       "path": "v2ray/about"
     }
+  },
+  "admin/services/v2ray/request": {
+    "action": {
+      "type": "call",
+      "module": "luci.controller.v2ray",
+      "function": "action_request"
+    }
   }
 }
