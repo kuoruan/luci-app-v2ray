@@ -8,11 +8,11 @@ return L.Class.extend({
     const domainList: { [key: string]: boolean } = Object.create(null);
 
     for (const line of gfwlistLines) {
-      if (!line || /^[![@]/.test(line) || /^(\d+\.){3}\d+/.test(line)) {
+      if (!line || /^[![@]/.test(line) || /(\d+\.){3}\d+/.test(line)) {
         continue;
       }
 
-      const matches = line.match(/\w[\w-_]+\.\w[\w.-_]+/);
+      const matches = line.match(/\w[\w-]*\.\w[\w\-.]*/);
 
       let domain: string;
       if (matches && (domain = matches[0])) {
@@ -20,7 +20,7 @@ return L.Class.extend({
       }
     }
 
-    return Object.keys(domainList).join("\n") + "\n";
+    return Object.keys(domainList).sort().join("\n") + "\n";
   },
 
   extractCHNRoute: function (

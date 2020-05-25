@@ -37,6 +37,7 @@
 1mobile.tw
 1pondo.tv
 2-hand.info
+2.bahamut.com.tw
 2000fun.com
 2008xianzhang.info
 2017.hk
@@ -98,7 +99,6 @@
 7capture.com
 7cow.com
 8-d.com
-85.17.73.31
 85cc.net
 85cc.us
 85st.com
@@ -396,7 +396,6 @@ backtotiananmen.com
 badiucao.com
 badjojo.com
 badoo.com
-bahamut.com.tw
 baidu.jp
 baijie.org
 bailandaily.com
@@ -1226,7 +1225,6 @@ dmm.co.jp
 dns-dns.com
 dns-stuff.com
 dns.google
-dns.v2ex.com
 dns04.com
 dns05.com
 dns1.us
@@ -1772,6 +1770,7 @@ fzh999.net
 fzlm.com
 g-area.org
 g-queen.com
+g.co
 g0v.social
 g6hentai.com
 gabocorp.com
@@ -2338,6 +2337,7 @@ hyperrate.com
 i-cable.com
 i-part.com.tw
 i-scmp.com
+i.lithium.com
 i1.hk
 i2p2.de
 i2runner.com
@@ -2361,7 +2361,6 @@ iconpaper.org
 icu-project.org
 id.hao123.com
 id.heroku.com
-idaiwan.com
 iddddg.com
 idemocracy.asia
 identi.ca
@@ -2515,6 +2514,7 @@ iyouport.com
 izaobao.us
 izles.net
 izlesem.org
+j.mp
 ja.wikipedia.org
 jamaat.org
 jamyangnorbu.com
@@ -2630,7 +2630,6 @@ karayou.com
 karkhung.com
 karmapa-teachings.org
 karmapa.org
-kastatus.com
 kawaiikawaii.jp
 kawase.com
 kb.monitorware.com
@@ -2782,7 +2781,6 @@ liquidvpn.com
 listentoyoutube.com
 listorious.com
 lists.w3.org
-lithium.com
 liu-xiaobo.org
 liudejun.com
 liuhanyu.com
@@ -2843,6 +2841,10 @@ lvv2.com
 lyfhk.net
 lzmtnews.org
 m-team.cc
+m.hkgalden.com
+m.me
+m.plixi.com
+m.slandr.net
 ma.hao123.com
 macgamestore.com
 macrovpn.com
@@ -3412,7 +3414,6 @@ orgfree.com
 orient-doll.com
 orientaldaily.com.my
 orn.jp
-orzdream.com
 orzistic.org
 osfoora.com
 otcbtc.com
@@ -3562,7 +3563,6 @@ player.fm
 playno1.com
 playpcesor.com
 plays.com.tw
-plixi.com
 plm.org.hk
 plunder.com
 plurk.com
@@ -4045,7 +4045,6 @@ skyking.com.tw
 skyvegas.com
 skyxvpn.com
 slacker.com
-slandr.net
 slaytizle.com
 sleazydream.com
 slheng.com
@@ -4259,6 +4258,9 @@ sytes.net
 szbbs.net
 szetowah.org.hk
 t-g.com
+t.co
+t.me
+t.orzdream.com
 t35.com
 t66y.com
 taa-usa.org
@@ -5004,6 +5006,7 @@ vrsmash.com
 vtunnel.com
 vuku.cc
 vultryhw.com
+w.idaiwan.com
 w3schools.com
 waffle1999.com
 wahas.com
@@ -5212,7 +5215,6 @@ www.dwheeler.com
 www.eastturkistan.net
 www.gmiddle.com
 www.gmiddle.net
-www.gnu.org
 www.hustlercash.com
 www.idlcoyote.com
 www.imdb.com
@@ -5252,6 +5254,7 @@ wzyboy.im
 x-art.com
 x-berry.com
 x-wall.org
+x.company
 x1949x.com
 x24hr.com
 x365x.com
