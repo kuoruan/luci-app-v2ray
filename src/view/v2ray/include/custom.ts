@@ -8,6 +8,8 @@
 "require rpc";
 "require ui";
 
+"require view/v2ray/tools/base64 as base64";
+
 type ListStatus = {
   count: number;
   datetime: string;
@@ -260,15 +262,62 @@ const CUSTOMOutboundImport = form.AbstractValue.extend({
   handleModalSave: function (textarea: ui.Textarea) {
     textarea.triggerValidation();
 
-    if (textarea.isValid()) {
-      console.log(textarea.getValue());
+    let val: string;
+    if (
+      textarea.isValid() &&
+      (val = String(textarea.getValue())) &&
+      (val = val.trim())
+    ) {
+      const links = val.split(/\r?\n/);
+
+      let linksCount = 0;
+      for (const l of links) {
+        let url;
+        if (!l || (url = l.trim()) || !/^vmess:\/\/\S+$/.test(url)) {
+          continue;
+        }
+
+        let vmess;
+        try {
+          vmess = base64.decode(url.substring(8));
+        } catch (e) {
+          vmess = "";
+        }
+
+        if (!vmess) continue;
+
+        let obj: object | null;
+        try {
+          obj = JSON.parse(vmess);
+        } catch (e) {
+          obj = null;
+        }
+
+        if (!obj) continue;
+
+        linksCount++;
+      }
+
+      if (linksCount > 0) {
+        ui.showModal(
+          _("Links imported."),
+          E("p", {}, _("Imported %d links.").format(links))
+        );
+      }
     }
   },
   handleImportClick: function () {
     const textarea = new ui.Textarea("", {
       rows: 10,
-      validator: function () {
-        console.log(arguments);
+      validate: function (val: string) {
+        if (!val) {
+          return _("Empty field.");
+        }
+
+        if (!/^(vmess:\/\/[\w+=]+\s*)+$/.test(val)) {
+          return _("Invalid links.");
+        }
+
         return true;
       },
     });
