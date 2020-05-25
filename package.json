@@ -13,9 +13,9 @@
     "i18n:sync": "gulp i18n:sync"
   },
   "devDependencies": {
-    "@kuoruan/luci-types": "^1.1.1",
-    "@typescript-eslint/eslint-plugin": "^2.34.0",
-    "@typescript-eslint/parser": "^2.34.0",
+    "@kuoruan/luci-types": "^1.1.2",
+    "@typescript-eslint/eslint-plugin": "^3.0.0",
+    "@typescript-eslint/parser": "^3.0.0",
     "eslint": "^7.1.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.3",
