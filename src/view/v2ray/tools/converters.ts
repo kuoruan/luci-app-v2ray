@@ -80,10 +80,18 @@ return L.Class.extend({
       return null;
     }
 
-    let vmess: Vmess | null;
-
+    let decoded: string;
     try {
-      vmess = base64.decode(matches[1]);
+      decoded = base64.decode(matches[1]);
+    } catch (e) {
+      decoded = "";
+    }
+
+    if (!decoded) return null;
+
+    let vmess: Vmess | null;
+    try {
+      vmess = JSON.parse(decoded);
     } catch (e) {
       vmess = null;
     }
