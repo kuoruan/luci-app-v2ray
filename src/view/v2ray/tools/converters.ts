@@ -1,9 +1,20 @@
 "use strict";
 
+"require view/v2ray/tools/base64 as base64";
+
 // @ts-ignore
 return L.Class.extend({
   extractGFWList: function (gfwlist: string): string {
-    const gfwlistLines = gfwlist.split(/\r?\n/);
+    let decoded: string;
+    try {
+      decoded = base64.decode(gfwlist.replace(/\r?\n/g, ""));
+    } catch (e) {
+      decoded = "";
+    }
+
+    if (!decoded) return "";
+
+    const gfwlistLines = decoded.split(/\r?\n/);
 
     const domainList: { [key: string]: boolean } = Object.create(null);
 
@@ -12,7 +23,7 @@ return L.Class.extend({
         continue;
       }
 
-      const matches = line.match(/\w[\w-]*\.\w[\w\-.]*/);
+      const matches = line.match(/\w[\w-]*\.\w[\w\-.]+/);
 
       let domain: string;
       if (matches && (domain = matches[0])) {
@@ -56,5 +67,27 @@ return L.Class.extend({
     }
 
     return ipList.join("\n") + "\n";
+  },
+
+  vmessLinkToVmess(link: string): Vmess | null {
+    let matches;
+    if (
+      !link ||
+      !(link = link.trim()) ||
+      !(matches = link.match(/^vmess:\/\/([a-zA-Z0-9/+]+={0,2})$/i)) ||
+      matches.length < 2
+    ) {
+      return null;
+    }
+
+    let vmess: Vmess | null;
+
+    try {
+      vmess = base64.decode(matches[1]);
+    } catch (e) {
+      vmess = null;
+    }
+
+    return vmess;
   },
 });

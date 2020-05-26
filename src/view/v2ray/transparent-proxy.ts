@@ -10,7 +10,6 @@
 // "require view";
 
 "require view/v2ray/include/custom as custom";
-"require view/v2ray/tools/base64 as base64";
 "require view/v2ray/tools/converters as converters";
 
 const gfwlistUrls = {
@@ -50,27 +49,16 @@ return L.view.extend<[SectionItem[], SectionItem[]]>({
             let data;
             if (res.status === 200 && (data = res.json())) {
               let content;
-              if (
-                !data.code &&
-                (content = data.content) &&
-                (content = content.replace(/\r?\n/g, ""))
-              ) {
-                let gfwlist: string;
-                try {
-                  gfwlist = base64.decode(content);
-                } catch (e) {
-                  gfwlist = "";
-                }
-                if (!gfwlist) {
-                  L.raise("Error", "Failed to decode GFWList.");
-                } else {
-                  const gfwlistDomains = converters.extractGFWList(gfwlist);
-
+              if (!data.code && (content = data.content)) {
+                const gfwlistDomains = converters.extractGFWList(content);
+                if (gfwlistDomains) {
                   fs.write("/etc/v2ray/gfwlist.txt", gfwlistDomains)
                     .then(function () {
                       ui.showModal(null, E("p", _("GFWList updated.")));
                     })
                     .catch(L.raise);
+                } else {
+                  L.raise("Error", _("Failed to decode GFWList."));
                 }
               } else {
                 L.raise("Error", data.message || _("Failed to fetch GFWList."));

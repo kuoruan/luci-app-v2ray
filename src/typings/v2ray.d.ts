@@ -9,6 +9,20 @@ type CustomTextValueProperties = {
   required: boolean;
 };
 
+type Vmess = {
+  v: string;
+  ps: string;
+  add: string;
+  port: string;
+  id: string;
+  aid: string;
+  net: "tcp" | "kcp" | "mkcp" | "ws" | "http" | "h2" | "quic";
+  type: "none" | "http" | "srtp" | "utp" | "wechat-video";
+  host: string;
+  path: string;
+  tls: string;
+};
+
 interface Custom extends LuCI.baseclass {
   TextValue: form.TextValue & CustomTextValueProperties;
   RunningStatus: form.AbstractValue;
@@ -30,6 +44,7 @@ interface Base64 extends LuCI.baseclass {
 interface Converters extends LuCI.baseclass {
   extractGFWList(gfwlist: string): string;
   extractCHNRoute(delegatedlist: string, ipv6?: boolean): string;
+  vmessLinkToVmess(link: string): Vmess | null;
 }
 
 declare const base64: Base64;

@@ -6,9 +6,10 @@
 "require fs";
 // "require poll";
 "require rpc";
+"require uci";
 "require ui";
 
-"require view/v2ray/tools/base64 as base64";
+"require view/v2ray/tools/converters as converters";
 
 type ListStatus = {
   count: number;
@@ -271,39 +272,134 @@ const CUSTOMOutboundImport = form.AbstractValue.extend({
       const links = val.split(/\r?\n/);
 
       let linksCount = 0;
-      for (const l of links) {
-        let url;
-        if (!l || (url = l.trim()) || !/^vmess:\/\/\S+$/.test(url)) {
+      for (const link of links) {
+        let vmess;
+        if (
+          !link ||
+          !(vmess = converters.vmessLinkToVmess(link)) ||
+          vmess.v !== "2"
+        ) {
           continue;
         }
 
-        let vmess;
-        try {
-          vmess = base64.decode(url.substring(8));
-        } catch (e) {
-          vmess = "";
+        const sid = uci.add("v2ray", "outbound");
+        if (!sid) continue;
+
+        const address = vmess.add || "0.0.0.0";
+        const port = vmess.port || "0";
+        const tls = vmess.tls || "";
+
+        const network = vmess.net || "";
+        const headerType = vmess.type || "";
+        const path = vmess.path || "";
+
+        const alias = vmess.ps || "%s:%s".format(address, port);
+
+        uci.set("v2ray", sid, "alias", alias);
+        uci.set("v2ray", sid, "protocol", "vmess");
+        uci.set("v2ray", sid, "s_vmess_address", address);
+        uci.set("v2ray", sid, "s_vmess_port", port);
+        uci.set("v2ray", sid, "s_vmess_user_id", vmess.id || "");
+        uci.set("v2ray", sid, "s_vmess_user_alter_id", vmess.aid || "");
+        uci.set("v2ray", sid, "ss_security", tls);
+
+        let hosts: string[] = [];
+        if (vmess.host) {
+          hosts = vmess.host.split(",");
         }
 
-        if (!vmess) continue;
+        switch (network) {
+          case "tcp": {
+            uci.set("v2ray", sid, "ss_network", "tcp");
+            uci.set("v2ray", sid, "ss_tcp_header_type", headerType);
 
-        let obj: object | null;
-        try {
-          obj = JSON.parse(vmess);
-        } catch (e) {
-          obj = null;
+            if (headerType === "http" && hosts.length > 0) {
+              uci.set("v2ray", sid, "ss_tcp_header_request_headers", [
+                "Host=%s".format(hosts[0]),
+              ]);
+
+              if (tls === "tls") {
+                uci.set("v2ray", sid, "ss_tls_server_name", hosts[0]);
+              }
+            }
+            break;
+          }
+
+          case "kcp":
+          case "mkcp": {
+            uci.set("v2ray", sid, "ss_network", "kcp");
+            uci.set("v2ray", sid, "ss_kcp_header_type", headerType);
+            break;
+          }
+
+          case "ws": {
+            uci.set("v2ray", sid, "ss_network", "ws");
+            uci.set("v2ray", sid, "ss_websocket_path", path);
+            break;
+          }
+
+          case "http":
+          case "h2": {
+            uci.set("v2ray", sid, "ss_network", "http");
+            uci.set("v2ray", sid, "ss_http_path", path);
+
+            if (hosts.length > 0) {
+              uci.set("v2ray", sid, "ss_http_host", hosts);
+              uci.set("v2ray", sid, "ss_tls_server_name", hosts[0]);
+            }
+            break;
+          }
+
+          case "quic": {
+            uci.set("v2ray", sid, "ss_network", "quic");
+            uci.set("v2ray", sid, "ss_quic_header_type", headerType);
+            uci.set("v2ray", sid, "ss_quic_key", path);
+
+            if (hosts.length > 0) {
+              uci.set("v2ray", sid, "ss_quic_security", hosts[0]);
+
+              if (tls === "tls") {
+                uci.set("v2ray", sid, "ss_tls_server_name", hosts[0]);
+              }
+            }
+
+            break;
+          }
+
+          default: {
+            uci.remove("v2ray", sid);
+            continue;
+          }
         }
-
-        if (!obj) continue;
 
         linksCount++;
       }
 
       if (linksCount > 0) {
-        ui.showModal(
-          _("Links imported."),
-          E("p", {}, _("Imported %d links.").format(links))
-        );
+        uci.save();
       }
+
+      ui.showModal(_("Outbound Import"), [
+        E(
+          "p",
+          {},
+          linksCount > 0
+            ? _("Imported %d links.").format(links)
+            : _("No links imported.")
+        ),
+        E(
+          "div",
+          { class: "right" },
+          E(
+            "button",
+            {
+              class: "btn",
+              click: ui.hideModal,
+            },
+            _("Dismiss")
+          )
+        ),
+      ]);
     }
   },
   handleImportClick: function () {
@@ -314,7 +410,7 @@ const CUSTOMOutboundImport = form.AbstractValue.extend({
           return _("Empty field.");
         }
 
-        if (!/^(vmess:\/\/[\w+=]+\s*)+$/.test(val)) {
+        if (!/^(vmess:\/\/[a-zA-Z0-9/+=]+\s*)+$/i.test(val)) {
           return _("Invalid links.");
         }
 
@@ -335,7 +431,6 @@ const CUSTOMOutboundImport = form.AbstractValue.extend({
             },
             _("Dismiss")
           ),
-          " ",
           E(
             "button",
             {
