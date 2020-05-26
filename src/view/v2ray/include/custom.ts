@@ -148,7 +148,7 @@ const CUSTOMListStatusValue = form.AbstractValue.extend({
                     ev: MouseEvent
                   ) {
                     if (typeof this.onupdate === "function") {
-                      this.onupdate(ev, section_id, listtype);
+                      return this.onupdate(ev, section_id, listtype);
                     }
                   },
                   section_id,
@@ -396,7 +396,7 @@ const CUSTOMOutboundImport = form.AbstractValue.extend({
               class: "btn",
               click: ui.hideModal,
             },
-            _("Dismiss")
+            _("OK")
           )
         ),
       ]);

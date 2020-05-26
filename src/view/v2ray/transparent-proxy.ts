@@ -71,7 +71,7 @@ return L.view.extend<[SectionItem[], SectionItem[]]>({
                               class: "btn",
                               click: hideModal,
                             },
-                            _("Dismiss")
+                            _("OK")
                           )
                         ),
                       ]);
@@ -131,7 +131,7 @@ return L.view.extend<[SectionItem[], SectionItem[]]>({
                             class: "btn",
                             click: hideModal,
                           },
-                          _("Dismiss")
+                          _("OK")
                         )
                       ),
                     ]);
@@ -255,6 +255,7 @@ return L.view.extend<[SectionItem[], SectionItem[]]>({
     o = s.option(custom.ListStatusValue, "_chnroutelist", _("CHNRoute"));
     o.listtype = "chnroute";
     o.btntitle = _("Update");
+    o.btnstyle = "apply";
     o.onupdate = L.bind(this.handleListUpdate, this);
 
     o = s.option(form.ListValue, "gfwlist_mirror", _("GFWList mirror"));
@@ -266,6 +267,7 @@ return L.view.extend<[SectionItem[], SectionItem[]]>({
     o = s.option(custom.ListStatusValue, "_gfwlist", _("GFWList"));
     o.listtype = "gfwlist";
     o.btntitle = _("Update");
+    o.btnstyle = "apply";
     o.onupdate = L.bind(this.handleListUpdate, this);
 
     o = s.option(
