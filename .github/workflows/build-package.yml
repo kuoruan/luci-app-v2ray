@@ -1,4 +1,4 @@
-name: Build and Push Package Sources
+name: Push Package Sources and Build
 on:
   push:
     branches:
@@ -6,9 +6,18 @@ on:
     tags-ignore:
       - '*'
 
+env:
+  PACKAGE_NAME: luci-app-v2ray
+  PACKAGE_DIR: "${{ github.workspace }}/package"
+  CACHE_DIR: ~/cache
+
 jobs:
-  build-and-push:
+  push-and-build:
     runs-on: ubuntu-latest
+    env:
+      SDK_URL_PATH: https://downloads.openwrt.org/releases/19.07.3/targets/x86/64
+      SDK_NAME: -sdk-x86-64_
+      CONFIG_CCACHE: y
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -21,12 +30,24 @@ jobs:
       with:
         node-version: '12.x'
 
-    - name: Test
+    - name: Setup Build Cache
+      uses: actions/cache@v1
+      with:
+        path: ${{ env.CACHE_DIR }}
+        key: ${{ runner.os }}-openwrt-${{ env.PACKAGE_NAME }}
+
+    - name: Setup CCache
+      uses: actions/cache@v1
+      with:
+        path: ~/.ccache
+        key: ${{ runner.os }}-ccache-${{ env.PACKAGE_NAME }}
+
+    - name: Test Source
       run: |
         yarn install
         yarn lint
 
-    - name: Build
+    - name: Build Package Source
       run: |
         yarn install
         yarn package
@@ -35,8 +56,120 @@ jobs:
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./package
+        publish_dir: ${{ env.PACKAGE_DIR }}
         publish_branch: luci2
         user_name: 'github-actions[bot]'
         user_email: 'github-actions[bot]@users.noreply.github.com'
         commit_message: ${{ github.event.head_commit.message }}
+
+    - name: Install Dependencies
+      run: |
+        DEBIAN_FRONTEND=noninteractive \
+        sudo apt-get install -y ccache gettext libncurses5-dev xsltproc
+
+    - name: Create Directories
+      run: |
+        CACHE_DIR_SDK="$(eval echo "$CACHE_DIR/sdk")"
+        CACHE_DIR_DL="$(eval echo "$CACHE_DIR/dl")"
+        CACHE_DIR_FEEDS="$(eval echo "$CACHE_DIR/feeds")"
+
+        echo "CACHE_DIR_SDK: $CACHE_DIR_SDK"
+        echo "CACHE_DIR_DL: $CACHE_DIR_DL"
+        echo "CACHE_DIR_FEEDS: $CACHE_DIR_FEEDS"
+
+        test -d "$CACHE_DIR_SDK" || mkdir -p "$CACHE_DIR_SDK"
+        test -d "$CACHE_DIR_DL" || mkdir -p "$CACHE_DIR_DL"
+        test -d "$CACHE_DIR_FEEDS" || mkdir -p "$CACHE_DIR_FEEDS"
+
+        echo "::set-env name=CACHE_DIR_SDK::$CACHE_DIR_SDK"
+        echo "::set-env name=CACHE_DIR_DL::$CACHE_DIR_DL"
+        echo "::set-env name=CACHE_DIR_FEEDS::$CACHE_DIR_FEEDS"
+
+        echo "::set-env name=SDK_HOME::$(mktemp -d)"
+
+    - name: Download and Unzip SDK
+      run: |
+        cd "$CACHE_DIR_SDK"
+
+        if ! ( wget -q -O - "$SDK_URL_PATH/sha256sums" | \
+          grep -- "$SDK_NAME" > sha256sums.small 2>/dev/null ) ; then
+          echo "::error::Can not find ${SDK_NAME} file in sha256sums."
+          exit 1
+        fi
+
+        SDK_FILE="$(cat sha256sums.small | cut -d' ' -f2 | sed 's/*//g')"
+
+        if ! sha256sum -c ./sha256sums.small >/dev/null 2>&1 ; then
+          wget -q -O "$SDK_FILE" "$SDK_URL_PATH/$SDK_FILE"
+          if ! sha256sum -c ./sha256sums.small >/dev/null 2>&1 ; then
+            echo "::error::SDK can not be verified!"
+            exit 1
+          fi
+        fi
+
+        cd -
+
+        file "$CACHE_DIR_SDK/$SDK_FILE"
+
+        tar -Jxf "$CACHE_DIR_SDK/$SDK_FILE" -C "$SDK_HOME" --strip=1
+
+        cd "$SDK_HOME"
+
+        test -d "dl" && rm -rf "dl" || true
+        test -d "feeds" && rm -rf "feeds" || true
+
+        ln -s "$CACHE_DIR_DL" "dl"
+        ln -s "$CACHE_DIR_FEEDS" "feeds"
+
+        cp feeds.conf.default feeds.conf
+
+        sed -i 's#git.openwrt.org/openwrt/openwrt#github.com/openwrt/openwrt#' feeds.conf
+        sed -i 's#git.openwrt.org/feed/packages#github.com/openwrt/packages#' feeds.conf
+        sed -i 's#git.openwrt.org/project/luci#github.com/openwrt/luci#' feeds.conf
+        sed -i 's#git.openwrt.org/feed/telephony#github.com/openwrt/telephony#' feeds.conf
+
+        cd -
+
+    - name: Update and Install Packages
+      run: |
+        cd "$SDK_HOME"
+
+        ln -s "${{ env.PACKAGE_DIR }}" "package/$PACKAGE_NAME"
+
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+
+        cd -
+
+    - name: Build Package
+      run: |
+        cd "$SDK_HOME"
+
+        make package/${PACKAGE_NAME}/{clean,compile} V=s
+
+        find "$SDK_HOME/bin/" -type f -name *.ipk -exec ls -lh {} \;
+
+        cd -
+
+    - name: Copy Build Results
+      run: |
+        file_path="$(find "$SDK_HOME/bin/" -type f -name ${PACKAGE}*.ipk | head -n1)"
+
+        if [ ! -s "$file_path" ] ; then
+          echo "::error::Can't find package file."
+          exit 1
+        fi
+
+        cp -f "$file_path" "${{ github.workspace }}"
+
+        # Copy translations
+        find "$SDK_HOME/bin/" -type f -name luci-i18n*.ipk -exec cp {} "${{ github.workspace }}" \;
+
+        find "${{ github.workspace }}" -name *.ipk
+
+    - name: Update Archives
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ env.PACKAGE_NAME }}
+        path: '*.ipk'
+
