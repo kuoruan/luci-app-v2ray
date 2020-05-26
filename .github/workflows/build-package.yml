@@ -153,7 +153,7 @@ jobs:
 
     - name: Copy Build Results
       run: |
-        file_path="$(find "$SDK_HOME/bin/" -type f -name "${PACKAGE_NAME}*.ipk" | head -n1)"
+        file_path="$(find "$SDK_HOME/bin/" -type f -name "$PACKAGE_NAME" | head -n1)"
 
         if [ ! -s "$file_path" ] ; then
           echo "::error::Can't find package file."
@@ -163,9 +163,9 @@ jobs:
         cp -f "$file_path" "${{ github.workspace }}"
 
         # Copy translations
-        find "$SDK_HOME/bin/" -type f -name "luci-i18n*.ipk' -exec cp {} "${{ github.workspace }}" \;
+        find "$SDK_HOME/bin/" -type f -name "luci-i18n*.ipk" -exec cp {} "${{ github.workspace }}" \;
 
-        find "${{ github.workspace }}" -name *.ipk
+        find "${{ github.workspace }}" -name "*.ipk"
 
     - name: Update Archives
       uses: actions/upload-artifact@v1
