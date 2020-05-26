@@ -431,6 +431,7 @@ const CUSTOMOutboundImport = form.AbstractValue.extend({
             },
             _("Dismiss")
           ),
+          " ",
           E(
             "button",
             {
