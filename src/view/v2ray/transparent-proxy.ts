@@ -30,13 +30,19 @@ const apnicDelegatedUrls = {
 // @ts-ignore
 return L.view.extend<[SectionItem[], SectionItem[]]>({
   handleListUpdate(ev: MouseEvent, section_id: string, listtype: string) {
+    const hideModal = function () {
+      ui.hideModal();
+
+      window.location.reload();
+    };
+
     switch (listtype) {
       case "gfwlist": {
         const gfwlistMirror =
           uci.get<string>("v2ray", section_id, "gfwlist_mirror") || "github";
         const url = gfwlistUrls[gfwlistMirror];
 
-        L.Request.request(L.url("admin/services/v2ray/request"), {
+        return L.Request.request(L.url("admin/services/v2ray/request"), {
           method: "post",
           timeout: 50 * 1000,
           query: {
@@ -54,7 +60,21 @@ return L.view.extend<[SectionItem[], SectionItem[]]>({
                 if (gfwlistDomains) {
                   fs.write("/etc/v2ray/gfwlist.txt", gfwlistDomains)
                     .then(function () {
-                      ui.showModal(null, E("p", _("GFWList updated.")));
+                      ui.showModal(_("List Update"), [
+                        E("p", _("GFWList updated.")),
+                        E(
+                          "div",
+                          { class: "right" },
+                          E(
+                            "button",
+                            {
+                              class: "btn",
+                              click: hideModal,
+                            },
+                            _("Dismiss")
+                          )
+                        ),
+                      ]);
                     })
                     .catch(L.raise);
                 } else {
@@ -70,8 +90,6 @@ return L.view.extend<[SectionItem[], SectionItem[]]>({
           .catch(function (e) {
             ui.addNotification(null, E("p", e.message));
           });
-
-        break;
       }
       case "chnroute":
       case "chnroute6": {
@@ -81,7 +99,7 @@ return L.view.extend<[SectionItem[], SectionItem[]]>({
 
         const url = apnicDelegatedUrls[delegatedMirror];
 
-        L.Request.request(L.url("admin/services/v2ray/request"), {
+        return L.Request.request(L.url("admin/services/v2ray/request"), {
           method: "post",
           timeout: 50 * 1000,
           query: {
@@ -102,7 +120,21 @@ return L.view.extend<[SectionItem[], SectionItem[]]>({
 
                 fs.write(`/etc/v2ray/${listtype}.txt`, ipList)
                   .then(function () {
-                    ui.showModal(null, E("p", _("CHNRoute list updated.")));
+                    ui.showModal(_("List Update"), [
+                      E("p", _("CHNRoute list updated.")),
+                      E(
+                        "div",
+                        { class: "right" },
+                        E(
+                          "button",
+                          {
+                            class: "btn",
+                            click: hideModal,
+                          },
+                          _("Dismiss")
+                        )
+                      ),
+                    ]);
                   })
                   .catch(L.raise);
               } else {
@@ -118,11 +150,10 @@ return L.view.extend<[SectionItem[], SectionItem[]]>({
           .catch(function (e) {
             ui.addNotification(null, E("p", e.message));
           });
-        break;
       }
 
       default: {
-        L.raise("Error", _("Unexpected error."));
+        ui.addNotification(null, _("Unexpected error."));
       }
     }
   },
