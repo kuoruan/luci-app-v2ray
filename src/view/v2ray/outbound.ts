@@ -4,11 +4,226 @@
 "require uci";
 "require v2ray";
 // "require view";
+"require ui";
 
 "require view/v2ray/include/custom as custom";
+"require view/v2ray/tools/converters as converters";
 
 // @ts-ignore
 return L.view.extend<string[]>({
+  handleImportSave: function (val: string) {
+    const links = val.split(/\r?\n/);
+
+    let linksCount = 0;
+    for (const link of links) {
+      let vmess;
+      if (
+        !link ||
+        !(vmess = converters.vmessLinkToVmess(link)) ||
+        vmess.v !== "2"
+      ) {
+        continue;
+      }
+
+      const sid = uci.add("v2ray", "outbound");
+      if (!sid) continue;
+
+      const address = vmess.add || "0.0.0.0";
+      const port = vmess.port || "0";
+      const tls = vmess.tls || "";
+
+      const network = vmess.net || "";
+      const headerType = vmess.type || "";
+      const path = vmess.path || "";
+
+      const alias = vmess.ps || "%s:%s".format(address, port);
+
+      uci.set("v2ray", sid, "alias", alias);
+      uci.set("v2ray", sid, "protocol", "vmess");
+      uci.set("v2ray", sid, "s_vmess_address", address);
+      uci.set("v2ray", sid, "s_vmess_port", port);
+      uci.set("v2ray", sid, "s_vmess_user_id", vmess.id || "");
+      uci.set("v2ray", sid, "s_vmess_user_alter_id", vmess.aid || "");
+      uci.set("v2ray", sid, "ss_security", tls);
+
+      let hosts: string[] = [];
+      if (vmess.host) {
+        hosts = vmess.host.split(",");
+      }
+
+      switch (network) {
+        case "tcp": {
+          uci.set("v2ray", sid, "ss_network", "tcp");
+          uci.set("v2ray", sid, "ss_tcp_header_type", headerType);
+
+          if (headerType === "http" && hosts.length > 0) {
+            uci.set("v2ray", sid, "ss_tcp_header_request_headers", [
+              "Host=%s".format(hosts[0]),
+            ]);
+
+            if (tls === "tls") {
+              uci.set("v2ray", sid, "ss_tls_server_name", hosts[0]);
+            }
+          }
+          break;
+        }
+
+        case "kcp":
+        case "mkcp": {
+          uci.set("v2ray", sid, "ss_network", "kcp");
+          uci.set("v2ray", sid, "ss_kcp_header_type", headerType);
+          break;
+        }
+
+        case "ws": {
+          uci.set("v2ray", sid, "ss_network", "ws");
+          uci.set("v2ray", sid, "ss_websocket_path", path);
+          break;
+        }
+
+        case "http":
+        case "h2": {
+          uci.set("v2ray", sid, "ss_network", "http");
+          uci.set("v2ray", sid, "ss_http_path", path);
+
+          if (hosts.length > 0) {
+            uci.set("v2ray", sid, "ss_http_host", hosts);
+            uci.set("v2ray", sid, "ss_tls_server_name", hosts[0]);
+          }
+          break;
+        }
+
+        case "quic": {
+          uci.set("v2ray", sid, "ss_network", "quic");
+          uci.set("v2ray", sid, "ss_quic_header_type", headerType);
+          uci.set("v2ray", sid, "ss_quic_key", path);
+
+          if (hosts.length > 0) {
+            uci.set("v2ray", sid, "ss_quic_security", hosts[0]);
+
+            if (tls === "tls") {
+              uci.set("v2ray", sid, "ss_tls_server_name", hosts[0]);
+            }
+          }
+
+          break;
+        }
+
+        default: {
+          uci.remove("v2ray", sid);
+          continue;
+        }
+      }
+
+      linksCount++;
+    }
+
+    if (linksCount > 0) {
+      return uci.save().then(function () {
+        ui.showModal(_("Outbound Import"), [
+          E("p", {}, _("Imported %d links.").format(linksCount)),
+          E(
+            "div",
+            { class: "right" },
+            E(
+              "button",
+              {
+                class: "btn",
+                click: ui.createHandlerFn(this, function () {
+                  return uci.apply().then(function () {
+                    ui.hideModal();
+
+                    window.location.reload();
+                  });
+                }),
+              },
+              _("OK")
+            )
+          ),
+        ]);
+      });
+    } else {
+      ui.showModal(_("Outbound Import"), [
+        E("p", {}, _("No links imported.")),
+        E(
+          "div",
+          { class: "right" },
+          E(
+            "button",
+            {
+              class: "btn",
+              click: ui.hideModal,
+            },
+            _("OK")
+          )
+        ),
+      ]);
+    }
+  },
+  handleImportClick: function () {
+    const textarea = new ui.Textarea("", {
+      rows: 10,
+      placeholder: _("You can add multiple links at once, one link per line."),
+      validate: function (val: string) {
+        if (!val) {
+          return _("Empty field.");
+        }
+
+        if (!/^(vmess:\/\/[a-zA-Z0-9/+=]+\s*)+$/i.test(val)) {
+          return _("Invalid links.");
+        }
+
+        return true;
+      },
+    });
+
+    ui.showModal(_("Import Vmess Links"), [
+      E("div", {}, [
+        E(
+          "p",
+          {},
+          _("Allowed link format: <code>%s</code>").format("vmess://xxxxx")
+        ),
+        textarea.render(),
+      ]),
+      E("div", { class: "right" }, [
+        E(
+          "button",
+          {
+            class: "btn",
+            click: ui.hideModal,
+          },
+          _("Dismiss")
+        ),
+        " ",
+        E(
+          "button",
+          {
+            class: "cbi-button cbi-button-positive important",
+            click: ui.createHandlerFn(
+              this,
+              function (area: ui.Textarea) {
+                area.triggerValidation();
+
+                let val: string;
+                if (
+                  !area.isValid() ||
+                  !(val = area.getValue()) ||
+                  !(val = val.trim())
+                ) {
+                  return;
+                }
+
+                return this.handleImportSave(val);
+              },
+              textarea
+            ),
+          },
+          _("Save")
+        ),
+      ]),
+    ]);
+  },
   load: function () {
     return v2ray.getLocalIPs();
   },
@@ -17,15 +232,6 @@ return L.view.extend<string[]>({
       "v2ray",
       "%s - %s".format(_("V2Ray"), _("Outbound"))
     );
-
-    const outboundImport = new custom.OutboundImport(
-      m,
-      Object.create(null),
-      "_import",
-      _("Import")
-    );
-
-    m.append(outboundImport);
 
     const s = m.section(form.GridSection, "outbound");
     s.anonymous = true;
@@ -802,6 +1008,29 @@ return L.view.extend<string[]>({
     o.datatype = "uinteger";
     o.placeholder = "8";
 
-    return m.render();
+    const self = this;
+    return m.render().then(function (node: Node) {
+      const container = m.findElement("id", "cbi-v2ray-outbound");
+
+      const importButton = E(
+        "div",
+        {
+          class: "cbi-section-create cbi-tblsection-create",
+        },
+        E(
+          "button",
+          {
+            class: "cbi-button cbi-button-neutral",
+            title: _("Import"),
+            click: L.bind(self.handleImportClick, self),
+          },
+          _("Import")
+        )
+      );
+
+      L.dom.append(container, importButton);
+
+      return node;
+    });
   },
 });
