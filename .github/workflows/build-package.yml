@@ -8,7 +8,6 @@ on:
 
 env:
   PACKAGE_NAME: luci-app-v2ray
-  PACKAGE_DIR: "${{ github.workspace }}/package"
   CACHE_DIR: ~/cache
 
 jobs:
@@ -25,10 +24,30 @@ jobs:
         persist-credentials: false
         fetch-depth: 2
 
-    - name: Setup node
+    - name: Setup Node.js
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
+
+    - name: Test Source
+      run: |
+        yarn install
+        yarn lint
+
+    - name: Build Package Source
+      run: |
+        yarn install
+        yarn package
+
+    - name: Deploy Package Source
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./package
+        publish_branch: luci2
+        user_name: 'github-actions[bot]'
+        user_email: 'github-actions[bot]@users.noreply.github.com'
+        commit_message: ${{ github.event.head_commit.message }}
 
     - name: Setup Build Cache
       uses: actions/cache@v1
@@ -41,26 +60,6 @@ jobs:
       with:
         path: ~/.ccache
         key: ${{ runner.os }}-ccache-${{ env.PACKAGE_NAME }}
-
-    - name: Test Source
-      run: |
-        yarn install
-        yarn lint
-
-    - name: Build Package Source
-      run: |
-        yarn install
-        yarn package
-
-    - name: Deploy
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ${{ env.PACKAGE_DIR }}
-        publish_branch: luci2
-        user_name: 'github-actions[bot]'
-        user_email: 'github-actions[bot]@users.noreply.github.com'
-        commit_message: ${{ github.event.head_commit.message }}
 
     - name: Install Dependencies
       run: |
@@ -134,7 +133,7 @@ jobs:
       run: |
         cd "$SDK_HOME"
 
-        ln -s "${{ env.PACKAGE_DIR }}" "package/$PACKAGE_NAME"
+        ln -s "${{ github.workspace }}/package" "package/$PACKAGE_NAME"
 
         ./scripts/feeds update -a
         ./scripts/feeds install -a
