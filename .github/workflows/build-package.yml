@@ -159,7 +159,7 @@ jobs:
         # Copy translations
         find "$SDK_HOME/bin/" -type f -name "luci-i18n*.ipk" -exec cp {} "${{ github.workspace }}" \;
 
-        find "${{ env.BIN_DIR }}" -type f -name "*.ipk"
+        find "${{ github.workspace }}" -type f -name "*.ipk"
 
     - name: Update Archives
       uses: actions/upload-artifact@v2
