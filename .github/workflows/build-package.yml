@@ -144,6 +144,7 @@ jobs:
       run: |
         cd "$SDK_HOME"
 
+        make defconfig
         make package/${PACKAGE_NAME}/compile V=s
 
         find "$SDK_HOME/bin/" -type f -name *.ipk -exec ls -lh {} \;
