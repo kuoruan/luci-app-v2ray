@@ -9,6 +9,7 @@ on:
 env:
   PACKAGE_NAME: luci-app-v2ray
   CACHE_DIR: ~/cache
+  BIN_DIR: ${{ github.workspace }}/bin
 
 jobs:
   push-and-build:
@@ -153,23 +154,19 @@ jobs:
 
     - name: Copy Build Results
       run: |
-        file_path="$(find "$SDK_HOME/bin/" -type f -name "${PACKAGE_NAME}*" | head -n1)"
+        test -d "${{ env.BIN_DIR }}" || mkdir -p "${{ env.BIN_DIR }}"
 
-        if [ ! -s "$file_path" ] ; then
-          echo "::error::Can't find package file."
-          exit 1
-        fi
-
-        cp -f "$file_path" "${{ github.workspace }}"
+        # Copy bin files
+        find "$SDK_HOME/bin/" -type f -name "${PACKAGE_NAME}*.ipk" -exec cp {} "${{ env.BIN_DIR }}" \;
 
         # Copy translations
-        find "$SDK_HOME/bin/" -type f -name "luci-i18n*.ipk" -exec cp {} "${{ github.workspace }}" \;
+        find "$SDK_HOME/bin/" -type f -name "luci-i18n*.ipk" -exec cp {} "${{ env.BIN_DIR }}" \;
 
-        find "${{ github.workspace }}" -name "*.ipk"
+        find "${{ env.BIN_DIR }}" -type f
 
     - name: Update Archives
       uses: actions/upload-artifact@v1
       with:
         name: ${{ env.PACKAGE_NAME }}
-        path: '*.ipk'
+        path: ${{ env.BIN_DIR }}/*
 
