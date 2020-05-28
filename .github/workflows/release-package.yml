@@ -33,17 +33,10 @@ jobs:
         path: ${{ env.CACHE_DIR }}
         key: ${{ runner.os }}-openwrt-${{ env.PACKAGE_NAME }}
 
-    - name: Setup CCache
-      uses: actions/cache@v1
-      with:
-        path: ~/.ccache
-        key: ${{ runner.os }}-ccache-${{ env.PACKAGE_NAME }}
-
     - name: Install Dependencies
       run: |
         DEBIAN_FRONTEND=noninteractive \
         sudo apt-get install -y ccache gettext libncurses5-dev xsltproc
-        ccache -s
 
     - name: Build Package Source
       run: |
@@ -56,17 +49,25 @@ jobs:
         CACHE_DIR_DL="$(eval echo "$CACHE_DIR/dl")"
         CACHE_DIR_FEEDS="$(eval echo "$CACHE_DIR/feeds")"
 
-        echo "CACHE_DIR_SDK: $CACHE_DIR_SDK"
-        echo "CACHE_DIR_DL: $CACHE_DIR_DL"
-        echo "CACHE_DIR_FEEDS: $CACHE_DIR_FEEDS"
+        CCACHE_DIR_HOST="$(eval echo "$CACHE_DIR/ccache/host")"
+        CCACHE_DIR_TARGET="$(eval echo "$CACHE_DIR/ccache/target")"
+        CCACHE_DIR_TOOLCHAIN="$(eval echo "$CACHE_DIR/ccache/toolchain")"
 
         test -d "$CACHE_DIR_SDK" || mkdir -p "$CACHE_DIR_SDK"
         test -d "$CACHE_DIR_DL" || mkdir -p "$CACHE_DIR_DL"
         test -d "$CACHE_DIR_FEEDS" || mkdir -p "$CACHE_DIR_FEEDS"
 
+        test -d "$CCACHE_DIR_HOST" || mkdir -p "$CCACHE_DIR_HOST"
+        test -d "$CCACHE_DIR_TARGET" || mkdir -p "$CCACHE_DIR_TARGET"
+        test -d "$CCACHE_DIR_TOOLCHAIN" || mkdir -p "$CCACHE_DIR_TOOLCHAIN"
+
         echo "::set-env name=CACHE_DIR_SDK::$CACHE_DIR_SDK"
         echo "::set-env name=CACHE_DIR_DL::$CACHE_DIR_DL"
         echo "::set-env name=CACHE_DIR_FEEDS::$CACHE_DIR_FEEDS"
+
+        echo "::set-env name=CCACHE_DIR_HOST::$CCACHE_DIR_HOST"
+        echo "::set-env name=CCACHE_DIR_TARGET::$CCACHE_DIR_TARGET"
+        echo "::set-env name=CCACHE_DIR_TOOLCHAIN::$CCACHE_DIR_TOOLCHAIN"
 
         echo "::set-env name=SDK_HOME::$(mktemp -d)"
 
@@ -103,6 +104,18 @@ jobs:
 
         ln -s "$CACHE_DIR_DL" "dl"
         ln -s "$CACHE_DIR_FEEDS" "feeds"
+
+        staging_dir_host="staging_dir/host"
+        staging_dir_target="staging_dir/target-x86_64_musl"
+        staging_dir_toolchain="$(eval echo "staging_dir/toolchain-*")"
+
+        test -d "$staging_dir_host" || mkdir -p "$staging_dir_host"
+        test -d "$staging_dir_target" || mkdir -p "$staging_dir_target"
+        test -d "$staging_dir_toolchain" || mkdir -p "$staging_dir_toolchain"
+
+        ln -s "$CCACHE_DIR_HOST" "$staging_dir_host/ccache"
+        ln -s "$CCACHE_DIR_TARGET" "$staging_dir_target/ccache"
+        ln -s "$CCACHE_DIR_TOOLCHAIN" "$staging_dir_toolchain/ccache"
 
         cp feeds.conf.default feeds.conf
 
