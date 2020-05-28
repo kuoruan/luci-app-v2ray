@@ -27,21 +27,31 @@ jobs:
       with:
         node-version: '12.x'
 
-    - name: Setup Build Cache
+    - name: Setup Node.js Cache
       uses: actions/cache@v1
       with:
-        path: ${{ env.CACHE_DIR }}
-        key: ${{ runner.os }}-openwrt-${{ env.PACKAGE_NAME }}
-
-    - name: Install Dependencies
-      run: |
-        DEBIAN_FRONTEND=noninteractive \
-        sudo apt-get install -y ccache gettext libncurses5-dev xsltproc
+        path: node_modules
+        key: node-${{ env.PACKAGE_NAME }}-${{ hashFiles('yarn.lock') }}
+        restore-keys: |
+          node-${{ env.PACKAGE_NAME }}
 
     - name: Build Package Source
       run: |
         yarn install
         yarn package
+
+    - name: Setup OpenWrt Cache
+      uses: actions/cache@v1
+      with:
+        path: ${{ env.CACHE_DIR }}
+        key: openwrt-${{ env.PACKAGE_NAME }}-${{ hashFiles('**/Makefile') }}
+        restore-keys: |
+          openwrt-${{ env.PACKAGE_NAME }}
+
+    - name: Install Dependencies
+      run: |
+        DEBIAN_FRONTEND=noninteractive \
+        sudo apt-get install -y ccache gettext libncurses5-dev xsltproc
 
     - name: Create Directories
       run: |

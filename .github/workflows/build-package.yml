@@ -29,6 +29,14 @@ jobs:
       with:
         node-version: '12.x'
 
+    - name: Setup Node.js Cache
+      uses: actions/cache@v1
+      with:
+        path: node_modules
+        key: node-${{ env.PACKAGE_NAME }}-${{ hashFiles('yarn.lock') }}
+        restore-keys: |
+          node-${{ env.PACKAGE_NAME }}
+
     - name: Test Source
       run: |
         yarn install
@@ -49,11 +57,13 @@ jobs:
         user_email: 'github-actions[bot]@users.noreply.github.com'
         commit_message: ${{ github.event.head_commit.message }}
 
-    - name: Setup Build Cache
+    - name: Setup OpenWrt Cache
       uses: actions/cache@v1
       with:
         path: ${{ env.CACHE_DIR }}
-        key: ${{ runner.os }}-openwrt-${{ env.PACKAGE_NAME }}
+        key: openwrt-${{ env.PACKAGE_NAME }}-${{ hashFiles('**/Makefile') }}
+        restore-keys: |
+          openwrt-${{ env.PACKAGE_NAME }}
 
     - name: Install Dependencies
       run: |
