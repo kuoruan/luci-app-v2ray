@@ -38,10 +38,10 @@ jobs:
       with:
         path: ~/.ccache
         key: ${{ runner.os }}-ccache-${{ env.PACKAGE_NAME }}
-      run: ccache -s
 
     - name: Install Dependencies
       run: |
+        ccache -s
         DEBIAN_FRONTEND=noninteractive \
         sudo apt-get install -y ccache gettext libncurses5-dev xsltproc
 
