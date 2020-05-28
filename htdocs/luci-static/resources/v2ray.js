@@ -1,1 +1,7 @@
+/**
+ * @license
+ * Copyright 2020 Xingwang Liao <kuoruan@gmail.com>
+ *
+ * Licensed to the public under the MIT License.
+ */
 "use strict";"require fs";"require network";"require uci";return L.Class.extend({getLocalIPs:function(){return network.getNetworks().then((function(t){for(var n=["127.0.0.1","0.0.0.0","::"],e=0,r=t;e<r.length;e++){var o=r[e],u=o.getIPAddr(),a=o.getIP6Addr();u&&(u=u.split("/")[0])&&n.indexOf(u)<0&&n.push(u),a&&(a=a.split("/")[0])&&n.indexOf(a)<0&&n.push(a)}return n.sort()}))},getLanInterfaces:function(){return network.getNetworks().then((function(t){for(var n=[],e=0,r=t;e<r.length;e++){var o=r[e],u=o.getName();"loopback"!==u&&u.indexOf("wan")<0&&n.push({caption:o.getI18n(),value:u})}return n}))},getSections:function(t,n){return void 0===n&&(n="alias"),uci.load("v2ray").then((function(){var e=[];return uci.sections("v2ray",t,(function(t){var r;(r=t[n])&&e.push({caption:r,value:t[".name"]})})),e}))},getDokodemoDoorPorts:function(){return uci.load("v2ray").then((function(){var t=[];return uci.sections("v2ray","inbound",(function(n){var e;if("dokodemo-door"==n.protocol&&(e=n.port)){var r;(r=n.alias)?t.push({caption:"%s - %s".format(r,e),value:e}):t.push({caption:"%s:%s".format(n.listen,e),value:e})}})),t}))}});
