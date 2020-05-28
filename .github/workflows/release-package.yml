@@ -1,9 +1,7 @@
-name: Push Package Sources and Build
+name: Package Build and Release
 on:
   push:
-    branches:
-      - master
-    tags-ignore:
+    tags:
       - '*'
 
 env:
@@ -11,7 +9,7 @@ env:
   CACHE_DIR: ~/cache
 
 jobs:
-  push-and-build:
+  build-release:
     runs-on: ubuntu-latest
     env:
       SDK_URL_PATH: https://downloads.openwrt.org/releases/19.07.3/targets/x86/64
@@ -28,26 +26,6 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
-
-    - name: Test Source
-      run: |
-        yarn install
-        yarn lint
-
-    - name: Build Package Source
-      run: |
-        yarn install
-        yarn package
-
-    - name: Deploy Package Source
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./package
-        publish_branch: luci2
-        user_name: 'github-actions[bot]'
-        user_email: 'github-actions[bot]@users.noreply.github.com'
-        commit_message: ${{ github.event.head_commit.message }}
 
     - name: Setup Build Cache
       uses: actions/cache@v1
@@ -66,6 +44,11 @@ jobs:
       run: |
         DEBIAN_FRONTEND=noninteractive \
         sudo apt-get install -y ccache gettext libncurses5-dev xsltproc
+
+    - name: Build Package Source
+      run: |
+        yarn install
+        yarn package
 
     - name: Create Directories
       run: |
@@ -162,9 +145,10 @@ jobs:
 
         find "${{ github.workspace }}" -type f -name "*.ipk" -exec ls -lh {} \;
 
-    - name: Update Archives
-      uses: actions/upload-artifact@v2
+    - name: Release and Upload Assets
+      uses: softprops/action-gh-release@v1
       with:
-        name: ${{ env.PACKAGE_NAME }}
-        path: '*.ipk'
+        files: '*.ipk'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
