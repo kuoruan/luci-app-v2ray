@@ -31,15 +31,7 @@ TRANSPARENT_PROXY_ADDITION=
 
 DNSMASQ_RESTART_EXPECTED=0
 
-if [ -r /usr/share/libubox/jshn.sh ] ; then
-	. /usr/share/libubox/jshn.sh
-elif [ -r /lib/functions/jshn.sh ] ; then
-	. /lib/functions/jshn.sh
-else
-	logger -p daemon.err -t "$NAME" "Package required: jshn."
-	echo "[err] Package required: jshn." >&2
-	exit 1
-fi
+. /usr/share/libubox/jshn.sh
 
 _log() {
 	local level="$1" ; shift
