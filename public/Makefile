@@ -7,7 +7,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=#{name}
 PKG_VERSION:=#{version}
-PKG_RELEASE:=1
+PKG_RELEASE:=#{release}
 
 PKG_LICENSE:=#{license}
 PKG_MAINTAINER:=#{author}

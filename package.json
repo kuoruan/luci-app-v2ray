@@ -1,6 +1,7 @@
 {
   "name": "luci-app-v2ray",
   "version": "2.0.0",
+  "release": "1",
   "description": "LuCI support for v2ray",
   "repository": "git@github.com:kuoruan/luci-app-v2ray.git",
   "author": "Xingwang Liao <kuoruan@gmail.com>",

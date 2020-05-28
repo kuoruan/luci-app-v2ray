@@ -8,6 +8,7 @@ const replace = require("gulp-replace");
 const pkg = require("./package.json");
 
 process.env.LUCI_VERSION = pkg.version;
+process.env.LUCI_RELEASE = pkg.release;
 
 const resDest = "package/htdocs/luci-static/resources";
 
