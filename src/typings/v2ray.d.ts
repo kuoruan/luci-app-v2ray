@@ -1,3 +1,9 @@
+/**
+ * Copyright 2020 Xingwang Liao <kuoruan@gmail.com>
+ *
+ * Licensed to the public under the MIT License.
+ */
+
 type SectionItem = {
   caption: string;
   value: string;

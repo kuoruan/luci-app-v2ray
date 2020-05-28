@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright 2020 Xingwang Liao <kuoruan@gmail.com>
+ *
+ * Licensed to the public under the MIT License.
+ */
+
 "use strict";
 
 "require view/v2ray/tools/base64 as base64";

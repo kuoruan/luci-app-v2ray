@@ -1,3 +1,10 @@
+/**
+ * @license
+ * Copyright 2020 Xingwang Liao <kuoruan@gmail.com>
+ *
+ * Licensed to the public under the MIT License.
+ */
+
 "use strict";
 
 const b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
