@@ -75,44 +75,12 @@ return L.view.extend<SectionItem[][]>({
     s2.anonymous = true;
     s2.addremove = true;
     s2.sortable = true;
+    s2.nodescription = true;
 
-    o = s2.option(form.DummyValue, "_alias", _("Alias"));
-    o.modalonly = false;
-    o.cfgvalue = function (section_id: string) {
-      return uci.get("v2ray", section_id, "alias") ?? "?";
-    };
-
-    o = s2.option(form.DummyValue, "_type", _("Type"));
-    o.modalonly = false;
-    o.cfgvalue = function (section_id: string) {
-      return uci.get("v2ray", section_id, "type") ?? "?";
-    };
-
-    o = s2.option(form.DummyValue, "_inbound_tag", _("Inbound Tag"));
-    o.modalonly = false;
-    o.cfgvalue = function (section_id: string) {
-      const v = uci.get("v2ray", section_id, "inbound_tag");
-      return L.toArray(v).join(" ") || "?";
-    };
-
-    o = s2.option(form.DummyValue, "_outbound_tag", _("Outbound Tag"));
-    o.modalonly = false;
-    o.cfgvalue = function (section_id: string) {
-      return uci.get("v2ray", section_id, "outbound_tag") ?? "?";
-    };
-
-    o = s2.option(form.DummyValue, "_network", _("Network"));
-    o.modalonly = false;
-    o.cfgvalue = function (section_id: string) {
-      return uci.get("v2ray", section_id, "network") ?? "?";
-    };
-
-    o = s2.option(form.Value, "alias", _("Alias"), _("Any custom string"));
-    o.modalonly = true;
+    o = s2.option(form.Value, "alias", _("Alias"));
     o.rmempty = false;
 
     o = s2.option(form.ListValue, "type", _("Type"));
-    o.modalonly = true;
     o.value("field");
 
     o = s2.option(form.DynamicList, "domain", _("Domain"));
@@ -126,7 +94,6 @@ return L.view.extend<SectionItem[][]>({
     o.datatype = "or(port, portrange)";
 
     o = s2.option(form.MultiValue, "network", _("Network"));
-    o.modalonly = true;
     o.value("tcp");
     o.value("udp");
 
@@ -137,7 +104,6 @@ return L.view.extend<SectionItem[][]>({
     o.modalonly = true;
 
     o = s2.option(form.DynamicList, "inbound_tag", _("Inbound tag"));
-    o.modalonly = true;
 
     o = s2.option(form.MultiValue, "protocol", _("Protocol"));
     o.modalonly = true;
@@ -149,7 +115,6 @@ return L.view.extend<SectionItem[][]>({
     o.modalonly = true;
 
     o = s2.option(form.Value, "outbound_tag", _("Outbound tag"));
-    o.modalonly = true;
 
     o = s2.option(form.Value, "balancer_tag", _("Balancer tag"));
     o.modalonly = true;

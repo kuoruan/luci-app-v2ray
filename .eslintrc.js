@@ -46,6 +46,7 @@ module.exports = {
     ui: "readonly",
     validation: "readonly",
     view: "readonly",
+    widgets: "readonly",
     xhr: "readonly",
 
     base64: "readonly",

@@ -16,6 +16,8 @@
 "require v2ray";
 // "require view";
 
+"require tools/widgets as widgets";
+
 "require view/v2ray/include/custom as custom";
 "require view/v2ray/tools/converters as converters";
 
@@ -165,12 +167,9 @@ return L.view.extend<[SectionItem[], SectionItem[]]>({
     }
   },
   load: function () {
-    return Promise.all([
-      v2ray.getLanInterfaces(),
-      v2ray.getDokodemoDoorPorts(),
-    ]);
+    return v2ray.getDokodemoDoorPorts();
   },
-  render: function ([lanIfaces = [], dokodemoDoorPorts = []] = []) {
+  render: function (dokodemoDoorPorts = []) {
     const m = new form.Map(
       "v2ray",
       "%s - %s".format(_("V2Ray"), _("Transparent Proxy"))
@@ -190,21 +189,24 @@ return L.view.extend<[SectionItem[], SectionItem[]]>({
       _("Redirect port"),
       _("Enable transparent proxy on Dokodemo-door port.")
     );
+    o.value("", _("None"));
     for (const p of dokodemoDoorPorts) {
       o.value(p.value, p.caption);
     }
-    o.value("", _("None"));
     o.datatype = "port";
 
     o = s.option(
-      form.MultiValue,
+      widgets.NetworkSelect,
       "lan_ifaces",
       _("LAN interfaces"),
       _("Enable proxy on selected interfaces.")
     );
-    for (const i of lanIfaces) {
-      o.value(i.value, i.caption);
-    }
+    o.multiple = true;
+    o.nocreate = true;
+    o.filter = function (section_id: string, value: string) {
+      return value.indexOf("wan") < 0;
+    };
+    o.rmempty = false;
 
     o = s.option(
       form.Flag,

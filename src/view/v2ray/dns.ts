@@ -73,8 +73,9 @@ return L.view.extend<SectionItem[]>({
     );
     s2.anonymous = true;
     s2.addremove = true;
+    s2.nodescription = true;
 
-    o = s2.option(form.Value, "alias", _("Alias"), _("Any custom string"));
+    o = s2.option(form.Value, "alias", _("Alias"));
     o.rmempty = false;
 
     o = s2.option(form.Value, "address", _("Address"));
