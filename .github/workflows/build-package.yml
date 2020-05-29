@@ -57,11 +57,15 @@ jobs:
         user_email: 'github-actions[bot]@users.noreply.github.com'
         commit_message: ${{ github.event.head_commit.message }}
 
+    - name: Prepare Cache Key
+      id: cache_key
+      run: echo "::set-output name=timestamp::$(date +"%s")"
+
     - name: Setup OpenWrt Cache
       uses: actions/cache@v1
       with:
         path: ${{ env.CACHE_DIR }}
-        key: openwrt-${{ env.PACKAGE_NAME }}-${{ github.sha }}
+        key: openwrt-${{ env.PACKAGE_NAME }}-${{ steps.cache_key.outputs.timestamp }}
         restore-keys: |
           openwrt-${{ env.PACKAGE_NAME }}-
 
