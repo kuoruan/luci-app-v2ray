@@ -22,12 +22,10 @@ return L.view.extend<[string, string]>({
         configFile = "/var/etc/v2ray/v2ray.main.json";
       }
 
-      return Promise.all(
-        [Promise.resolve(configFile)],
-        L.resolveDefault(fs.read(configFile), "")
-      ).catch(function () {
-        return [];
-      });
+      return Promise.all([
+        Promise.resolve(configFile),
+        L.resolveDefault(fs.read(configFile), ""),
+      ]);
     });
   },
   render: function ([configFile = "", configContent = ""] = []) {
