@@ -14,7 +14,12 @@
         "/etc/v2ray/*": [
           "read"
         ],
-        "/etc/init.d/v2ray": ["exec"]
+        "/var/etc/v2ray/*": [
+          "read"
+        ],
+        "/etc/init.d/v2ray": [
+          "exec"
+        ]
       }
     },
     "write": {
