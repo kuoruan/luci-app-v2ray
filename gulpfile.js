@@ -70,6 +70,7 @@ gulp.task("compile:test", function () {
         output: {
           comments: "some",
           beautify: true,
+          indent_level: 2,
         },
       })
     )
