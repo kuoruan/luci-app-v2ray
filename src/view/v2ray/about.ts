@@ -34,9 +34,8 @@ return L.view.extend<[string, string]>({
       E("p", _("LuCI support for V2Ray.")),
       E(
         "p",
-        _("Version: %s-%s").format(
-          process.env.LUCI_VERSION,
-          process.env.LUCI_RELEASE
+        _("Version: %s").format(
+          `${process.env.LUCI_VERSION}-${process.env.LUCI_RELEASE}`
         )
       ),
       E("p", _("Author: %s").format("Xingwang Liao")),

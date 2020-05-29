@@ -149,7 +149,7 @@ return L.view.extend<[SectionItem[], SectionItem[]]>({
               } else {
                 L.raise(
                   "Error",
-                  data.message || _("Failed to fetch CHNRoute list..")
+                  data.message || _("Failed to fetch CHNRoute list.")
                 );
               }
             } else {
