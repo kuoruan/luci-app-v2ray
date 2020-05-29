@@ -87,6 +87,9 @@ return L.view.extend<SectionItem[]>({
     o = s2.option(form.DynamicList, "domains", _("Domains"));
     o.modalonly = true;
 
+    o = s2.option(form.DynamicList, "expect_ips", _("Expect IPs"));
+    o.modalonly = true;
+
     return m.render();
   },
 });
