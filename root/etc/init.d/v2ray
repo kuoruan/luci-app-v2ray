@@ -742,38 +742,42 @@ add_dns_settings() {
 					continue
 				fi
 
-				json_add_object ""
-				json_add_string "address" "$address"
-
-				if [ -n "$port" ] ; then
-					json_add_int "port" "$port"
+				if [ -z "${port}${domains}${expect_ips}" ] ; then
+					json_add_string "" "$address"
 				else
-					json_add_int "port" "53"
+					json_add_object ""
+					json_add_string "address" "$address"
+
+					if [ -n "$port" ] ; then
+						json_add_int "port" "$port"
+					else
+						json_add_int "port" "53"
+					fi
+
+					if [ -n "$domains" ] ; then
+						json_add_array "domains"
+
+						local d
+						for d in $domains ; do
+							json_add_string "" "$d"
+						done
+
+						json_close_array # domains
+					fi
+
+					if [ -n "$expect_ips" ] ; then
+						json_add_array "expectIPs"
+
+						local e
+						for e in $expect_ips ; do
+							json_add_string "" "$e"
+						done
+
+						json_close_array # expectIPs
+					fi
+
+					json_close_object
 				fi
-
-				if [ -n "$domains" ] ; then
-					json_add_array "domains"
-
-					local d
-					for d in $domains ; do
-						json_add_string "" "$d"
-					done
-
-					json_close_array # domains
-				fi
-
-				if [ -n "$expect_ips" ] ; then
-					json_add_array "expectIPs"
-
-					local e
-					for e in $expect_ips ; do
-						json_add_string "" "$e"
-					done
-
-					json_close_array # expectIPs
-				fi
-
-				json_close_object
 			fi
 		done
 
