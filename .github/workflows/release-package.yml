@@ -154,7 +154,7 @@ jobs:
       run: |
         cd "$SDK_HOME"
 
-        ln -s "${{ github.workspace }}/package" "package/$PACKAGE_NAME"
+        cp -rf "${{ github.workspace }}/package" "package/$PACKAGE_NAME"
 
         ./scripts/feeds update -a
         ./scripts/feeds install -a
