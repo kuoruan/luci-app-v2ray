@@ -37,7 +37,6 @@ interface Custom extends LuCI.baseclass {
 interface V2Ray extends LuCI.baseclass {
   getLocalIPs(): Promise<string[]>;
   getSections(type: string): Promise<SectionItem[]>;
-  getLanInterfaces(): Promise<SectionItem[]>;
   getDokodemoDoorPorts(): Promise<SectionItem[]>;
 }
 

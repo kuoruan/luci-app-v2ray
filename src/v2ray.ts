@@ -35,22 +35,6 @@ return L.Class.extend({
     });
   },
 
-  getLanInterfaces: function (): Promise<SectionItem[]> {
-    return network.getNetworks().then(function (networks: network.Protocol[]) {
-      const sections: SectionItem[] = [];
-
-      for (const n of networks) {
-        const netName = n.getName();
-
-        if (netName !== "loopback" && netName.indexOf("wan") < 0) {
-          sections.push({ caption: n.getI18n(), value: netName });
-        }
-      }
-
-      return sections;
-    });
-  },
-
   getSections: function (
     type: string,
     captionKey: string = "alias"
