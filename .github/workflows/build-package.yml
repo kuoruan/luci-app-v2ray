@@ -35,7 +35,7 @@ jobs:
         path: node_modules
         key: node-${{ env.PACKAGE_NAME }}-${{ hashFiles('yarn.lock') }}
         restore-keys: |
-          node-${{ env.PACKAGE_NAME }}
+          node-${{ env.PACKAGE_NAME }}-
 
     - name: Test Source
       run: |
@@ -61,9 +61,9 @@ jobs:
       uses: actions/cache@v1
       with:
         path: ${{ env.CACHE_DIR }}
-        key: openwrt-${{ env.PACKAGE_NAME }}-${{ hashFiles('**/Makefile') }}
+        key: openwrt-${{ env.PACKAGE_NAME }}-${{ github.sha }}
         restore-keys: |
-          openwrt-${{ env.PACKAGE_NAME }}
+          openwrt-${{ env.PACKAGE_NAME }}-
 
     - name: Install Dependencies
       run: |
@@ -126,6 +126,19 @@ jobs:
 
         cd "$SDK_HOME"
 
+        cp feeds.conf.default feeds.conf
+
+        sed -i 's#git.openwrt.org/openwrt/openwrt#github.com/openwrt/openwrt#' feeds.conf
+        sed -i 's#git.openwrt.org/feed/packages#github.com/openwrt/packages#' feeds.conf
+        sed -i 's#git.openwrt.org/project/luci#github.com/openwrt/luci#' feeds.conf
+        sed -i 's#git.openwrt.org/feed/telephony#github.com/openwrt/telephony#' feeds.conf
+
+        cd -
+
+    - name: Restore OpenWrt Cache
+      run: |
+        cd "$SDK_HOME"
+
         test -d "dl" && rm -rf "dl" || true
         test -d "feeds" && rm -rf "feeds" || true
 
@@ -144,12 +157,9 @@ jobs:
         ln -s "$CCACHE_DIR_TARGET" "$staging_dir_target/ccache"
         ln -s "$CCACHE_DIR_TOOLCHAIN" "$staging_dir_toolchain/ccache"
 
-        cp feeds.conf.default feeds.conf
-
-        sed -i 's#git.openwrt.org/openwrt/openwrt#github.com/openwrt/openwrt#' feeds.conf
-        sed -i 's#git.openwrt.org/feed/packages#github.com/openwrt/packages#' feeds.conf
-        sed -i 's#git.openwrt.org/project/luci#github.com/openwrt/luci#' feeds.conf
-        sed -i 's#git.openwrt.org/feed/telephony#github.com/openwrt/telephony#' feeds.conf
+        CCACHE_DIR="$staging_dir_host/ccache" staging_dir/host/bin/ccache -s
+        CCACHE_DIR="$staging_dir_target/ccache" staging_dir/host/bin/ccache -s
+        CCACHE_DIR="$staging_dir_toolchain/ccache" staging_dir/host/bin/ccache -s
 
         cd -
 
