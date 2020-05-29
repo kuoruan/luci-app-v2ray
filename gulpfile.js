@@ -45,6 +45,11 @@ gulp.task("compile", function () {
         compress: {
           directives: false,
         },
+        mangle: {},
+        output: {
+          comments: "some",
+          beautify: false,
+        },
       })
     )
     .pipe(replaceEnvs())
@@ -55,7 +60,20 @@ gulp.task("compile:test", function () {
   return tsProject
     .src()
     .pipe(tsProject())
-    .js.pipe(replaceEnvs())
+    .js.pipe(
+      terser({
+        parse: {
+          bare_returns: true,
+        },
+        compress: false,
+        mangle: false,
+        output: {
+          comments: "some",
+          beautify: true,
+        },
+      })
+    )
+    .pipe(replaceEnvs())
     .pipe(gulp.dest("output"));
 });
 
