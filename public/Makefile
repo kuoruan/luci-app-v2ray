@@ -31,6 +31,10 @@ define Package/$(PKG_NAME)/postinst
 
 if [ -z "$${IPKG_INSTROOT}" ] ; then
 	( . /etc/uci-defaults/40_luci-v2ray ) && rm -f /etc/uci-defaults/40_luci-v2ray
+
+	rm -rf /tmp/luci-indexcache /tmp/luci-modulecache/
+
+	killall -HUP rpcd 2>/dev/null
 fi
 
 chmod 755 "$${IPKG_INSTROOT}/etc/init.d/v2ray" >/dev/null 2>&1
@@ -48,7 +52,7 @@ if [ -s "$${IPKG_INSTROOT}/etc/rc.d/S99v2ray" ] ; then
 fi
 
 if [ -z "$${IPKG_INSTROOT}" ] ; then
-	rm -rf /tmp/luci-indexcache /tmp/luci-modulecache
+	rm -rf /tmp/luci-indexcache /tmp/luci-modulecache/
 fi
 
 exit 0
