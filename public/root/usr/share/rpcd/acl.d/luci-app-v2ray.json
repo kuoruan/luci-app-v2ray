@@ -5,6 +5,9 @@
       "ubus": {
         "luci.v2ray": [
           "*"
+        ],
+        "luci-rpc": [
+          "getDHCPLeases"
         ]
       },
       "uci": [

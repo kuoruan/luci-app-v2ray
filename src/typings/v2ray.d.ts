@@ -9,6 +9,18 @@ type SectionItem = {
   value: string;
 };
 
+type ListStatus = {
+  count: number;
+  datetime: string;
+};
+
+type Lease = {
+  ipv6: boolean;
+  hostname: string;
+  ipaddr: string;
+  macaddr: string;
+};
+
 type CustomTextValueProperties = {
   filepath: string | null;
   isjson: boolean;
@@ -38,6 +50,7 @@ interface V2Ray extends LuCI.baseclass {
   getLocalIPs(): Promise<string[]>;
   getSections(type: string): Promise<SectionItem[]>;
   getDokodemoDoorPorts(): Promise<SectionItem[]>;
+  getDHCPLeases(): Promise<Lease[]>;
 }
 
 interface Base64 extends LuCI.baseclass {

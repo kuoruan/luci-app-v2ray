@@ -37,7 +37,7 @@ const apnicDelegatedUrls = {
 };
 
 // @ts-ignore
-return L.view.extend<[SectionItem[], SectionItem[]]>({
+return L.view.extend<[SectionItem[], Lease[]]>({
   handleListUpdate(ev: MouseEvent, section_id: string, listtype: string) {
     const hideModal = function () {
       ui.hideModal();
@@ -167,9 +167,9 @@ return L.view.extend<[SectionItem[], SectionItem[]]>({
     }
   },
   load: function () {
-    return v2ray.getDokodemoDoorPorts();
+    return Promise.all([v2ray.getDokodemoDoorPorts(), v2ray.getDHCPLeases()]);
   },
-  render: function (dokodemoDoorPorts = []) {
+  render: function ([dokodemoDoorPorts = [], dhcpLeases = []] = []) {
     const m = new form.Map(
       "v2ray",
       "%s - %s".format(_("V2Ray"), _("Transparent Proxy"))
@@ -336,6 +336,20 @@ return L.view.extend<[SectionItem[], SectionItem[]]>({
     o.rows = 3;
     o.datatype = "string";
     o.filepath = "/etc/v2ray/srcdirectlist.txt";
+
+    o = s.option(form.DynamicList, "direct_client6", _("Direct IPv6 Clients"));
+    for (const l of dhcpLeases) {
+      if (l.ipv6) {
+        o.value(l.ipaddr, l.hostname || l.ipaddr);
+      }
+    }
+
+    o = s.option(form.DynamicList, "direct_client4", _("Direct IPv4 Clients"));
+    for (const l of dhcpLeases) {
+      if (!l.ipv6) {
+        o.value(l.ipaddr, l.hostname || l.ipaddr);
+      }
+    }
 
     return m.render();
   },

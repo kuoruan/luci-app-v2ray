@@ -10,7 +10,14 @@
 // "require baseclass";
 "require fs";
 "require network";
+"require rpc";
 "require uci";
+
+const callLuCIDHCPLeases = rpc.declare({
+  object: "luci-rpc",
+  method: "getDHCPLeases",
+  expect: { "": {} },
+});
 
 // @ts-ignore
 return L.Class.extend({
@@ -79,6 +86,35 @@ return L.Class.extend({
       });
 
       return sections;
+    });
+  },
+
+  getDHCPLeases: function (): Promise<Lease[]> {
+    return callLuCIDHCPLeases().then(function (leaseinfo: any) {
+      const leases4 = L.toArray(leaseinfo.dhcp_leases);
+      const leases6 = L.toArray(leaseinfo.dhcp6_leases);
+
+      const leases: Lease[] = [];
+
+      for (const l of leases4) {
+        leases.push({
+          ipv6: false,
+          hostname: l.hostname,
+          macaddr: l.macaddr,
+          ipaddr: l.ipaddr,
+        });
+      }
+
+      for (const l of leases6) {
+        leases.push({
+          ipv6: true,
+          hostname: l.hostname,
+          macaddr: l.macaddr,
+          ipaddr: l.ipaddr,
+        });
+      }
+
+      return leases;
     });
   },
 });

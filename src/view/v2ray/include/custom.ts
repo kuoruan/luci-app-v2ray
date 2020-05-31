@@ -16,11 +16,6 @@
 "require uci";
 "require ui";
 
-type ListStatus = {
-  count: number;
-  datetime: string;
-};
-
 const callRunningStatus = rpc.declare<{ code: number }>({
   object: "luci.v2ray",
   method: "runningStatus",
