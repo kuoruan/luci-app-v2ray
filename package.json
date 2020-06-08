@@ -30,7 +30,7 @@
     "install-deps-postmerge": "^1.0.5",
     "lint-staged": "^10.2.7",
     "prettier": "^2.0.5",
-    "typescript": "^3.9.3"
+    "typescript": "^3.9.5"
   },
   "dependencies": {}
 }
