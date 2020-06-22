@@ -28,7 +28,7 @@
     "gulp-typescript": "^6.0.0-alpha.1",
     "husky": "^4.2.5",
     "install-deps-postmerge": "^1.0.5",
-    "lint-staged": "^10.2.10",
+    "lint-staged": "^10.2.11",
     "prettier": "^2.0.5",
     "typescript": "^3.9.5"
   },
