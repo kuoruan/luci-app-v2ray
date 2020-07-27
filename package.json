@@ -24,7 +24,7 @@
     "gulp": "^4.0.2",
     "gulp-cli": "^2.3.0",
     "gulp-replace": "^1.0.0",
-    "gulp-terser": "^1.2.0",
+    "gulp-terser": "^1.2.1",
     "gulp-typescript": "^6.0.0-alpha.1",
     "husky": "^4.2.5",
     "install-deps-postmerge": "^1.0.5",
