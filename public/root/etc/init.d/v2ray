@@ -387,6 +387,7 @@ add_v2ray_redirect_rules() {
 	local ext_args="$1"
 	local lan_devices="$2"
 	local lan_ipaddrs="$3"
+	local proxy_mode="$4"
 
 	local port="$TRANSPARENT_PROXY_PORT"
 	local addition="$TRANSPARENT_PROXY_ADDITION"
@@ -399,6 +400,11 @@ add_v2ray_redirect_rules() {
 		*nat
 		:V2RAY -
 		-A V2RAY -p tcp -j RETURN -m mark --mark 0xff
+		$(
+			if [ "$proxy_mode" = "cn_direct" ]; then
+				echo "-A V2RAY -p tcp -m set --match-set $IPSET_DST_PROXY_V4 dst -j REDIRECT --to-ports $port"
+			fi
+		)
 		-A V2RAY -p tcp -j RETURN -m set --match-set $ipset_src_direct src
 		-A V2RAY -p tcp -j RETURN -m set --match-set $ipset_dst_direct dst
 		-A V2RAY -p tcp $ext_args -j REDIRECT --to-ports $port
@@ -473,6 +479,7 @@ add_v2ray_tproxy_rules() {
 	local ext_args="$1"
 	local lan_devices="$2"
 	local lan_ipaddrs="$3"
+	local proxy_mode="$4"
 
 	local port="$TRANSPARENT_PROXY_PORT"
 	local addition="$TRANSPARENT_PROXY_ADDITION"
@@ -491,6 +498,9 @@ add_v2ray_tproxy_rules() {
 		:V2RAY -
 		-A V2RAY -j RETURN -m mark --mark 0xff
 		$(
+			if [ "$proxy_mode" = "cn_direct" ]; then
+				echo "-A V2RAY -p tcp -m set --match-set $IPSET_DST_PROXY_V4 dst -j TPROXY --on-port $port --tproxy-mark 0x1/0x1"
+			fi
 			if [ -n "$addition" ] && [ -n "$lan_ipaddrs" ] ; then
 				local ipaddr
 				for ipaddr in $lan_ipaddrs ; do
@@ -2050,9 +2060,9 @@ setup_transparent_proxy() {
 
 	if [ "x$TRANSPARENT_PROXY_USE_TPROXY" = "x1" ] ; then
 		_info "Use TProxy to setup iptables"
-		add_v2ray_tproxy_rules "$ext_args" "$lan_devices" "$lan_ipaddrs"
+		add_v2ray_tproxy_rules "$ext_args" "$lan_devices" "$lan_ipaddrs" "$proxy_mode"
 	else
-		add_v2ray_redirect_rules "$ext_args" "$lan_devices" "$lan_ipaddrs"
+		add_v2ray_redirect_rules "$ext_args" "$lan_devices" "$lan_ipaddrs" "$proxy_mode"
 	fi
 }
 
