@@ -18,7 +18,7 @@
 
 // @ts-ignore
 return L.view.extend<string[]>({
-  handleImportSave: function (val: string) {
+  handleImportSave: function (val: string, dtag: string) {
     const links = val.split(/\r?\n/);
 
     let linksCount = 0;
@@ -42,6 +42,7 @@ return L.view.extend<string[]>({
       const network = vmess.net || "";
       const headerType = vmess.type || "";
       const path = vmess.path || "";
+      const tag = dtag || "";
 
       const alias = vmess.ps || "%s:%s".format(address, port);
 
@@ -52,6 +53,7 @@ return L.view.extend<string[]>({
       uci.set("v2ray", sid, "s_vmess_user_id", vmess.id || "");
       uci.set("v2ray", sid, "s_vmess_user_alter_id", vmess.aid || "");
       uci.set("v2ray", sid, "ss_security", tls);
+      uci.set("v2ray", sid, "tag", tag);
 
       let hosts: string[] = [];
       if (vmess.host) {
@@ -184,6 +186,10 @@ return L.view.extend<string[]>({
       },
     });
 
+    const tagfield = new ui.Textfield("", {
+      placeholder: _("The outbound's tag, default is empty"),
+    });
+
     ui.showModal(_("Import Vmess Links"), [
       E("div", {}, [
         E(
@@ -193,6 +199,7 @@ return L.view.extend<string[]>({
         ),
         textarea.render(),
       ]),
+      E("div", { class: "right" }, [tagfield.render()]),
       E("div", { class: "right" }, [
         E(
           "button",
@@ -209,7 +216,7 @@ return L.view.extend<string[]>({
             class: "cbi-button cbi-button-positive important",
             click: ui.createHandlerFn(
               this,
-              function (area: ui.Textarea) {
+              function (area: ui.Textarea, tagfiled: ui.Textfield) {
                 area.triggerValidation();
 
                 let val: string;
@@ -221,9 +228,12 @@ return L.view.extend<string[]>({
                   return;
                 }
 
-                return this.handleImportSave(val);
+                const dtag = tagfiled.getValue();
+                console.log("defalt tag is ", dtag);
+                return this.handleImportSave(val, dtag);
               },
-              textarea
+              textarea,
+              tagfield
             ),
           },
           _("Save")
