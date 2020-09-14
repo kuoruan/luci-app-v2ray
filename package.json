@@ -26,7 +26,7 @@
     "gulp-replace": "^1.0.0",
     "gulp-terser": "^1.4.0",
     "gulp-typescript": "^6.0.0-alpha.1",
-    "husky": "^4.2.5",
+    "husky": "^4.3.0",
     "install-deps-postmerge": "^2.0.1",
     "lint-staged": "^10.3.0",
     "prettier": "^2.1.1",
