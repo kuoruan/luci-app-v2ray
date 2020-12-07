@@ -20,7 +20,7 @@
     "eslint": "^7.15.0",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.2.0",
-    "eslint-plugin-tsdoc": "^0.2.7",
+    "eslint-plugin-tsdoc": "^0.2.10",
     "gulp": "^4.0.2",
     "gulp-cli": "^2.3.0",
     "gulp-replace": "^1.0.0",
