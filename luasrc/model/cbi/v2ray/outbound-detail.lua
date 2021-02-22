@@ -52,6 +52,7 @@ o:value("mtproto", "MTProto")
 o:value("shadowsocks", "Shadowsocks")
 o:value("socks", "Socks")
 o:value("vmess", "VMess")
+o:value("trojan", "Trojan")
 
 -- Settings Blackhole
 o = s:option(ListValue, "s_blackhole_reponse_type", "%s - %s" % { "Blackhole", translate("Response type") } )
@@ -187,6 +188,26 @@ o:value("none", translate("None"))
 
 o = s:option(Value, "s_vmess_user_level", "%s - %s" % { "VMess", translate("User level") })
 o:depends("protocol", "vmess")
+o.datatype = "uinteger"
+
+-- Settings - Trojan
+o = s:option(Value, "s_trojan_address", "%s - %s" % { "Trojan", translate("Address") })
+o:depends("protocol", "trojan")
+o.datatype = "host"
+
+o = s:option(Value, "s_trojan_port", "%s - %s" % { "Trojan", translate("Port") })
+o:depends("protocol", "trojan")
+o.datatype = "port"
+
+o = s:option(Value, "s_trojan_password", "%s - %s" % { "Trojan", translate("Password") })
+o:depends("protocol", "trojan")
+o.password = true
+
+o = s:option(Value, "s_trojan_email", "%s - %s" % { "Trojan", translate("E-Mail") })
+o:depends("protocol", "trojan")
+
+o = s:option(Value, "s_trojan_user_level", "%s - %s" % { "Trojan", translate("User level") })
+o:depends("protocol", "trojan")
 o.datatype = "uinteger"
 
 -- Stream Settings

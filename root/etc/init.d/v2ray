@@ -347,6 +347,11 @@ outbound_section_validate() {
 		's_vmess_user_alter_id:and(uinteger, max(65535))' \
 		's_vmess_user_security:or("auto", "aes-128-gcm", "chacha20-poly1305", "none")' \
 		's_vmess_user_level:uinteger' \
+		's_trojan_address:host' \
+		's_trojan_port:port' \
+		's_trojan_password:string' \
+		's_trojan_email:string' \
+		's_trojan_user_level:uinteger' \
 		'ss_network:or("tcp", "kcp", "ws", "http", "domainsocket", "quic")' \
 		'ss_security:or("none", "tls")' \
 		'ss_tls_server_name:host' \
@@ -1634,6 +1639,26 @@ add_outbound_setting() {
 			json_close_object
 
 			json_close_array # vnext
+			json_close_object # settings
+			;;
+		"trojan")
+			json_add_object "settings"
+
+			json_add_array "servers"
+			json_add_object ""
+
+			json_add_string "address" "$s_trojan_address"
+			append_server_address "$s_trojan_address"
+			json_add_int "port" "$s_trojan_port"
+			json_add_string "password" "$s_trojan_password"
+			test -n "$s_trojan_email" && \
+			json_add_string "email" "$s_trojan_email"
+			test -n "$s_trojan_user_level" && \
+				json_add_int "level" "$s_trojan_user_level"
+
+			json_close_object
+
+			json_close_array # servers
 			json_close_object # settings
 			;;
 	esac
