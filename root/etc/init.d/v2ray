@@ -169,7 +169,8 @@ dns_server_section_validate() {
 	uci_validate_section "$NAME" "dns_server" "$1" \
 		'address:string' \
 		'port:port' \
-		'domains:list(string)'
+		'domains:list(string)'\
+		'expectIPs:list(string)'
 }
 
 routing_section_validate() {
@@ -754,7 +755,7 @@ add_dns_settings() {
 					continue
 				fi
 
-				if [ -z "$port" ] && [ -z "$domains" ] ; then
+				if [ -z "$port" ] && [ -z "$domains" ] && [ -z "$expectIPs" ] ; then
 					json_add_string "" "$address"
 				else
 					json_add_object ""
@@ -775,6 +776,17 @@ add_dns_settings() {
 						done
 
 						json_close_array # domains
+					fi
+
+					if [ -n "$expectIPs" ] ; then
+						json_add_array "expectIPs"
+
+						local eip
+						for eip in $expectIPs ; do
+							json_add_string "" "$eip"
+						done
+
+						json_close_array # expectIPs
 					fi
 
 					json_close_object
