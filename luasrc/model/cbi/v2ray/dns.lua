@@ -43,8 +43,10 @@ end
 s2 = m:section(TypedSection, "dns_server", translate("DNS server"), translate("Add DNS servers here"))
 s2.anonymous = true
 s2.addremove = true
+s2.sortable = true
+s2.template = "cbi/tblsection"
 
-o = s2:option(Value, "alias", translate("Alias"), translate("Any custom string"))
+o = s2:option(Value, "alias", translate("Alias"))
 o.rmempty = false
 
 o = s2:option(Value, "address", translate("Address"))
@@ -54,5 +56,7 @@ o.datatype = "port"
 o.placeholder = "53"
 
 o = s2:option(DynamicList, "domains", translate("Domains"))
+
+o = s2:option(DynamicList, "expectIPs", translate("Expect IPs"))
 
 return m
