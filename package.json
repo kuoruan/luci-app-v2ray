@@ -23,7 +23,7 @@
     "eslint-plugin-tsdoc": "^0.2.11",
     "gulp": "^4.0.2",
     "gulp-cli": "^2.3.0",
-    "gulp-replace": "^1.0.0",
+    "gulp-replace": "^1.1.1",
     "gulp-terser": "^2.0.1",
     "gulp-typescript": "^6.0.0-alpha.1",
     "husky": "^6.0.0",
