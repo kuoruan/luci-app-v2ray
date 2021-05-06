@@ -36,6 +36,12 @@ return L.view.extend<SectionItem[]>({
 
     o = s1.option(form.Value, "tag", _("Tag"));
 
+    o = s1.option(form.Flag, "disable_fallback", _("Disable Fallback"),
+      _(
+        "Disable the fallback query when none dns server matches normally."
+      )
+    );
+
     o = s1.option(
       form.Value,
       "client_ip",
@@ -89,6 +95,8 @@ return L.view.extend<SectionItem[]>({
 
     o = s2.option(form.DynamicList, "expect_ips", _("Expect IPs"));
     o.modalonly = true;
+
+    o = s2.option(form.Flag, "skip_fallback", _("Skip Fallback"));
 
     return m.render();
   },
