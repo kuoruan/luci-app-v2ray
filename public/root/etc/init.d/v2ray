@@ -170,6 +170,7 @@ dns_server_section_validate() {
 routing_section_validate() {
 	uci_validate_section "$NAME" "routing" "$1" \
 		'enabled:bool:0' \
+		'domain_matcher:or("linear", "mph")' \
 		'domain_strategy:or("AsIs", "IPIfNonMatch", "IPOnDemand")' \
 		'rules:list(uci("v2ray", "@routing_rule"))' \
 		'balancers:list(uci("v2ray", "@routing_balancer"))'
@@ -179,6 +180,7 @@ routing_rule_section_validate() {
 	uci_validate_section "$NAME" "routing_rule" "$1" \
 		'type:"field"' \
 		'domain:list(string)' \
+		'domain_matcher:or("linear", "mph")' \
 		'ip:list(string)' \
 		'port:or(port, portrange)' \
 		'network:list(or("tcp", "udp"))' \
@@ -811,6 +813,9 @@ add_routing_settings() {
 	test -n "$domain_strategy" && \
 		json_add_string "domainStrategy" "$domain_strategy"
 
+	test -n "$domain_matcher" && \
+		json_add_string "domainMatcher" "$domain_matcher"
+
 	if [ -n "$rules" ] ; then
 		json_add_array "rules"
 
@@ -830,6 +835,10 @@ add_routing_settings() {
 					done
 
 					json_close_array # domain
+				fi
+
+				if [ -n "$domain_matcher" ] ; then
+					json_add_string "domainMatcher" "$domain_matcher"
 				fi
 
 				if [ -n "$ip" ] ; then
