@@ -86,6 +86,7 @@ return L.view.extend<SectionItem[]>({
     s2.anonymous = true;
     s2.addremove = true;
     s2.nodescription = true;
+    s2.sortable = true;
 
     o = s2.option(form.Value, "alias", _("Alias"));
     o.rmempty = false;
