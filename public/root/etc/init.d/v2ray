@@ -154,6 +154,8 @@ dns_section_validate() {
 		'tag:string' \
 		'client_ip:ipaddr' \
 		'hosts:list(string)' \
+		'disable_fallback:bool:0' \
+		'disable_cache:bool:0' \
 		'servers:list(uci("v2ray", "@dns_server"))'
 }
 
@@ -716,6 +718,10 @@ add_dns_settings() {
 		json_add_string "tag" "$tag"
 	test -n "$client_ip" && \
 		json_add_string "clientIp" "$client_ip"
+	test -n "$disable_fallback" && test "x$disable_fallback" == "x1" && \
+		json_add_boolean "disableFallback" "$disable_fallback"
+	test -n "$disable_cache" && test "x$disable_cache" == "x1" && \
+		json_add_boolean "disableCache" "$disable_cache"
 
 	if [ -n "$hosts" ] ; then
 		json_add_object "hosts"
