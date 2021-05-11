@@ -59,6 +59,16 @@ return L.view.extend<SectionItem[]>({
     o.datatype = "ipaddr";
 
     o = s1.option(
+      form.ListValue,
+      "query_strategy",
+      _("Query strategy")
+    );
+    o.value("");
+    o.value("UseIP");
+    o.value("UseIPv4");
+    o.value("UseIPv6");
+
+    o = s1.option(
       form.DynamicList,
       "hosts",
       _("Hosts"),

@@ -156,6 +156,7 @@ dns_section_validate() {
 		'hosts:list(string)' \
 		'disable_fallback:bool:0' \
 		'disable_cache:bool:0' \
+		'query_strategy:or("UseIP", "UseIPv4", "UseIPv6")' \
 		'servers:list(uci("v2ray", "@dns_server"))'
 }
 
@@ -724,6 +725,8 @@ add_dns_settings() {
 		json_add_boolean "disableFallback" "$disable_fallback"
 	test -n "$disable_cache" && test "x$disable_cache" == "x1" && \
 		json_add_boolean "disableCache" "$disable_cache"
+	test -n "$query_strategy" && \
+		json_add_string "queryStrategy" "$query_strategy"
 
 	if [ -n "$hosts" ] ; then
 		json_add_object "hosts"
