@@ -1,0 +1,14 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: weekly
+    time: "09:00"
+    timezone: Asia/Chongqing
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: eslint-config-prettier
+    versions:
+    - 8.0.0
+    - 8.1.0
