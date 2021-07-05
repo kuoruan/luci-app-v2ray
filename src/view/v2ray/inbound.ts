@@ -725,6 +725,15 @@ return L.view.extend<string[]>({
     o.value("dtls", "DTLS 1.2");
     o.value("wireguard", "WireGuard");
 
+    o = s.taboption(
+      "stream",
+      form.Value,
+      "ss_kcp_seed",
+      "%s - %s".format("mKCP", _("Seed"))
+    );
+    o.modalonly = true;
+    o.depends("ss_network", "kcp");
+
     // Stream Settings - WebSocket
     o = s.taboption(
       "stream",
