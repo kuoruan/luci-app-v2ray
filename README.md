@@ -33,6 +33,11 @@ opkg update
 opkg install luci-app-v2ray
 opkg install luci-i18n-v2ray-zh-cn
 ```
+* refer to [issue #42](https://github.com/kuoruan/luci-app-v2ray/issues/42#issuecomment-573342526), install `luci-compat` if you ran into error when trying to enter V2Ray service settings in LuCI
+
+```sh
+opkg install luci-compat
+```
 
 We also support HTTPS protocol.
 
@@ -42,6 +47,13 @@ We also support HTTPS protocol.
 opkg update
 opkg upgrade luci-app-v2ray
 opkg upgrade luci-i18n-v2ray-zh-cn
+```
+
+* upgrade `luci-compat` if you chose to install it in the last step:
+
+```sh
+opkg update
+opkg upgrade luci-compat
 ```
 
 ### Manual install
