@@ -154,6 +154,7 @@ dns_section_validate() {
 		'tag:string' \
 		'client_ip:ipaddr' \
 		'hosts:list(string)' \
+		'disable_fallback:bool:0' \
 		'servers:list(uci("v2ray", "@dns_server"))'
 }
 
@@ -161,6 +162,7 @@ dns_server_section_validate() {
 	uci_validate_section "$NAME" "dns_server" "$1" \
 		'address:string' \
 		'port:port' \
+		'skip_fallback:bool:0' \
 		'domains:list(string)' \
 		'expect_ips:list(string)'
 }
@@ -716,6 +718,8 @@ add_dns_settings() {
 		json_add_string "tag" "$tag"
 	test -n "$client_ip" && \
 		json_add_string "clientIp" "$client_ip"
+	test -n "$disable_fallback" && test "x$disable_fallback" == "x1" && \
+		json_add_boolean "disableFallback" "$disable_fallback"
 
 	if [ -n "$hosts" ] ; then
 		json_add_object "hosts"
@@ -747,6 +751,10 @@ add_dns_settings() {
 				else
 					json_add_object ""
 					json_add_string "address" "$address"
+
+					if [ -n "$skip_fallback" ] && [ "x$skip_fallback" == "x1" ] ; then
+						json_add_boolean "skipFallback" "$skip_fallback"
+					fi
 
 					if [ -n "$port" ] ; then
 						json_add_int "port" "$port"
