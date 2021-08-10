@@ -46,6 +46,11 @@ return L.view.extend<SectionItem[][]>({
     o.value("IPIfNonMatch");
     o.value("IPOnDemand");
 
+    o = s1.option(form.ListValue, "domain_matcher", _("Domain Matcher"));
+    o.value("");
+    o.value("linear", _("linear"));
+    o.value("mph", _("mph"));
+
     o = s1.option(
       form.MultiValue,
       "rules",
@@ -85,6 +90,11 @@ return L.view.extend<SectionItem[][]>({
 
     o = s2.option(form.DynamicList, "domain", _("Domain"));
     o.modalonly = true;
+
+    o = s2.option(form.ListValue, "domain_matcher", _("Domain Matcher"));
+    o.value("");
+    o.value("linear", _("linear"));
+    o.value("mph", _("mph"));
 
     o = s2.option(form.DynamicList, "ip", _("IP"));
     o.modalonly = true;

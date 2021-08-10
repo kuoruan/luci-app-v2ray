@@ -36,6 +36,18 @@ return L.view.extend<SectionItem[]>({
 
     o = s1.option(form.Value, "tag", _("Tag"));
 
+    o = s1.option(form.Flag, "disable_cache", _("Disable Cache"),
+      _(
+        "Disable cache for DNS query."
+      )
+    );
+
+    o = s1.option(form.Flag, "disable_fallback", _("Disable Fallback"),
+      _(
+        "Disable the fallback query when none dns server matches normally."
+      )
+    );
+
     o = s1.option(
       form.Value,
       "client_ip",
@@ -45,6 +57,16 @@ return L.view.extend<SectionItem[]>({
       )
     );
     o.datatype = "ipaddr";
+
+    o = s1.option(
+      form.ListValue,
+      "query_strategy",
+      _("Query strategy")
+    );
+    o.value("");
+    o.value("UseIP");
+    o.value("UseIPv4");
+    o.value("UseIPv6");
 
     o = s1.option(
       form.DynamicList,
@@ -74,6 +96,7 @@ return L.view.extend<SectionItem[]>({
     s2.anonymous = true;
     s2.addremove = true;
     s2.nodescription = true;
+    s2.sortable = true;
 
     o = s2.option(form.Value, "alias", _("Alias"));
     o.rmempty = false;
