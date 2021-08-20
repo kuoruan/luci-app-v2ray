@@ -27,6 +27,8 @@ o = s1:option(Flag, "enabled", translate("Enabled"))
 o.rmempty = false
 
 o = s1:option(Value, "tag", translate("Tag"))
+--禁止空标签,便于管理
+o.rmempty = false
 
 o = s1:option(Value, "client_ip", translate("Client IP"),
 	"<a href=\"https://icanhazip.com\" target=\"_blank\">%s</a>" % translate("Get my public IP address"))
@@ -54,5 +56,8 @@ o.datatype = "port"
 o.placeholder = "53"
 
 o = s2:option(DynamicList, "domains", translate("Domains"))
+
+o = s2:option(DynamicList, "expect_ips", translate("Expect IPs"))
+--添加DNS服务器的expectIPs设置字段
 
 return m
