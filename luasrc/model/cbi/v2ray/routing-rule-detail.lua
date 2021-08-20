@@ -2,6 +2,25 @@
 -- Licensed to the public under the MIT License.
 
 local dsp = require "luci.dispatcher"
+local  uci = require "luci.model.uci".cursor()
+local v2ray = require "luci.model.v2ray"
+
+local inbound_tag, outbound_tag = {}, {}
+
+uci:foreach("v2ray", "inbound", function(s)
+	local i_tag = s.tag or ""
+	if s.alias then
+		inbound_tag[i_tag] = string.format("%s  (%s)", s.alias, i_tag)
+	end
+end)
+
+uci:foreach("v2ray", "outbound", function(s)
+	local o_tag = s.tag or ""
+	if s.alias then
+		outbound_tag[o_tag] = string.format("%s  (%s)", s.alias, o_tag)
+	end
+end)
+
 
 local m, s, o
 
@@ -40,8 +59,12 @@ o:value("udp")
 o = s:option(DynamicList, "source", translate("Source"))
 
 o = s:option(DynamicList, "user", translate("User"))
+-- Get inboundTags automatically to avoid misentry
+o = s:option(MultiValue, "inbound_tag", translate("Inbound tag"))
+for k , v in pairs(inbound_tag) do
+		o:value(k , v)
+end
 
-o = s:option(DynamicList, "inbound_tag", translate("Inbound tag"))
 
 o = s:option(MultiValue, "protocol", translate("Protocol"))
 o:value("http")
@@ -50,7 +73,11 @@ o:value("bittorrent")
 
 o = s:option(Value, "attrs", translate("Attrs"))
 
-o = s:option(Value, "outbound_tag", translate("Outbound tag"))
+-- Get outboundTags automatically to avoid misentry
+o = s:option(ListValue, "outbound_tag", translate("Outbound tag"))
+for k , v in pairs(inbound_tag) do
+		o:value(k , v)
+end
 
 o = s:option(Value, "balancer_tag", translate("Balancer tag"))
 o:depends("outbound_tag", "")
