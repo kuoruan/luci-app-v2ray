@@ -169,7 +169,8 @@ dns_server_section_validate() {
 	uci_validate_section "$NAME" "dns_server" "$1" \
 		'address:string' \
 		'port:port' \
-		'domains:list(string)'
+		'domains:list(string)' \
+		'expect_ips:list(string)'
 }
 
 routing_section_validate() {
@@ -341,6 +342,14 @@ outbound_section_validate() {
 		's_socks_account_user:string' \
 		's_socks_account_pass:string' \
 		's_socks_user_level:uinteger' \
+		's_trojan_address:host'\
+		's_trojan_port:port'\
+		's_trojan_password:string'\
+		's_vless_address:host' \
+		's_vless_port:port' \
+		's_vless_user_id:string' \
+		's_vless_encryption:or("none")' \
+		's_vless_user_level:uinteger' \
 		's_vmess_address:host' \
 		's_vmess_port:port' \
 		's_vmess_user_id:string' \
@@ -349,8 +358,10 @@ outbound_section_validate() {
 		's_vmess_user_level:uinteger' \
 		'ss_network:or("tcp", "kcp", "ws", "http", "domainsocket", "quic")' \
 		'ss_security:or("none", "tls")' \
+		'ss_xtls_enabled:bool:0' \
+		'ss_xtls_flow:or("xtls-rprx-direct", "xtls-rprx-direct-udp443", "xtls-rprx-origin", "xtls-rprx-origin-udp443", "xtls-rprx-splice", "xtls-rprx-splice-udp443")' \
 		'ss_tls_server_name:host' \
-		'ss_tls_alpn:string' \
+		'ss_tls_alpn:or("h2", "h2,http/1.1", "http/1.1")' \
 		'ss_tls_allow_insecure:bool:0' \
 		'ss_tls_allow_insecure_ciphers:bool:0' \
 		'ss_tls_disable_system_root:bool:0' \
@@ -383,6 +394,7 @@ outbound_section_validate() {
 		'ss_quic_key:string' \
 		'ss_quic_header_type:or("none", "srtp", "utp", "wechat-video", "dtls", "wireguard")' \
 		'ss_sockopt_mark:uinteger' \
+		'ss_sockopt_domainStrategy:or("", "AsIs", "UseIP", "UseIPv4", "UseIPv6")' \
 		'ss_sockopt_tcp_fast_open:or("0", "1")' \
 		'stream_settings:string' \
 		'proxy_settings_tag:string' \
@@ -749,24 +761,36 @@ add_dns_settings() {
 					continue
 				fi
 
-				if [ -z "$port" ] && [ -z "$domains" ] ; then
+				if [ -z "${port}${domains}${expect_ips}" ] ; then
 					json_add_string "" "$address"
 				else
 					json_add_object ""
 					json_add_string "address" "$address"
+					if [ ${address:0:5} != "https" ] ; then
 
-					if [ -n "$port" ] ; then
-						json_add_int "port" "$port"
-					else
-						json_add_int "port" "53"
+						if [ -n "$port" ] ; then
+							json_add_int "port" "$port"
+						else
+							json_add_int "port" "53"
+						fi
 					fi
-
+					
 					if [ -n "$domains" ] ; then
 						json_add_array "domains"
 
 						local d
 						for d in $domains ; do
 							json_add_string "" "$d"
+						done
+
+						json_close_array # domains
+					fi
+					if [ -n "$expect_ips" ] ; then
+						json_add_array "expectIPs"
+
+						local e
+						for e in $expect_ips ; do
+							json_add_string "" "$e"
 						done
 
 						json_close_array # domains
@@ -1609,6 +1633,55 @@ add_outbound_setting() {
 			json_close_array # servers
 			json_close_object # settings
 			;;
+		"trojan")
+			json_add_object "settings"
+			json_add_array "servers"
+			json_add_object ""
+			json_add_string "address" "$s_trojan_address"
+			json_add_int "port" "$s_trojan_port"
+			json_add_string "password" "$s_trojan_password"
+			if [ -n "$ss_xtls_flow" ] ; then
+				if [ "$ss_network" = "tcp" ] || [ "$ss_network" = "kcp" ] || [ "$ss_network" = "domainsocket" ] ; then 
+					if [ "$ss_security" = "tls" ] && [ "x$ss_xtls_enabled" = "x1" ] ; then
+						json_add_string "flow" "$ss_xtls_flow"
+	                		fi
+				fi
+			else
+				json_add_string "flow" ""
+			fi 
+
+			json_close_object
+			json_close_array
+ 			json_close_object
+			;;
+		"vless")
+			json_add_object "settings"
+			json_add_array "vnext"
+			json_add_object ""
+			json_add_string "address" "$s_vless_address"
+			append_server_address "$s_vless_address"
+			json_add_int "port" "$s_vless_port"
+			json_add_array "users"
+			json_add_object ""
+			json_add_string "id" "$s_vless_user_id"
+			if [ -n "$ss_xtls_flow" ] ; then
+				if [ "$ss_network" = "tcp" ] || [ "$ss_network" = "kcp" ] || [ "$ss_network" = "domainsocket" ] ; then 
+					if [ "$ss_security" = "tls" ] && [ "x$ss_xtls_enabled" = "x1" ] ; then
+						json_add_string "flow" "$ss_xtls_flow"
+	                		fi
+				fi
+			else
+				json_add_string "flow" ""
+			fi 
+			test -n "$s_vless_user_level" && \
+				json_add_int "level" "$s_vless_user_level"
+			json_add_string "encryption" "$s_vless_encryption"
+			json_close_object
+			json_close_array # users
+			json_close_object
+			json_close_array # vnext
+			json_close_object # settings
+			;;
 		"vmess")
 			json_add_object "settings"
 
@@ -1642,38 +1715,46 @@ add_outbound_setting() {
 	test -n "$ss_network" && \
 		json_add_string "network" "$ss_network"
 
-	test -n "$ss_security" && \
-		json_add_string "security" "$ss_security"
-
-	if [ "x$ss_security" = "xtls" ] ; then
-		json_add_object "tlsSettings"
-
-		test -n "$ss_tls_server_name" && \
-			json_add_string "serverName" "$ss_tls_server_name"
-
-		if [ -n "$ss_tls_alpn" ] ; then
-			json_add_array "alpn"
-			json_add_string "" "$ss_tls_alpn"
-			json_close_array
-		fi
-
-		json_add_boolean "allowInsecure" "$ss_tls_allow_insecure"
-		json_add_boolean "allowInsecureCiphers" "$ss_tls_allow_insecure_ciphers"
-		json_add_boolean "disableSystemRoot" "$ss_tls_disable_system_root"
-
-		json_add_array "certificates"
-		if [ -n "$ss_tls_cert_fiile" ] ; then
-			json_add_object ""
-			json_add_string "certificateFile" "$ss_tls_cert_fiile"
-			json_add_string "keyFile" "$ss_tls_key_file"
-			test -n "$ss_tls_cert_usage" && \
-				json_add_string "usage" "$ss_tls_cert_usage"
-			json_close_object
-		fi
-		json_close_array # certificates
-
-		json_close_object # tlsSettings
-	fi
+	#test -n "$ss_security" && \
+	case "${ss_security:-x}" in
+		"tls")
+			if [ "$ss_network" = "tcp" ] || [ "$ss_network" = "kcp" ] || [ "$ss_network" = "domainsocket" ] ; then
+				if [ "x$ss_xtls_enabled" = "x1" ] ; then 
+					if [ "$protocol" = "vless" ] || [ "$protocol" = "trojan" ]  ; then
+						json_add_string "security" "x$ss_security"
+						json_add_object "xtlsSettings"
+					fi
+				fi
+			else
+				json_add_string "security" "$ss_security"
+				json_add_object "tlsSettings"
+			fi
+				test -n "$ss_tls_server_name" && \
+					json_add_string "serverName" "$ss_tls_server_name"
+				if [ -n "$ss_tls_alpn" ] ; then
+			        	json_add_array "alpn"
+			        	json_add_string "" "$ss_tls_alpn"
+			        	json_close_array
+				fi
+				json_add_boolean "allowInsecure" "$ss_tls_allow_insecure"
+				json_add_boolean "allowInsecureCiphers" "$ss_tls_allow_insecure_ciphers"
+				json_add_boolean "disableSystemRoot" "$ss_tls_disable_system_root"
+				json_add_array "certificates"
+				if [ -n "$ss_tls_cert_fiile" ] ; then
+					json_add_object ""
+					json_add_string "certificateFile" "$ss_tls_cert_fiile"
+					json_add_string "keyFile" "$ss_tls_key_file"
+					test -n "$ss_tls_cert_usage" && \
+					json_add_string "usage" "$ss_tls_cert_usage"
+					json_close_object
+				fi
+				json_close_array # certificates
+				json_close_object # tlsSettings
+			;;
+		"*")
+			json_add_string "security" "none"
+			;;
+	esac
 
 	case "${ss_network:-x}" in
 		"tcp")
@@ -1858,6 +1939,10 @@ add_outbound_setting() {
 	else
 		test -n "$ss_sockopt_mark" && \
 			json_add_int "mark" "$ss_sockopt_mark"
+	fi
+
+	if [ "$protocol" !=  "freedom" ] && [ "$protocol" !=  "blackhole" ] && [ "$protocol" !=  "dns" ] ; then
+		json_add_string "domainStrategy" "$ss_sockopt_domainStrategy"
 	fi
 
 	test -n "$ss_sockopt_tcp_fast_open" && \
