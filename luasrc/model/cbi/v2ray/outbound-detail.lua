@@ -4,6 +4,18 @@
 local dsp = require "luci.dispatcher"
 local nixio = require "nixio"
 local util = require "luci.util"
+local  uci = require "luci.model.uci".cursor()
+local v2ray = require "luci.model.v2ray"
+
+local outbound_tag = {}
+uci:foreach("v2ray", "outbound", function(s)
+	local o_tag = s.tag or ""
+	if s.alias then
+		outbound_tag[o_tag] = string.format("%s  (%s)", s.alias, o_tag)
+	end
+end)
+
+
 
 local m, s, o
 
@@ -51,6 +63,8 @@ o:value("http", "HTTP/2")
 o:value("mtproto", "MTProto")
 o:value("shadowsocks", "Shadowsocks")
 o:value("socks", "Socks")
+o:value("trojan", "Trojan")
+o:value("vless", "VLESS")
 o:value("vmess", "VMess")
 
 -- Settings Blackhole
@@ -77,7 +91,7 @@ o.datatype = "port"
 -- Settings Freedom
 o = s:option(ListValue, "s_freedom_domain_strategy", "%s - %s" % { "Freedom", translate("Domain strategy") } )
 o:depends("protocol", "freedom")
-o:value("")
+o:value("",translate("None"))
 o:value("AsIs")
 o:value("UseIP")
 o:value("UseIPv4")
@@ -161,6 +175,38 @@ o = s:option(Value, "s_socks_user_level", "%s - %s" % { "Socks", translate("User
 o:depends("protocol", "socks")
 o.datatype = "uinteger"
 
+-- Settings - Trojan
+o = s:option(Value, "s_trojan_address", "%s - %s" % { "Trojan", translate("Address") })
+o:depends("protocol", "trojan")
+o.datatype = "host"
+
+o = s:option(Value, "s_trojan_port", "%s - %s" % { "Trojan", translate("Port") })
+o:depends("protocol", "trojan")
+o.datatype = "port"
+
+o = s:option(Value, "s_trojan_password", "%s - %s" % { "Trojan", translate("Password") })
+o:depends("protocol", "trojan")
+
+-- Settings - VLESS
+o = s:option(Value, "s_vless_address", "%s - %s" % { "VLESS", translate("Address") })
+o:depends("protocol", "vless")
+o.datatype = "host"
+
+o = s:option(Value, "s_vless_port", "%s - %s" % { "VLESS", translate("Port") })
+o:depends("protocol", "vless")
+o.datatype = "port"
+
+o = s:option(Value, "s_vless_user_id", "%s - %s" % { "VLESS", translate("User ID") })
+o:depends("protocol", "vless")
+
+o = s:option(ListValue, "s_vless_encryption", "%s - %s" % { "VLESS", translate("Encryption") } )
+o:depends("protocol", "vless")
+o:value("none", "none")
+
+o = s:option(Value, "s_vless_user_level", "%s - %s" % { "VLESS", translate("User level") })
+o:depends("protocol", "vless")
+o.datatype = "uinteger"
+
 -- Settings - VMess
 o = s:option(Value, "s_vmess_address", "%s - %s" % { "VMess", translate("Address") })
 o:depends("protocol", "vmess")
@@ -200,17 +246,33 @@ o:value("domainsocket", "Domain Socket")
 o:value("quic", "QUIC")
 
 o = s:option(ListValue, "ss_security", "%s - %s" % { translate("Stream settings"), translate("Security") })
-o:value("")
 o:value("none", translate("None"))
 o:value("tls", "TLS")
 
 -- Stream Settings - TLS
+--添加xTLS支持
+o = s:option(Flag, "ss_xtls_enabled", "%s - %s" % { "xTLS", translate("enable") },'xTLS <span style="text-decoration:underline;color: #ec8717;">Only</span> works under <span style="text-decoration:underline;color: #ec8717;">"Trojan/VLESS"</span> protocols through <span style="text-decoration:underline;color: #ec8717;">"TCP/mKCP/DomainSocket"</span> transportations' )
+o:depends("ss_security", "tls")
+
+--添加xTLS流控
+o = s:option(ListValue, "ss_xtls_flow", translate("Flow"))
+o:depends("ss_xtls_enabled",  true)
+o:value("xtls-rprx-direct", "xtls-rprx-direct")
+o:value("xtls-rprx-direct-udp443", "xtls-rprx-direct-udp443")
+o:value("xtls-rprx-origin", "xtls-rprx-origin")
+o:value("xtls-rprx-origin-udp443", "xtls-rprx-origin-udp443")
+o:value("xtls-rprx-splice", "xtls-rprx-splice")
+o:value("xtls-rprx-splice-udp443", "xtls-rprx-splice-udp443")
+
 o = s:option(Value, "ss_tls_server_name", "%s - %s" % { "TLS", translate("Server name") })
 o:depends("ss_security", "tls")
 
-o = s:option(Value, "ss_tls_alpn", "%s - %s" % { "TLS", "ALPN" })
+--添加 'h2' ALPN 选项
+o = s:option(ListValue, "ss_tls_alpn", "%s - %s" % { "TLS", "ALPN" })
 o:depends("ss_security", "tls")
-o.placeholder = "http/1.1"
+o:value("http/1.1", "http/1.1")
+o:value("h2", "h2")
+o:value("h2,http/1.1", "h2,http/1.1")
 
 o = s:option(Flag, "ss_tls_allow_insecure", "%s - %s" % { "TLS", translate("Allow insecure") })
 o:depends("ss_security", "tls")
@@ -365,6 +427,20 @@ o:value("wireguard", "WireGuard")
 o = s:option(Value, "ss_sockopt_mark", "%s - %s" % { translate("Sockopt"), translate("Mark") },
 	translate("If transparent proxy is enabled, this option is ignored and will be set to 255."))
 o.placeholder = "255"
+-- 添加 Socket Options的域名策略
+o = s:option(ListValue, "ss_sockopt_domainStrategy", "%s - %s" % { translate("Sockopt"), translate("Domain Strategy")})
+o:depends("protocol", "http")
+o:depends("protocol", "mtproto")
+o:depends("protocol", "shadowsocks")
+o:depends("protocol", "socks")
+o:depends("protocol", "trojan")
+o:depends("protocol", "vless")
+o:depends("protocol", "vmess")
+o:value("", translate("None"))
+o:value("AsIs")
+o:value("UseIP")
+o:value("UseIPv4")
+o:value("UseIPv6")
 
 o = s:option(ListValue, "ss_sockopt_tcp_fast_open", "%s - %s" % { translate("Sockopt"), translate("TCP fast open") })
 o:value("")
@@ -373,12 +449,22 @@ o:value("1", translate("True"))
 
 -- Other Settings
 o = s:option(Value, "tag", translate("Tag"))
-
-o = s:option(Value, "proxy_settings_tag", "%s - %s" % { translate("Proxy settings"), translate("Tag") })
+-- 不允许出站标签留空,便于管理
+o.rmempty = false
+	
+o = s:option(ListValue, "proxy_settings_tag", "%s - %s" % { translate("Proxy settings"), translate("Tag") })
+--自动获取出站代理标签, 避免误输入
+o:value("", translate("None"))
+for k , v in pairs(outbound_tag) do
+		o:value(k , v)
+end
 
 o = s:option(Flag, "mux_enabled", "%s - %s" % { translate("Mux"), translate("Enabled") })
-
+-- xTLS不支持mux,启用xTLS时禁用mux
+o:depends("ss_xtls_enabled", false)
+	
 o = s:option(Value, "mux_concurrency", "%s - %s" % { translate("Mux"), translate("Concurrency") })
+o:depends("mux_enabled", true)
 o.datatype = "uinteger"
 o.placeholder = "8"
 
