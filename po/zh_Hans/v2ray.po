@@ -1205,3 +1205,6 @@ msgstr "当 UDP 启用时，V2Ray 需要知道当前服务器的 IP 地址。"
 #: luasrc/model/cbi/v2ray/outbound-detail.lua:307
 msgid "Write buffer size"
 msgstr "写入缓冲区大小"
+
+msgid 'xTLS <span style="text-decoration:underline;color: #ec8717;">Only</span> works under <span style="text-decoration:underline;color: #ec8717;">"Trojan/VLESS"</span> protocols through <span style="text-decoration:underline;color: #ec8717;">"TCP/mKCP/DomainSocket"</span> transportations'
+msgstr 'xTLS暂时<span style="text-decoration:underline;color: #ec8717;">只能</span>在<span style="text-decoration:underline;color: #ec8717;">Trojan</span>或<span style="text-decoration:underline;color: #ec8717;">VLESS</span>协议下,通过<span style="text-decoration:underline;color: #ec8717;">TCP/mKCP/DomainSocket</span>等底层传输方式的情况下开启'
