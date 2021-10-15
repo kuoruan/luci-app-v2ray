@@ -288,6 +288,7 @@ inbound_section_validate() {
 		'ss_kcp_read_buffer_size:uinteger' \
 		'ss_kcp_write_buffer_size:uinteger' \
 		'ss_kcp_header_type:or("none", "srtp", "utp", "wechat-video", "dtls", "wireguard")' \
+		'ss_kcp_seed:string' \
 		'ss_websocket_path:string' \
 		'ss_websocket_headers:list(string)' \
 		'ss_http_host:list(host)' \
@@ -367,6 +368,7 @@ outbound_section_validate() {
 		'ss_kcp_read_buffer_size:uinteger' \
 		'ss_kcp_write_buffer_size:uinteger' \
 		'ss_kcp_header_type:or("none", "srtp", "utp", "wechat-video", "dtls", "wireguard")' \
+		'ss_kcp_seed:string' \
 		'ss_websocket_path:string' \
 		'ss_websocket_headers:list(string)' \
 		'ss_http_host:list(host)' \
@@ -1353,6 +1355,9 @@ add_inbound_setting() {
 				json_close_object # header
 			fi
 
+			test -n "$ss_kcp_seed" && \
+				json_add_string "seed" "$ss_kcp_seed"
+
 			json_close_object # kcpSettings
 			;;
 		"ws")
@@ -1781,6 +1786,9 @@ add_outbound_setting() {
 				json_add_string "type" "$ss_kcp_header_type"
 				json_close_object
 			fi
+
+			test -n "$ss_kcp_seed" && \
+				json_add_string "seed" "$ss_kcp_seed"
 
 			json_close_object # kcpSettings
 			;;
