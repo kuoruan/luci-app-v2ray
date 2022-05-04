@@ -524,6 +524,7 @@ add_v2ray_tproxy_rules() {
 
 		:V2RAY_MASK -
 		-A V2RAY_MASK -j RETURN -m mark --mark 0xff
+		-A V2RAY_MASK -j RETURN -o lo
 		-A V2RAY_MASK -j RETURN -m set --match-set $ipset_src_direct src
 		-A V2RAY_MASK -j RETURN -m set --match-set $ipset_dst_direct dst
 		-A V2RAY_MASK -p tcp $ext_args -j MARK --set-mark 1
