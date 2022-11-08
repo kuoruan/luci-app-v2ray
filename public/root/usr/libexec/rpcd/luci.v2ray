@@ -7,6 +7,8 @@
 . /usr/share/libubox/jshn.sh
 
 check_running_status() {
+  # here the stupid guy defines that 0 == running, 1 == not in running
+				
 	local pid="$(cat /var/run/v2ray.main.pid 2>/dev/null)"
 
 	if [ -z "$pid" ] ; then
