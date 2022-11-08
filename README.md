@@ -47,8 +47,14 @@ opkg upgrade luci-i18n-v2ray-zh-cn
 ### Manual install
 
 1. Download ipk files from [release](https://github.com/kuoruan/luci-app-v2ray/releases) page
+```
+wget https://github.com/kuoruan/luci-app-v2ray/releases/download/v2.0.0-1/luci-app-v2ray_2.0.0-1_all.ipk
+```
 
 2. Upload files to your router
+```
+scp luci-app-v2ray_2.0.0-1_all.ipk root@192.168.1.1:/root
+```
 
 3. Install package with opkg:
 
@@ -68,19 +74,23 @@ Dependencies:
 
 For translations, please install ```luci-i18n-v2ray-*```.
 
-> You may need to remove ```dnsmasq``` before installing this package.
+> You may need to remove ```dnsmasq``` before installing this package. (`opkg remove dnsmasq && opkg install dnsmasq-full`)
 
 ## Configure
 
-1. Download V2Ray file from V2Ray release [link](https://github.com/v2ray/v2ray-core/releases) or V2Ray ipk release [link](https://github.com/kuoruan/openwrt-v2ray/releases).
+1. Download V2Ray file from V2Ray release [link](https://github.com/v2fly/v2ray-core/releases/tag/v5.1.0) or .ipk file form [here](http://openwrt.kuoruan.net/packages/releases/).
 
-2. Upload V2Ray file to your router, or install the ipk file.
+2. Upload those files to your router, and install them.
 
-3. Config V2Ray file path in LuCI page.
+3. Config V2Ray file path in LuCI page (http://192.168.1.1/cgi-bin/luci/admin/services/v2ray).
 
-4. Add your inbound and outbound rules.
+4. Add your inbound and outbound rules (refer the v2ray docs for more information: https://www.v2ray.com/en/configuration/routing.html#routing).
 
 5. Enable the service via LuCI.
+
+> More info about how to manually install opkg file: https://yingshaoxo.blogspot.com/2022/11/how-to-install-opkg-package-manually.html
+
+> More info about how to do those operations in the shell (or terminal): https://yingshaoxo.blogspot.com/2022/11/master-linux-learn-more-commands-1.html
 
 ## Build
 
