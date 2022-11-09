@@ -78,7 +78,7 @@ For translations, please install ```luci-i18n-v2ray-*```.
 
 ## Configure
 
-1. Download V2Ray file from V2Ray release [link](https://github.com/v2fly/v2ray-core/releases/tag/v5.1.0) or .ipk file form [here](http://openwrt.kuoruan.net/packages/releases/).
+1. Download V2Ray5.0 file from V2Ray release [link](https://github.com/v2fly/v2ray-core/releases/tag/v5.1.0) or .ipk file form [here](http://openwrt.kuoruan.net/packages/releases/).
 
 2. Upload those files to your router, and install them.
 
@@ -91,6 +91,9 @@ For translations, please install ```luci-i18n-v2ray-*```.
 > More info about how to manually install opkg file: https://yingshaoxo.blogspot.com/2022/11/how-to-install-opkg-package-manually.html
 
 > More info about how to do those operations in the shell (or terminal): https://yingshaoxo.blogspot.com/2022/11/master-linux-learn-more-commands-1.html
+
+> More info about how to set transparent proxy with v2ray to open a VPN Wifi: 
+https://yingshaoxo.blogspot.com/2022/11/how-to-use-openwrtrouter-to-make-vpn.html
 
 ## Build
 
