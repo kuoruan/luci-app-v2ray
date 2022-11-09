@@ -7,6 +7,8 @@
 . /usr/share/libubox/jshn.sh
 
 check_running_status() {
+  # here the stupid guy defines that 0 == running, 1 == not in running
+				
 	local pid="$(cat /var/run/v2ray.main.pid 2>/dev/null)"
 
 	if [ -z "$pid" ] ; then
@@ -40,7 +42,7 @@ get_v2ray_version() {
 
 	test -x "$file" || chmod +x "$file"
 
-	local version="$(sh -c "$file --version 2>/dev/null | head -n1")"
+	local version="$(sh -c "$file version 2>/dev/null | head -n1")"
 
 	if [ -n "$version" ] ; then
 		printf '{ "code": 0, "version": "%s" }\n' "$version"
