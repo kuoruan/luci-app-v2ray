@@ -2244,5 +2244,5 @@ stop_service() {
 }
 
 service_triggers() {
-	procd_add_reload_trigger "$NAME"
+	procd_add_reload_trigger "$NAME" "firewall"
 }
