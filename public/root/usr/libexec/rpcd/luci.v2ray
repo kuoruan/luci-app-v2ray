@@ -40,7 +40,7 @@ get_v2ray_version() {
 
 	test -x "$file" || chmod +x "$file"
 
-	local version="$(sh -c "$file --version 2>/dev/null | head -n1")"
+	local version="$(sh -c "$file version 2>/dev/null | head -n1")"
 
 	if [ -n "$version" ] ; then
 		printf '{ "code": 0, "version": "%s" }\n' "$version"
